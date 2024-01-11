@@ -1,0 +1,51 @@
+name: 'Test multi-platform Docker images'
+run-name: '${{ github.ref_type }}_${{ github.ref_name }}@${{ github.triggering_actor }}'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-on-linux:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    container:
+      image: docker.io/developmententity/aws-cloud-tools:initial
+      options:
+        -v /dev:/dev
+
+    steps:
+      - name: 'Docker image test (amd64)'
+        run: |
+          aws --version
+          sam --version
+          helm version
+          kubectl version --client
+          terraform version
+          terragrunt --version
+
+  test-on-mac-via-colima:
+    runs-on: macos-latest
+    steps:
+      - name: 'Install Colima and Docker'
+        run: |
+          brew install docker docker-compose colima
+          colima start --arch arm64
+      - name: Docker info
+        run: |
+          docker info
+      - name: 'Pull Docker image from Docker Hub'
+        run: |
+          docker pull docker.io/developmententity/aws-cloud-tools:initial
+      - name: 'Run Docker image test (arm64)'
+        run: |
+          docker run --entrypoint "/bin/sh" --network=none --rm --name aws-cloud-test docker.io/developmententity/aws-cloud-tools:initial -c "aws --version | head -n 1"
+          docker run --entrypoint "/bin/sh" --network=none --rm --name aws-cloud-test docker.io/developmententity/aws-cloud-tools:initial -c "sam --version | head -n 1"
+          docker run --entrypoint "/bin/sh" --network=none --rm --name aws-cloud-test docker.io/developmententity/aws-cloud-tools:initial -c "helm version | head -n 1"
+          docker run --entrypoint "/bin/sh" --network=none --rm --name aws-cloud-test docker.io/developmententity/aws-cloud-tools:initial -c "kubectl version --client | head -n 1"
+          docker run --entrypoint "/bin/sh" --network=none --rm --name aws-cloud-test docker.io/developmententity/aws-cloud-tools:initial -c "terragrunt --version | head -n 1"

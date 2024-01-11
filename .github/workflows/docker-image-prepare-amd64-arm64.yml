@@ -1,0 +1,190 @@
+name: 'Prepare multi-platform Docker images'
+run-name: '${{ github.ref_type }}_${{ github.ref_name }}@${{ github.triggering_actor }}'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  schedule:
+    - cron: "45 22 * * *"
+  workflow_dispatch:
+    inputs:
+      AWS_CLI_VERSION:
+        description: 'AWS_CLI_VERSION (2.15.9)'
+        required: false
+        type: string
+      AWS_SAM_CLI_VERSION:
+        description: 'AWS_SAM_CLI_VERSION (v1.107.0)'
+        required: false
+        type: string
+      HELM_VERSION:
+        description: 'HELM_VERSION (v3.13.3)'
+        required: false
+        type: string
+      KUBECTL_VERSION:
+        description: 'KUBECTL_VERSION (v1.29.0)'
+        required: false
+        type: string
+      TERRAFORM_VERSION:
+        description: 'TERRAFORM_VERSION (1.6.6)'
+        required: false
+        type: string
+      TERRAGRUNT_VERSION:
+        description: 'TERRAGRUNT_VERSION (v0.54.15)'
+        required: false
+        type: string
+      CONTAINER_TAG:
+        description: 'CONTAINER_TAG (initial)'
+        required: false
+        type: string
+
+env:
+  GH_REGISTRY: ghcr.io
+  DH_REGISTRY: docker.io
+  TEST_TAG: test
+
+jobs:
+  docker-build-test-tag-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@main
+      - name: 'Set requested tools versions to GITHUB_ENV'
+        run: |
+          ./setvariables.sh
+          echo "CONTAINER_TAG=initial" >> ${GITHUB_ENV}
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            if [[ "${{ github.event.inputs.AWS_CLI_VERSION }}" != "" ]]; then
+              sed -i "s/AWS_CLI_VERSION=.*/AWS_CLI_VERSION=${{ github.event.inputs.AWS_CLI_VERSION }}/g" /tmp/github_env_tail
+            fi
+            if [[ "${{ github.event.inputs.AWS_SAM_CLI_VERSION }}" != "" ]]; then
+              sed -i "s/AWS_SAM_CLI_VERSION=.*/AWS_SAM_CLI_VERSION=${{ github.event.inputs.AWS_SAM_CLI_VERSION }}/g" /tmp/github_env_tail
+            fi
+            if [[ "${{ github.event.inputs.HELM_VERSION }}" != "" ]]; then
+              sed -i "s/HELM_VERSION=.*/HELM_VERSION=${{ github.event.inputs.HELM_VERSION }}/g" /tmp/github_env_tail
+            fi
+            if [[ "${{ github.event.inputs.KUBECTL_VERSION }}" != "" ]]; then
+              sed -i "s/KUBECTL_VERSION=.*/KUBECTL_VERSION=${{ github.event.inputs.KUBECTL_VERSION }}/g" /tmp/github_env_tail
+            fi
+            if [[ "${{ github.event.inputs.TERRAFORM_VERSION }}" != "" ]]; then
+              sed -i "s/TERRAFORM_VERSION=.*/TERRAFORM_VERSION=${{ github.event.inputs.TERRAFORM_VERSION }}/g" /tmp/github_env_tail
+            fi
+            if [[ "${{ github.event.inputs.TERRAGRUNT_VERSION }}" != "" ]]; then
+              sed -i "s/TERRAGRUNT_VERSION=.*/TERRAGRUNT_VERSION=${{ github.event.inputs.TERRAGRUNT_VERSION }}/g" /tmp/github_env_tail
+            fi
+            if [[ "${{ github.event.inputs.CONTAINER_TAG }}" != "" ]]; then
+              sed -i "s/CONTAINER_TAG=.*/CONTAINER_TAG=${{ github.event.inputs.CONTAINER_TAG }}/g" >> ${GITHUB_ENV}
+            fi
+          fi
+          ./setvariables.sh
+          cat /tmp/github_env_tail >> ${GITHUB_ENV}
+          echo "WORKSPACE_ROOT_DIR=${{ github.workspace }}/workspace" >> ${GITHUB_ENV}
+          echo "REPOSITORY_NAME=${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}" >> ${GITHUB_ENV}
+          echo "/tmp/github_env_tail:"
+          cat /tmp/github_env_tail
+          echo "GITHUB_ENV:"
+          cat ${GITHUB_ENV}
+      - name: 'Set up QEMU (arm64)'
+        if: ${{ env.VERSIONS_CHANGED == 1 }}
+        uses: docker/setup-qemu-action@master
+        with:
+          platforms: linux/arm64
+      - name: 'Set up Docker buildx'
+        if: ${{ env.VERSIONS_CHANGED == 1 }}
+        uses: docker/setup-buildx-action@master
+        with:
+          version: latest
+          driver-opts: |
+            network=host
+            image=moby/buildkit:master
+      - name: 'Login to GitHub Container Registry'
+        if: ${{ env.VERSIONS_CHANGED == 1 }}
+        uses: docker/login-action@master
+        with:
+          registry: ${{ env.GH_REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GH_TOKEN }}
+          ecr: false
+          logout: true
+      - name: 'Login to DockerHub Container Registry'
+        if: ${{ env.VERSIONS_CHANGED == 1 }}
+        uses: docker/login-action@master
+        with:
+          registry: ${{ env.DH_REGISTRY }}
+          username: ${{ secrets.DH_USER }}
+          password: ${{ secrets.DH_TOKEN }}
+          ecr: false
+          logout: true
+      - name: 'Build multi-platforms Docker images'
+        if: ${{ env.VERSIONS_CHANGED == 1 }}
+        uses: docker/build-push-action@master
+        with:
+          context: .
+          file: ./Dockerfile
+          build-args: |
+            AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}
+            AWS_SAM_CLI_VERSION=${{ env.AWS_SAM_CLI_VERSION }}
+            TERRAFORM_VERSION=${{ env.TERRAFORM_VERSION }}
+            HELM_VERSION=${{ env.HELM_VERSION }}
+            KUBECTL_VERSION=${{ env.KUBECTL_VERSION }}
+            WORKSPACE_ROOT_DIR=${{ env.WORKSPACE_ROOT_DIR }}
+          load: false
+          no-cache: true
+          platforms: linux/amd64,linux/arm64
+      - name: 'Load Docker image (amd64)'
+        if: ${{ env.VERSIONS_CHANGED == 1 }}
+        uses: docker/build-push-action@master
+        with:
+          context: .
+          file: ./Dockerfile
+          build-args: |
+            AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}
+            AWS_SAM_CLI_VERSION=${{ env.AWS_SAM_CLI_VERSION }}
+            TERRAFORM_VERSION=${{ env.TERRAFORM_VERSION }}
+            HELM_VERSION=${{ env.HELM_VERSION }}
+            KUBECTL_VERSION=${{ env.KUBECTL_VERSION }}
+            WORKSPACE_ROOT_DIR=${{ env.WORKSPACE_ROOT_DIR }}
+          load: true
+          no-cache: true
+          tags: ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }}
+          platforms: linux/amd64
+      - name: 'Test Docker image (amd64)'
+        if: ${{ env.VERSIONS_CHANGED == 1 }}
+        run: |
+          docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "aws --version"
+          docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "sam --version"
+          docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "helm version"
+          docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "kubectl version --client"
+          docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "terraform version"
+          docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "terragrunt --version"
+      - name: 'Tag and push multi-platforms Docker images to preconfigured container registries'
+        if: ${{ env.VERSIONS_CHANGED == 1 }}
+        uses: docker/build-push-action@master
+        with:
+          context: .
+          file: ./Dockerfile
+          build-args: |
+            AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}
+            AWS_SAM_CLI_VERSION=${{ env.AWS_SAM_CLI_VERSION }}
+            TERRAFORM_VERSION=${{ env.TERRAFORM_VERSION }}
+            HELM_VERSION=${{ env.HELM_VERSION }}
+            KUBECTL_VERSION=${{ env.KUBECTL_VERSION }}
+            WORKSPACE_ROOT_DIR=${{ env.WORKSPACE_ROOT_DIR }}
+          push: true
+          no-cache: true
+          github-token: ${{ secrets.GH_TOKEN }}
+          secrets: |
+            GIT_AUTH_TOKEN=${{ secrets.GH_TOKEN }}
+          tags: |
+            ${{ secrets.DH_USER }}/${{ env.REPOSITORY_NAME }}:${{ env.CONTAINER_TAG }}
+            ${{ env.GH_REGISTRY }}/${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.CONTAINER_TAG }}
+          platforms: linux/amd64,linux/arm64
+      - name: 'Push git changes'
+        if: ${{ env.VERSIONS_CHANGED == 1 }}
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GH_TOKEN }}
