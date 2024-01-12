@@ -20,6 +20,9 @@ ARG HELM_VERSION=v3.13.3
 # kubectl version
 ARG KUBECTL_VERSION=v1.29.0
 
+# kops version
+ARG KOPS_VERSION=v1.28.2
+
 # Terraform version
 ARG TERRAFORM_VERSION=1.6.6
 
@@ -105,6 +108,27 @@ RUN mkdir -v "${WORKSPACE_ROOT_DIR}/helm" && tar -zxf "helm-${HELM_VERSION}-${TA
 
 
 # container as builder for preparing AWS cloud tools
+FROM aws-cloud-tools-builder AS aws-cloud-tools-kops-builder
+
+LABEL stage="aws-cloud-tools-kubectl-builder" \
+      description="Debian-based container builder for preparing AWS cloud tool kops CLI"
+
+ARG TARGETOS
+ARG TARGETARCH
+ARG KOPS_VERSION
+
+ARG WORKSPACE_ROOT_DIR
+
+WORKDIR "${WORKSPACE_ROOT_DIR}"
+
+# download kubectl CLI binary file
+ADD "https://github.com/kubernetes/kops/releases/download/${KOPS_VERSION}/kops-${TARGETOS}-${TARGETARCH}" "${WORKSPACE_ROOT_DIR}/"
+
+# install kubectl
+RUN install -v -o root -g root -m 0755 "${WORKSPACE_ROOT_DIR}/kops-${TARGETOS}-${TARGETARCH}" "/usr/local/bin/kops"
+
+
+# container as builder for preparing AWS cloud tools
 FROM aws-cloud-tools-builder AS aws-cloud-tools-kubectl-builder
 
 LABEL stage="aws-cloud-tools-kubectl-builder" \
@@ -163,7 +187,7 @@ WORKDIR "${WORKSPACE_ROOT_DIR}"
 # download kubectl CLI binary file
 ADD "https://github.com/gruntwork-io/terragrunt/releases/download/${TERRAGRUNT_VERSION}/terragrunt_${TARGETOS}_${TARGETARCH}" "${WORKSPACE_ROOT_DIR}/"
 
-# install kubectl
+# install terragrunt CLI
 RUN install -v -o root -g root -m 0755 "${WORKSPACE_ROOT_DIR}/terragrunt_${TARGETOS}_${TARGETARCH}" "/usr/local/bin/terragrunt"
 
 
@@ -187,6 +211,7 @@ COPY --from=aws-cloud-tools-aws-cli-builder "/usr/local/bin/" "/usr/local/bin/"
 COPY --from=aws-cloud-tools-aws-sam-cli-builder "/usr/local/aws-sam-cli" "/usr/local/aws-sam-cli"
 COPY --from=aws-cloud-tools-aws-sam-cli-builder "/usr/local/bin/" "/usr/local/bin/"
 COPY --from=aws-cloud-tools-helm-builder "/usr/local/bin/" "/usr/local/bin/"
+COPY --from=aws-cloud-tools-kops-builder "/usr/local/bin/" "/usr/local/bin/"
 COPY --from=aws-cloud-tools-kubectl-builder "/usr/local/bin/" "/usr/local/bin/"
 COPY --from=aws-cloud-tools-terraform-builder "/usr/local/bin/" "/usr/local/bin/"
 COPY --from=aws-cloud-tools-terragrunt-builder "/usr/local/bin/" "/usr/local/bin/"
@@ -209,6 +234,7 @@ RUN groupadd --gid 1000 ${CONTAINER_USER} && \
          "ServerAliveInterval 15\n" > "/home/${CONTAINER_USER}/.ssh/config" && \
 # enable HELM, AWS CLI, TF completion
     helm completion bash > "/usr/share/bash-completion/completions/helm" && \
+    kops completion bash > "/usr/share/bash-completion/completions/kops" && \
     kubectl completion bash > "/usr/share/bash-completion/completions/kubectl" && \
     echo "complete -C /usr/local/bin/aws_completer aws" > "/usr/share/bash-completion/completions/aws" && \
     echo "complete -C /usr/local/bin/terraform terraform" > "/usr/share/bash-completion/completions/terraform" && \

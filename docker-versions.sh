@@ -30,6 +30,10 @@ echo -ne "HELM_VERSION="
 HELM_VERSION_STR=$(${DOCKER_CMD} "helm version --short")
 echo "${HELM_VERSION_STR}" | awk -F'+' '{print $1}'
 
+echo -ne "KOPS_VERSION="
+KOPS_VERSION_STR=$(${DOCKER_CMD} "kops version")
+echo "${KOPS_VERSION_STR}" | awk -F'git-' 'NR==1 {print $2}' | sed 's/)//'
+
 echo -ne "KUBECTL_VERSION="
 KUBECTL_VERSION_STR=$(${DOCKER_CMD} "kubectl version --client")
 echo "${KUBECTL_VERSION_STR}" | awk -F': ' 'NR==1 {print $2}'
@@ -39,5 +43,5 @@ TERRAFORM_VERSION_STR=$(${DOCKER_CMD} "terraform version")
 echo "${TERRAFORM_VERSION_STR}" | awk -F'v' 'NR==1 {print $2}'
 
 echo -ne "TERRAGRUNT_VERSION="
-TERRAFORM_VERSION_STR=$(${DOCKER_CMD} "terragrunt --version")
+TERRAGRUNT_VERSION_STR=$(${DOCKER_CMD} "terragrunt --version")
 echo "${TERRAGRUNT_VERSION_STR}" | awk -F'v' 'NR==1 {print $2}'

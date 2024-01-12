@@ -9,6 +9,9 @@
 #
 cwd=$(dirname $(realpath "${0}"))
 
+# directory for storing capture of pushed versions
+PUSHED_VERSIONS_FILE_DIR=$(mktemp -d)
+
 # set variables
 source "${cwd}/setvariables.sh"
 
@@ -16,9 +19,6 @@ source "${cwd}/setvariables.sh"
 if [ -f "${GITHUB_ENV_TAIL_FILE}" ]; then
   rm -f "${GITHUB_ENV_TAIL_FILE}"
 fi
-
-# directory for storing capture of pushed versions
-PUSHED_VERSIONS_FILE_DIR=$(mktemp -d)
 
 # cleanup
 trap 'rm -fr "${PUSHED_VERSIONS_FILE_DIR}"' EXIT
@@ -45,6 +45,7 @@ docker buildx build --no-cache \
                     --build-arg AWS_CLI_VERSION=${AWS_CLI_VERSION} \
                     --build-arg AWS_SAM_CLI_VERSION=${AWS_SAM_CLI_VERSION} \
                     --build-arg HELM_VERSION=${HELM_VERSION} \
+                    --build-arg KOPS_VERSION=${KOPS_VERSION} \
                     --build-arg KUBECTL_VERSION=${KUBECTL_VERSION} \
                     --build-arg TERRAFORM_VERSION=${TERRAFORM_VERSION} \
                     --build-arg TERRAGRUNT_VERSION=${TERRAGRUNT_VERSION} \

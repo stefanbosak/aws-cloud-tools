@@ -22,6 +22,10 @@ on:
         description: 'HELM_VERSION (v3.13.3)'
         required: false
         type: string
+      KOPS_VERSION:
+        description: 'KOPS_VERSION (v1.28.2)'
+        required: false
+        type: string
       KUBECTL_VERSION:
         description: 'KUBECTL_VERSION (v1.29.0)'
         required: false
@@ -66,6 +70,9 @@ jobs:
             fi
             if [[ "${{ github.event.inputs.HELM_VERSION }}" != "" ]]; then
               sed -i "s/HELM_VERSION=.*/HELM_VERSION=${{ github.event.inputs.HELM_VERSION }}/g" /tmp/github_env_tail
+            fi
+            if [[ "${{ github.event.inputs.KOPS_VERSION }}" != "" ]]; then
+              sed -i "s/KOPS_VERSION=.*/KOPS_VERSION=${{ github.event.inputs.KOPS_VERSION }}/g" /tmp/github_env_tail
             fi
             if [[ "${{ github.event.inputs.KUBECTL_VERSION }}" != "" ]]; then
               sed -i "s/KUBECTL_VERSION=.*/KUBECTL_VERSION=${{ github.event.inputs.KUBECTL_VERSION }}/g" /tmp/github_env_tail
@@ -129,6 +136,7 @@ jobs:
             AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}
             AWS_SAM_CLI_VERSION=${{ env.AWS_SAM_CLI_VERSION }}
             HELM_VERSION=${{ env.HELM_VERSION }}
+            KOPS_VERSION=${{ env.KOPS_VERSION }}
             KUBECTL_VERSION=${{ env.KUBECTL_VERSION }}
             TERRAFORM_VERSION=${{ env.TERRAFORM_VERSION }}
             TERRAGRUNT_VERSION=${{ env.TERRAGRUNT_VERSION }}
@@ -146,6 +154,7 @@ jobs:
             AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}
             AWS_SAM_CLI_VERSION=${{ env.AWS_SAM_CLI_VERSION }}
             HELM_VERSION=${{ env.HELM_VERSION }}
+            KOPS_VERSION=${{ env.KOPS_VERSION }}
             KUBECTL_VERSION=${{ env.KUBECTL_VERSION }}
             TERRAFORM_VERSION=${{ env.TERRAFORM_VERSION }}
             TERRAGRUNT_VERSION=${{ env.TERRAGRUNT_VERSION }}
@@ -160,6 +169,7 @@ jobs:
           docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "aws --version"
           docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "sam --version"
           docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "helm version"
+          docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "kops version"
           docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "kubectl version --client"
           docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "terraform version"
           docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "terragrunt --version"
@@ -173,6 +183,7 @@ jobs:
             AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}
             AWS_SAM_CLI_VERSION=${{ env.AWS_SAM_CLI_VERSION }}
             HELM_VERSION=${{ env.HELM_VERSION }}
+            KOPS_VERSION=${{ env.KOPS_VERSION }}
             KUBECTL_VERSION=${{ env.KUBECTL_VERSION }}
             TERRAFORM_VERSION=${{ env.TERRAFORM_VERSION }}
             TERRAGRUNT_VERSION=${{ env.TERRAGRUNT_VERSION }}

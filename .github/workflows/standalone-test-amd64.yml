@@ -31,6 +31,7 @@ jobs:
           aws --version | head -n 1
           sam --version | head -n 1
           helm version | head -n 1
+          kops version | head -n 1
           kubectl version --client | head -n 1
           terraform version | head -n 1
           terragrunt --version | head -n 1

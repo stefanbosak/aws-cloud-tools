@@ -30,6 +30,7 @@ declare -A resources_dictionary
 resources_dictionary["AWS_CLI_VERSION"]="aws/aws-cli"
 resources_dictionary["AWS_SAM_CLI_VERSION"]="aws/aws-sam-cli"
 resources_dictionary["HELM_VERSION"]="helm/helm"
+resources_dictionary["KOPS_VERSION"]="kubernetes/kops"
 resources_dictionary["KUBECTL_VERSION"]="kubernetes/kubernetes"
 resources_dictionary["TERRAFORM_VERSION"]="hashicorp/terraform"
 resources_dictionary["TERRAGRUNT_VERSION"]="gruntwork-io/terragrunt"

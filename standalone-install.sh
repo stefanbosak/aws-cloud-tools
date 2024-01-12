@@ -7,6 +7,9 @@
 #
 cwd=$(dirname $(realpath "${0}"))
 
+# directory for storing capture of pushed versions
+PUSHED_VERSIONS_FILE_DIR=$(mktemp -d)
+
 # set variables
 source "${cwd}/setvariables.sh"
 
@@ -14,9 +17,6 @@ source "${cwd}/setvariables.sh"
 if [ -f "${GITHUB_ENV_TAIL_FILE}" ]; then
   rm -f "${GITHUB_ENV_TAIL_FILE}"
 fi
-
-# directory for storing capture of pushed versions
-PUSHED_VERSIONS_FILE_DIR=$(mktemp -d)
 
 # set variables
 source "${cwd}/setvariables.sh"
@@ -46,7 +46,7 @@ fi
 # uninstallation
 if [ "${1}" == "-u" ]; then
   # list of applications supported by this standalone-install script
-  declare -a applications_array=("aws" "aws_completer" "sam" "helm" "kubectl" "terraform" "terragrunt")
+  declare -a applications_array=("aws" "aws_completer" "sam" "helm" "kops" "kubectl" "terraform" "terragrunt")
 
   echo "Removing applications installed by ${cwd}/${0}..."
 
@@ -104,6 +104,7 @@ declare -A resources_dictionary
 
 resources_dictionary["awscli"]="${AWS_CLI_URI}"
 resources_dictionary["aws-sam-cli"]="${AWS_SAM_CLI_URI}"
+resources_dictionary["kops"]="https://github.com/kubernetes/kops/releases/download/${KOPS_VERSION}/kops-${TARGETOS}-${TARGETARCH}"
 resources_dictionary["kubectl"]="https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${TARGETARCH}/kubectl"
 resources_dictionary["helm"]="https://get.helm.sh/helm-${HELM_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz"
 resources_dictionary["terraform"]="https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_${TARGETOS}_${TARGETARCH}.zip"
@@ -164,6 +165,17 @@ else
   exit 1
 fi
 
+# install kops
+echo "Installing kops CLI..."
+bash -c "install -v -o root -g root -m 0755 ${WORKSPACE_ROOT_DIR}/kops-${TARGETOS}-${TARGETARCH} /usr/local/bin/kops"
+
+if [ ${?} -eq 0 ]; then
+  echo "Tool kops has been installed successfully"
+else
+  echo "Tool kops has not been installed, terminating"
+  exit 1
+fi
+
 # install kubectl
 echo "Installing kubectl CLI..."
 bash -c "install -v -o root -g root -m 0755 ${WORKSPACE_ROOT_DIR}/kubectl /usr/local/bin/"
@@ -205,6 +217,9 @@ bash -c "mv ${WORKSPACE_ROOT_DIR}/sam_completion ${bash_completion_dir}/sam"
 
 echo "Enabling completion for HELM CLI..."
 bash -c "helm completion bash > ${bash_completion_dir}/helm"
+
+echo "Enabling completion for kops CLI..."
+bash -c "kops completion bash > ${bash_completion_dir}/kops"
 
 echo "Enabling completion for kubectl CLI..."
 bash -c "kubectl completion bash > ${bash_completion_dir}/kubectl"
