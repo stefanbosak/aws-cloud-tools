@@ -44,9 +44,10 @@ docker buildx build --no-cache \
                     --build-arg TARGETOS=${TARGETOS} \
                     --build-arg AWS_CLI_VERSION=${AWS_CLI_VERSION} \
                     --build-arg AWS_SAM_CLI_VERSION=${AWS_SAM_CLI_VERSION} \
-                    --build-arg TERRAFORM_VERSION=${TERRAFORM_VERSION} \
                     --build-arg HELM_VERSION=${HELM_VERSION} \
                     --build-arg KUBECTL_VERSION=${KUBECTL_VERSION} \
+                    --build-arg TERRAFORM_VERSION=${TERRAFORM_VERSION} \
+                    --build-arg TERRAGRUNT_VERSION=${TERRAGRUNT_VERSION} \
                     --build-arg WORKSPACE_ROOT_DIR=${WORKSPACE_ROOT_DIR} \
                     -t "${CONTAINER_NAME}${CONTAINER_TAG}" -f "${cwd}/Dockerfile" "${cwd}"
 
