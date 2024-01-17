@@ -42,7 +42,7 @@ WORKDIR "${WORKSPACE_ROOT_DIR}"
 
 # install required packages and additional applications
 RUN apt-get update && \
-    apt-get -y --no-install-recommends install ca-certificates curl unzip && \
+    apt-get -y --no-install-recommends install ca-certificates binutils curl unzip && \
     apt-get clean && rm -rf "/var/lib/apt/lists/*"
 
 
@@ -60,11 +60,14 @@ ARG WORKSPACE_ROOT_DIR
 
 WORKDIR "${WORKSPACE_ROOT_DIR}"
 
-# download and install AWS CLI
+# download and install AWS CLI, AWS session-manager-plugin
 RUN uri=$(echo "https://awscli.amazonaws.com/awscli-exe-${TARGETOS}-${TARGETARCH}-${AWS_CLI_VERSION}.zip" | sed -e 's/amd64/x86_64/g' -e 's/arm64/aarch64/g') && curl -sSL "${uri}" -o "awscli.zip" && \
     mkdir -v "${WORKSPACE_ROOT_DIR}/awscli" && unzip "awscli.zip" -d "${WORKSPACE_ROOT_DIR}/awscli" && \
-    "${WORKSPACE_ROOT_DIR}/awscli/aws/install" --install-dir "/usr/local/aws-cli" --bin-dir "/usr/local/bin"
-
+    "${WORKSPACE_ROOT_DIR}/awscli/aws/install" --install-dir "/usr/local/aws-cli" --bin-dir "/usr/local/bin" && \
+    uri=$(echo "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_${TARGETARCH}/session-manager-plugin.deb" | sed -e 's/amd64/64bit/g') && curl -sSLO "${uri}" && \
+    ar x "${WORKSPACE_ROOT_DIR}/session-manager-plugin.deb" && \
+    tar -xvf data.tar.gz -C "${WORKSPACE_ROOT_DIR}" && \
+    mv "${WORKSPACE_ROOT_DIR}/usr/local/sessionmanagerplugin/bin/session-manager-plugin" "/usr/local/bin"
 
 # container as builder for preparing AWS cloud tools
 FROM aws-cloud-tools-builder AS aws-cloud-tools-aws-sam-cli-builder
@@ -248,7 +251,7 @@ RUN groupadd --gid 1000 ${CONTAINER_USER} && \
                                                openssh-client autossh \
                                                iputils-ping iproute2 mtr nmap \
                                                mariadb-client postgresql-client sqlite3 \
-                                               dnsutils whois \
+                                               dnsutils whois dialog \
                                                bc inotify-tools git jq less locales \
                                                bash-completion nano screen tmux && \
     apt-get clean && rm -rf "/var/lib/apt/lists/*" && \

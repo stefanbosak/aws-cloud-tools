@@ -74,17 +74,26 @@ if [ "${1}" == "-u" ]; then
 fi
 
 # install required packages
-declare -a tools_array=("curl" "unzip")
+declare -a tools_array=("curl" "dialog" "unzip")
 
 for tool in "${tools_array[@]}"; do
   if [ -z "$(which ${tool})" ]; then
     echo -ne "Installing ${tool}..."
 
     if [ -f "/etc/debian_version" ]; then
+      LINUX_DISTRIBUTION="ubuntu"
+      PACKAGE_MANAGER_SUFFIX="deb"
+      PACKAGE_MANAGER_CMD="dpkg -i"
       apt-get -y --no-install-recommends install "${tool}"
     elif [ -f "/etc/redhat-release" ]; then
+      LINUX_DISTRIBUTION="linux"
+      PACKAGE_MANAGER_SUFFIX="rpm"
+      PACKAGE_MANAGER_CMD="rpm -i"
       rpm --nosuggest install unzip
     elif [ -f "/etc/centos-release" ]; then
+      LINUX_DISTRIBUTION="linux"
+      PACKAGE_MANAGER_SUFFIX="rpm"
+      PACKAGE_MANAGER_CMD="yum localinstall"
       yum install "${tool}"
     fi
 
@@ -98,12 +107,14 @@ done
 # handle downloading of AWS resources specificly due to AWS inconsistent naming of architectures
 AWS_CLI_URI=$(echo "https://awscli.amazonaws.com/awscli-exe-${TARGETOS}-${TARGETARCH}-${AWS_CLI_VERSION}.zip" | sed -e 's/amd64/x86_64/g' -e 's/arm64/aarch64/g')
 AWS_SAM_CLI_URI=$(echo "https://github.com/aws/aws-sam-cli/releases/download/${AWS_SAM_CLI_VERSION}/aws-sam-cli-${TARGETOS}-${TARGETARCH}.zip" | sed 's/amd64/x86_64/g')
+AWS_SESSION_MANAGER_PLUGIN_URI=$(echo "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/${LINUX_DISTRIBUTION}_${TARGETARCH}/session-manager-plugin.${PACKAGE_MANAGER_SUFFIX}" | sed -e 's/amd64/64bit/g')
 
 # dictionary of resources for download
 declare -A resources_dictionary
 
 resources_dictionary["awscli"]="${AWS_CLI_URI}"
 resources_dictionary["aws-sam-cli"]="${AWS_SAM_CLI_URI}"
+resources_dictionary["session-manager-plugin"]="${AWS_SESSION_MANAGER_PLUGIN_URI}"
 resources_dictionary["kops"]="https://github.com/kubernetes/kops/releases/download/${KOPS_CLI_VERSION}/kops-${TARGETOS}-${TARGETARCH}"
 resources_dictionary["kubectl"]="https://dl.k8s.io/release/${KUBECTL_CLI_VERSION}/bin/linux/${TARGETARCH}/kubectl"
 resources_dictionary["helm"]="https://get.helm.sh/helm-${HELM_CLI_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz"
@@ -139,6 +150,17 @@ if [ ${?} -eq 0 ]; then
   echo "Tool awscli has been installed successfully"
 else
   echo "Tool awscli has not been installed, terminating"
+  exit 1
+fi
+
+# install AWS session manager plugin
+echo "Installing AWS session manager plugin..."
+${PACKAGE_MANAGER_CMD} "session-manager-plugin.${PACKAGE_MANAGER_SUFFIX}"
+
+if [ ${?} -eq 0 ]; then
+  echo "Tool aws session manager plugin has been installed successfully"
+else
+  echo "Tool aws session manager plugin has not been installed, terminating"
   exit 1
 fi
 
