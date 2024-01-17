@@ -18,24 +18,24 @@ on:
         description: 'AWS_SAM_CLI_VERSION (v1.107.0)'
         required: false
         type: string
-      HELM_VERSION:
-        description: 'HELM_VERSION (v3.13.3)'
+      HELM_CLI_VERSION:
+        description: 'HELM_CLI_VERSION (v3.13.3)'
         required: false
         type: string
-      KOPS_VERSION:
-        description: 'KOPS_VERSION (v1.28.2)'
+      KOPS_CLI_VERSION:
+        description: 'KOPS_CLI_VERSION (v1.28.2)'
         required: false
         type: string
-      KUBECTL_VERSION:
-        description: 'KUBECTL_VERSION (v1.29.0)'
+      KUBECTL_CLI_VERSION:
+        description: 'KUBECTL_CLI_VERSION (v1.29.0)'
         required: false
         type: string
-      TERRAFORM_VERSION:
-        description: 'TERRAFORM_VERSION (1.6.6)'
+      TERRAFORM_CLI_VERSION:
+        description: 'TERRAFORM_CLI_VERSION (1.6.6)'
         required: false
         type: string
-      TERRAGRUNT_VERSION:
-        description: 'TERRAGRUNT_VERSION (v0.54.15)'
+      TERRAGRUNT_CLI_VERSION:
+        description: 'TERRAGRUNT_CLI_VERSION (v0.54.15)'
         required: false
         type: string
       CONTAINER_TAG:
@@ -68,20 +68,20 @@ jobs:
             if [[ "${{ github.event.inputs.AWS_SAM_CLI_VERSION }}" != "" ]]; then
               sed -i "s/AWS_SAM_CLI_VERSION=.*/AWS_SAM_CLI_VERSION=${{ github.event.inputs.AWS_SAM_CLI_VERSION }}/g" /tmp/github_env_tail
             fi
-            if [[ "${{ github.event.inputs.HELM_VERSION }}" != "" ]]; then
-              sed -i "s/HELM_VERSION=.*/HELM_VERSION=${{ github.event.inputs.HELM_VERSION }}/g" /tmp/github_env_tail
+            if [[ "${{ github.event.inputs.HELM_CLI_VERSION }}" != "" ]]; then
+              sed -i "s/HELM_CLI_VERSION=.*/HELM_CLI_VERSION=${{ github.event.inputs.HELM_CLI_VERSION }}/g" /tmp/github_env_tail
             fi
-            if [[ "${{ github.event.inputs.KOPS_VERSION }}" != "" ]]; then
-              sed -i "s/KOPS_VERSION=.*/KOPS_VERSION=${{ github.event.inputs.KOPS_VERSION }}/g" /tmp/github_env_tail
+            if [[ "${{ github.event.inputs.KOPS_CLI_VERSION }}" != "" ]]; then
+              sed -i "s/KOPS_CLI_VERSION=.*/KOPS_CLI_VERSION=${{ github.event.inputs.KOPS_CLI_VERSION }}/g" /tmp/github_env_tail
             fi
-            if [[ "${{ github.event.inputs.KUBECTL_VERSION }}" != "" ]]; then
-              sed -i "s/KUBECTL_VERSION=.*/KUBECTL_VERSION=${{ github.event.inputs.KUBECTL_VERSION }}/g" /tmp/github_env_tail
+            if [[ "${{ github.event.inputs.KUBECTL_CLI_VERSION }}" != "" ]]; then
+              sed -i "s/KUBECTL_CLI_VERSION=.*/KUBECTL_CLI_VERSION=${{ github.event.inputs.KUBECTL_CLI_VERSION }}/g" /tmp/github_env_tail
             fi
-            if [[ "${{ github.event.inputs.TERRAFORM_VERSION }}" != "" ]]; then
-              sed -i "s/TERRAFORM_VERSION=.*/TERRAFORM_VERSION=${{ github.event.inputs.TERRAFORM_VERSION }}/g" /tmp/github_env_tail
+            if [[ "${{ github.event.inputs.TERRAFORM_CLI_VERSION }}" != "" ]]; then
+              sed -i "s/TERRAFORM_CLI_VERSION=.*/TERRAFORM_CLI_VERSION=${{ github.event.inputs.TERRAFORM_CLI_VERSION }}/g" /tmp/github_env_tail
             fi
-            if [[ "${{ github.event.inputs.TERRAGRUNT_VERSION }}" != "" ]]; then
-              sed -i "s/TERRAGRUNT_VERSION=.*/TERRAGRUNT_VERSION=${{ github.event.inputs.TERRAGRUNT_VERSION }}/g" /tmp/github_env_tail
+            if [[ "${{ github.event.inputs.TERRAGRUNT_CLI_VERSION }}" != "" ]]; then
+              sed -i "s/TERRAGRUNT_CLI_VERSION=.*/TERRAGRUNT_CLI_VERSION=${{ github.event.inputs.TERRAGRUNT_CLI_VERSION }}/g" /tmp/github_env_tail
             fi
             if [[ "${{ github.event.inputs.CONTAINER_TAG }}" != "" ]]; then
               sed -i "s/CONTAINER_TAG=.*/CONTAINER_TAG=${{ github.event.inputs.CONTAINER_TAG }}/g" >> ${GITHUB_ENV}
@@ -96,12 +96,12 @@ jobs:
           echo "GITHUB_ENV:"
           cat ${GITHUB_ENV}
       - name: 'Set up QEMU (arm64)'
-        if: ${{ env.VERSIONS_CHANGED == 1 }}
+        if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
         uses: docker/setup-qemu-action@master
         with:
           platforms: linux/arm64
       - name: 'Set up Docker buildx'
-        if: ${{ env.VERSIONS_CHANGED == 1 }}
+        if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
         uses: docker/setup-buildx-action@master
         with:
           version: latest
@@ -109,7 +109,7 @@ jobs:
             network=host
             image=moby/buildkit:master
       - name: 'Login to GitHub Container Registry'
-        if: ${{ env.VERSIONS_CHANGED == 1 }}
+        if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
         uses: docker/login-action@master
         with:
           registry: ${{ env.GH_REGISTRY }}
@@ -118,7 +118,7 @@ jobs:
           ecr: false
           logout: true
       - name: 'Login to DockerHub Container Registry'
-        if: ${{ env.VERSIONS_CHANGED == 1 }}
+        if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
         uses: docker/login-action@master
         with:
           registry: ${{ env.DH_REGISTRY }}
@@ -127,7 +127,7 @@ jobs:
           ecr: false
           logout: true
       - name: 'Build multi-platforms Docker images'
-        if: ${{ env.VERSIONS_CHANGED == 1 }}
+        if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
         uses: docker/build-push-action@master
         with:
           context: .
@@ -135,17 +135,17 @@ jobs:
           build-args: |
             AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}
             AWS_SAM_CLI_VERSION=${{ env.AWS_SAM_CLI_VERSION }}
-            HELM_VERSION=${{ env.HELM_VERSION }}
-            KOPS_VERSION=${{ env.KOPS_VERSION }}
-            KUBECTL_VERSION=${{ env.KUBECTL_VERSION }}
-            TERRAFORM_VERSION=${{ env.TERRAFORM_VERSION }}
-            TERRAGRUNT_VERSION=${{ env.TERRAGRUNT_VERSION }}
+            HELM_CLI_VERSION=${{ env.HELM_CLI_VERSION }}
+            KOPS_CLI_VERSION=${{ env.KOPS_CLI_VERSION }}
+            KUBECTL_CLI_VERSION=${{ env.KUBECTL_CLI_VERSION }}
+            TERRAFORM_CLI_VERSION=${{ env.TERRAFORM_CLI_VERSION }}
+            TERRAGRUNT_CLI_VERSION=${{ env.TERRAGRUNT_CLI_VERSION }}
             WORKSPACE_ROOT_DIR=${{ env.WORKSPACE_ROOT_DIR }}
           load: false
           no-cache: true
           platforms: linux/amd64,linux/arm64
       - name: 'Load Docker image (amd64)'
-        if: ${{ env.VERSIONS_CHANGED == 1 }}
+        if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
         uses: docker/build-push-action@master
         with:
           context: .
@@ -153,18 +153,18 @@ jobs:
           build-args: |
             AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}
             AWS_SAM_CLI_VERSION=${{ env.AWS_SAM_CLI_VERSION }}
-            HELM_VERSION=${{ env.HELM_VERSION }}
-            KOPS_VERSION=${{ env.KOPS_VERSION }}
-            KUBECTL_VERSION=${{ env.KUBECTL_VERSION }}
-            TERRAFORM_VERSION=${{ env.TERRAFORM_VERSION }}
-            TERRAGRUNT_VERSION=${{ env.TERRAGRUNT_VERSION }}
+            HELM_CLI_VERSION=${{ env.HELM_CLI_VERSION }}
+            KOPS_CLI_VERSION=${{ env.KOPS_CLI_VERSION }}
+            KUBECTL_CLI_VERSION=${{ env.KUBECTL_CLI_VERSION }}
+            TERRAFORM_CLI_VERSION=${{ env.TERRAFORM_CLI_VERSION }}
+            TERRAGRUNT_CLI_VERSION=${{ env.TERRAGRUNT_CLI_VERSION }}
             WORKSPACE_ROOT_DIR=${{ env.WORKSPACE_ROOT_DIR }}
           load: true
           no-cache: true
           tags: ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }}
           platforms: linux/amd64
       - name: 'Test Docker image (amd64)'
-        if: ${{ env.VERSIONS_CHANGED == 1 }}
+        if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
         run: |
           docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "aws --version"
           docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "sam --version"
@@ -174,7 +174,7 @@ jobs:
           docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "terraform version"
           docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "terragrunt --version"
       - name: 'Tag and push multi-platforms Docker images to preconfigured container registries'
-        if: ${{ env.VERSIONS_CHANGED == 1 }}
+        if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
         uses: docker/build-push-action@master
         with:
           context: .
@@ -182,11 +182,11 @@ jobs:
           build-args: |
             AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}
             AWS_SAM_CLI_VERSION=${{ env.AWS_SAM_CLI_VERSION }}
-            HELM_VERSION=${{ env.HELM_VERSION }}
-            KOPS_VERSION=${{ env.KOPS_VERSION }}
-            KUBECTL_VERSION=${{ env.KUBECTL_VERSION }}
-            TERRAFORM_VERSION=${{ env.TERRAFORM_VERSION }}
-            TERRAGRUNT_VERSION=${{ env.TERRAGRUNT_VERSION }}
+            HELM_CLI_VERSION=${{ env.HELM_CLI_VERSION }}
+            KOPS_CLI_VERSION=${{ env.KOPS_CLI_VERSION }}
+            KUBECTL_CLI_VERSION=${{ env.KUBECTL_CLI_VERSION }}
+            TERRAFORM_CLI_VERSION=${{ env.TERRAFORM_CLI_VERSION }}
+            TERRAGRUNT_CLI_VERSION=${{ env.TERRAGRUNT_CLI_VERSION }}
             WORKSPACE_ROOT_DIR=${{ env.WORKSPACE_ROOT_DIR }}
           push: true
           no-cache: true
@@ -198,7 +198,7 @@ jobs:
             ${{ env.GH_REGISTRY }}/${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.CONTAINER_TAG }}
           platforms: linux/amd64,linux/arm64
       - name: 'Push git changes'
-        if: ${{ env.VERSIONS_CHANGED == 1 }}
+        if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GH_TOKEN }}

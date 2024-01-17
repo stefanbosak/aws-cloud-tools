@@ -15,19 +15,19 @@ ARG AWS_CLI_VERSION=2.15.9
 ARG AWS_SAM_CLI_VERSION=v1.107.0
 
 # Helm version
-ARG HELM_VERSION=v3.13.3
+ARG HELM_CLI_VERSION=v3.13.3
 
 # kubectl version
-ARG KUBECTL_VERSION=v1.29.0
+ARG KUBECTL_CLI_VERSION=v1.29.0
 
 # kops version
-ARG KOPS_VERSION=v1.28.2
+ARG KOPS_CLI_VERSION=v1.28.2
 
 # Terraform version
-ARG TERRAFORM_VERSION=1.6.6
+ARG TERRAFORM_CLI_VERSION=1.6.6
 
 # Terragrunt version
-ARG TERRAGRUNT_VERSION=v0.54.15
+ARG TERRAGRUNT_CLI_VERSION=v0.54.15
 
 
 # container as builder for preparing AWS cloud tools
@@ -94,17 +94,17 @@ LABEL stage="aws-cloud-tools-helm-builder" \
 
 ARG TARGETOS
 ARG TARGETARCH
-ARG HELM_VERSION
+ARG HELM_CLI_VERSION
 
 ARG WORKSPACE_ROOT_DIR
 
 WORKDIR "${WORKSPACE_ROOT_DIR}"
 
 # download HELM archive file
-ADD "https://get.helm.sh/helm-${HELM_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz" "${WORKSPACE_ROOT_DIR}/"
+ADD "https://get.helm.sh/helm-${HELM_CLI_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz" "${WORKSPACE_ROOT_DIR}/"
 
 # install HELM
-RUN mkdir -v "${WORKSPACE_ROOT_DIR}/helm" && tar -zxf "helm-${HELM_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz" -C "/usr/local/bin" --strip-components 1 --no-anchored "helm"
+RUN mkdir -v "${WORKSPACE_ROOT_DIR}/helm" && tar -zxf "helm-${HELM_CLI_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz" -C "/usr/local/bin" --strip-components 1 --no-anchored "helm"
 
 
 # container as builder for preparing AWS cloud tools
@@ -115,14 +115,14 @@ LABEL stage="aws-cloud-tools-kubectl-builder" \
 
 ARG TARGETOS
 ARG TARGETARCH
-ARG KOPS_VERSION
+ARG KOPS_CLI_VERSION
 
 ARG WORKSPACE_ROOT_DIR
 
 WORKDIR "${WORKSPACE_ROOT_DIR}"
 
 # download kubectl CLI binary file
-ADD "https://github.com/kubernetes/kops/releases/download/${KOPS_VERSION}/kops-${TARGETOS}-${TARGETARCH}" "${WORKSPACE_ROOT_DIR}/"
+ADD "https://github.com/kubernetes/kops/releases/download/${KOPS_CLI_VERSION}/kops-${TARGETOS}-${TARGETARCH}" "${WORKSPACE_ROOT_DIR}/"
 
 # install kubectl
 RUN install -v -o root -g root -m 0755 "${WORKSPACE_ROOT_DIR}/kops-${TARGETOS}-${TARGETARCH}" "/usr/local/bin/kops"
@@ -136,14 +136,14 @@ LABEL stage="aws-cloud-tools-kubectl-builder" \
 
 ARG TARGETOS
 ARG TARGETARCH
-ARG KUBECTL_VERSION
+ARG KUBECTL_CLI_VERSION
 
 ARG WORKSPACE_ROOT_DIR
 
 WORKDIR "${WORKSPACE_ROOT_DIR}"
 
 # download kubectl CLI binary file
-ADD "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${TARGETARCH}/kubectl" "${WORKSPACE_ROOT_DIR}/"
+ADD "https://dl.k8s.io/release/${KUBECTL_CLI_VERSION}/bin/linux/${TARGETARCH}/kubectl" "${WORKSPACE_ROOT_DIR}/"
 
 # install kubectl
 RUN install -v -o root -g root -m 0755 "${WORKSPACE_ROOT_DIR}/kubectl" "/usr/local/bin/"
@@ -157,17 +157,17 @@ LABEL stage="aws-cloud-tools-terraform-builder" \
 
 ARG TARGETOS
 ARG TARGETARCH
-ARG TERRAFORM_VERSION
+ARG TERRAFORM_CLI_VERSION
 
 ARG WORKSPACE_ROOT_DIR
 
 WORKDIR "${WORKSPACE_ROOT_DIR}"
 
 # download TF CLI archive file
-ADD "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_${TARGETOS}_${TARGETARCH}.zip" "${WORKSPACE_ROOT_DIR}/"
+ADD "https://releases.hashicorp.com/terraform/${TERRAFORM_CLI_VERSION}/terraform_${TERRAFORM_CLI_VERSION}_${TARGETOS}_${TARGETARCH}.zip" "${WORKSPACE_ROOT_DIR}/"
 
 # install TF CLI binary
-RUN unzip "terraform_${TERRAFORM_VERSION}_${TARGETOS}_${TARGETARCH}.zip" -d "/usr/local/bin/"
+RUN unzip "terraform_${TERRAFORM_CLI_VERSION}_${TARGETOS}_${TARGETARCH}.zip" -d "/usr/local/bin/"
 
 
 # container as builder for preparing AWS cloud tools
@@ -178,14 +178,14 @@ LABEL stage="aws-cloud-tools-kubectl-builder" \
 
 ARG TARGETOS
 ARG TARGETARCH
-ARG TERRAGRUNT_VERSION
+ARG TERRAGRUNT_CLI_VERSION
 
 ARG WORKSPACE_ROOT_DIR
 
 WORKDIR "${WORKSPACE_ROOT_DIR}"
 
 # download kubectl CLI binary file
-ADD "https://github.com/gruntwork-io/terragrunt/releases/download/${TERRAGRUNT_VERSION}/terragrunt_${TARGETOS}_${TARGETARCH}" "${WORKSPACE_ROOT_DIR}/"
+ADD "https://github.com/gruntwork-io/terragrunt/releases/download/${TERRAGRUNT_CLI_VERSION}/terragrunt_${TARGETOS}_${TARGETARCH}" "${WORKSPACE_ROOT_DIR}/"
 
 # install terragrunt CLI
 RUN install -v -o root -g root -m 0755 "${WORKSPACE_ROOT_DIR}/terragrunt_${TARGETOS}_${TARGETARCH}" "/usr/local/bin/terragrunt"

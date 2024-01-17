@@ -6,7 +6,7 @@
 cwd=$(dirname $(realpath "${0}"))
 
 # value 1 means latest versions
-export VERSIONS_AMOUNT=1
+export CLI_VERSIONS_AMOUNT=1
 
 # create temporary workspace
 TMP_DIR=$(mktemp -d)

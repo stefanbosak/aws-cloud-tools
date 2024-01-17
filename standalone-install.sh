@@ -8,7 +8,7 @@
 cwd=$(dirname $(realpath "${0}"))
 
 # directory for storing capture of pushed versions
-PUSHED_VERSIONS_FILE_DIR=$(mktemp -d)
+PUSHED_CLI_VERSIONS_FILE_DIR=$(mktemp -d)
 
 # set variables
 source "${cwd}/setvariables.sh"
@@ -104,11 +104,11 @@ declare -A resources_dictionary
 
 resources_dictionary["awscli"]="${AWS_CLI_URI}"
 resources_dictionary["aws-sam-cli"]="${AWS_SAM_CLI_URI}"
-resources_dictionary["kops"]="https://github.com/kubernetes/kops/releases/download/${KOPS_VERSION}/kops-${TARGETOS}-${TARGETARCH}"
-resources_dictionary["kubectl"]="https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${TARGETARCH}/kubectl"
-resources_dictionary["helm"]="https://get.helm.sh/helm-${HELM_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz"
-resources_dictionary["terraform"]="https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_${TARGETOS}_${TARGETARCH}.zip"
-resources_dictionary["terragrunt"]="https://github.com/gruntwork-io/terragrunt/releases/download/${TERRAGRUNT_VERSION}/terragrunt_${TARGETOS}_${TARGETARCH}"
+resources_dictionary["kops"]="https://github.com/kubernetes/kops/releases/download/${KOPS_CLI_VERSION}/kops-${TARGETOS}-${TARGETARCH}"
+resources_dictionary["kubectl"]="https://dl.k8s.io/release/${KUBECTL_CLI_VERSION}/bin/linux/${TARGETARCH}/kubectl"
+resources_dictionary["helm"]="https://get.helm.sh/helm-${HELM_CLI_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz"
+resources_dictionary["terraform"]="https://releases.hashicorp.com/terraform/${TERRAFORM_CLI_VERSION}/terraform_${TERRAFORM_CLI_VERSION}_${TARGETOS}_${TARGETARCH}.zip"
+resources_dictionary["terragrunt"]="https://github.com/gruntwork-io/terragrunt/releases/download/${TERRAGRUNT_CLI_VERSION}/terragrunt_${TARGETOS}_${TARGETARCH}"
 resources_dictionary["sam_completion"]="https://raw.githubusercontent.com/daisuke-awaji/sam_completion/master/sam_completion"
 
 ## now loop through the above dictionary items
@@ -156,7 +156,7 @@ fi
 
 # install HELM
 echo "Installing HELM CLI..."
-tar -zxf "helm-${HELM_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz" -C "/usr/local/bin" --strip-components 1 --no-anchored "helm"
+tar -zxf "helm-${HELM_CLI_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz" -C "/usr/local/bin" --strip-components 1 --no-anchored "helm"
 
 if [ ${?} -eq 0 ]; then
   echo "Tool helm has been installed successfully"
@@ -189,7 +189,7 @@ fi
 
 # install TF CLI
 echo "Installing terraform..."
-unzip -o "terraform_${TERRAFORM_VERSION}_${TARGETOS}_${TARGETARCH}.zip" -d "/usr/local/bin/"
+unzip -o "terraform_${TERRAFORM_CLI_VERSION}_${TARGETOS}_${TARGETARCH}.zip" -d "/usr/local/bin/"
 
 if [ ${?} -eq 0 ]; then
   echo "Tool terraform has been installed successfully"

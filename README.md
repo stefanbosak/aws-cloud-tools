@@ -36,7 +36,7 @@ GitHub Actions workflow file is covering all necessary activities which are full
 - testing of created Docker image
 - tagging of tested Docker image
 - pushing of tagged Docker image into GitHub container registry
-- capturing pushed versions details within [PUSHED_VERSIONS.txt](PUSHED_VERSIONS.txt) which is generated, commited and pushed into repository automatically within related workflow steps
+- capturing pushed versions details within [PUSHED_CLI_VERSIONS.txt](PUSHED_CLI_VERSIONS.txt) which is generated, commited and pushed into repository automatically within related workflow steps
 
 __GitHub Actions workflow run triggering options:__
 - automatically by scheduler at the specified time (latest versions will be included)

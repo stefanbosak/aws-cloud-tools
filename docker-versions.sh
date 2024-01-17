@@ -26,22 +26,22 @@ echo -ne "AWS_SAM_CLI_VERSION="
 AWS_SAM_CLI_VERSION_STR=$(${DOCKER_CMD} "sam --version")
 echo "${AWS_SAM_CLI_VERSION_STR}" | awk '{print "v"$NF}'
 
-echo -ne "HELM_VERSION="
-HELM_VERSION_STR=$(${DOCKER_CMD} "helm version --short")
-echo "${HELM_VERSION_STR}" | awk -F'+' '{print $1}'
+echo -ne "HELM_CLI_VERSION="
+HELM_CLI_VERSION_STR=$(${DOCKER_CMD} "helm version --short")
+echo "${HELM_CLI_VERSION_STR}" | awk -F'+' '{print $1}'
 
-echo -ne "KOPS_VERSION="
-KOPS_VERSION_STR=$(${DOCKER_CMD} "kops version")
-echo "${KOPS_VERSION_STR}" | awk -F'git-' 'NR==1 {print $2}' | sed 's/)//'
+echo -ne "KOPS_CLI_VERSION="
+KOPS_CLI_VERSION_STR=$(${DOCKER_CMD} "kops version")
+echo "${KOPS_CLI_VERSION_STR}" | awk -F'git-' 'NR==1 {print $2}' | sed 's/)//'
 
-echo -ne "KUBECTL_VERSION="
-KUBECTL_VERSION_STR=$(${DOCKER_CMD} "kubectl version --client")
-echo "${KUBECTL_VERSION_STR}" | awk -F': ' 'NR==1 {print $2}'
+echo -ne "KUBECTL_CLI_VERSION="
+KUBECTL_CLI_VERSION_STR=$(${DOCKER_CMD} "kubectl version --client")
+echo "${KUBECTL_CLI_VERSION_STR}" | awk -F': ' 'NR==1 {print $2}'
 
-echo -ne "TERRAFORM_VERSION="
-TERRAFORM_VERSION_STR=$(${DOCKER_CMD} "terraform version")
-echo "${TERRAFORM_VERSION_STR}" | awk -F'v' 'NR==1 {print $2}'
+echo -ne "TERRAFORM_CLI_VERSION="
+TERRAFORM_CLI_VERSION_STR=$(${DOCKER_CMD} "terraform version")
+echo "${TERRAFORM_CLI_VERSION_STR}" | awk -F'v' 'NR==1 {print $2}'
 
-echo -ne "TERRAGRUNT_VERSION="
-TERRAGRUNT_VERSION_STR=$(${DOCKER_CMD} "terragrunt --version")
-echo "${TERRAGRUNT_VERSION_STR}" | awk -F'v' 'NR==1 {print $2}'
+echo -ne "TERRAGRUNT_CLI_VERSION="
+TERRAGRUNT_CLI_VERSION_STR=$(${DOCKER_CMD} "terragrunt --version")
+echo "${TERRAGRUNT_CLI_VERSION_STR}" | awk -F'v' 'NR==1 {print $2}'

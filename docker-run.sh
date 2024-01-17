@@ -11,10 +11,10 @@
 cwd=$(dirname $(realpath "${0}"))
 
 # directory for storing capture of pushed versions
-PUSHED_VERSIONS_FILE_DIR=$(mktemp -d)
+PUSHED_CLI_VERSIONS_FILE_DIR=$(mktemp -d)
 
 # cleanup
-trap 'rm -fr "${PUSHED_VERSIONS_FILE_DIR}"' EXIT
+trap 'rm -fr "${PUSHED_CLI_VERSIONS_FILE_DIR}"' EXIT
 
 # set variables
 source "${cwd}/setvariables.sh"
