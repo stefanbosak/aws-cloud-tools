@@ -44,4 +44,4 @@ echo "${TERRAFORM_CLI_VERSION_STR}" | awk -F'v' 'NR==1 {print $2}'
 
 echo -ne "TERRAGRUNT_CLI_VERSION="
 TERRAGRUNT_CLI_VERSION_STR=$(${DOCKER_CMD} "terragrunt --version")
-echo "${TERRAGRUNT_CLI_VERSION_STR}" | awk -F'v' 'NR==1 {print $2}'
+echo "${TERRAGRUNT_CLI_VERSION_STR}" | awk 'NR==1 {print $NF}'

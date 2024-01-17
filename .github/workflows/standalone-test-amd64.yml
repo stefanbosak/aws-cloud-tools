@@ -21,17 +21,18 @@ jobs:
       - name: 'Install required packages (amd64)'
         run: |
           sudo apt-get update && \
-          sudo apt-get -y --no-install-recommends install ca-certificates curl unzip && \
+          sudo apt-get -y --no-install-recommends install ca-certificates && \
           sudo apt-get clean && sudo rm -rf "/var/lib/apt/lists/*"
       - name: 'Perform standalone install (amd64)'
         run: |
           sudo ./standalone-install.sh
       - name: 'AWS cloud tools test (amd64)'
         run: |
-          aws --version | head -n 1
-          sam --version | head -n 1
-          helm version | head -n 1
-          kops version | head -n 1
-          kubectl version --client | head -n 1
-          terraform version | head -n 1
-          terragrunt --version | head -n 1
+          aws --version
+          session-manager-plugin --version
+          sam --version
+          helm version
+          kops version
+          kubectl version --client
+          terraform version
+          terragrunt --version
