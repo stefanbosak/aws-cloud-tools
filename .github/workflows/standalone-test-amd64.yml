@@ -28,11 +28,11 @@ jobs:
           sudo ./standalone-install.sh
       - name: 'AWS cloud tools test (amd64)'
         run: |
-          aws --version
+          aws --version | awk -F' ' '{print $1}' | awk -F'/' '{print $2}'
           session-manager-plugin --version
-          sam --version
-          helm version
-          kops version
-          kubectl version --client
-          terraform version
-          terragrunt --version
+          sam --version | awk '{print "v"$NF}'
+          helm version | awk -F'+' '{print $1}'
+          kops version | awk -F'git-' 'NR==1 {print $2}' | sed 's/)//'
+          kubectl version --client | awk -F': ' 'NR==1 {print $2}'
+          terraform version | awk -F'v' 'NR==1 {print $2}'
+          terragrunt --version | awk 'NR==1 {print $NF}'
