@@ -60,11 +60,13 @@ ARG WORKSPACE_ROOT_DIR
 
 WORKDIR "${WORKSPACE_ROOT_DIR}"
 
-# download and install AWS CLI, AWS session-manager-plugin
+# download AWS CLI, AWS session-manager-plugin
 RUN uri=$(echo "https://awscli.amazonaws.com/awscli-exe-${TARGETOS}-${TARGETARCH}-${AWS_CLI_VERSION}.zip" | sed -e 's/amd64/x86_64/g' -e 's/arm64/aarch64/g') && curl -sSL "${uri}" -o "awscli.zip" && \
-    mkdir -v "${WORKSPACE_ROOT_DIR}/awscli" && unzip "awscli.zip" -d "${WORKSPACE_ROOT_DIR}/awscli" && \
+    uri=$(echo "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_${TARGETARCH}/session-manager-plugin.deb" | sed -e 's/amd64/64bit/g') && curl -sSLO "${uri}"
+
+# install AWS CLI, AWS session-manager-plugin
+RUN mkdir -v "${WORKSPACE_ROOT_DIR}/awscli" && unzip "awscli.zip" -d "${WORKSPACE_ROOT_DIR}/awscli" && \
     "${WORKSPACE_ROOT_DIR}/awscli/aws/install" --install-dir "/usr/local/aws-cli" --bin-dir "/usr/local/bin" && \
-    uri=$(echo "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_${TARGETARCH}/session-manager-plugin.deb" | sed -e 's/amd64/64bit/g') && curl -sSLO "${uri}" && \
     ar x "${WORKSPACE_ROOT_DIR}/session-manager-plugin.deb" && \
     tar -xvf data.tar.gz -C "${WORKSPACE_ROOT_DIR}" && \
     mv "${WORKSPACE_ROOT_DIR}/usr/local/sessionmanagerplugin/bin/session-manager-plugin" "/usr/local/bin"
@@ -205,19 +207,9 @@ ARG CONTAINER_GROUP
 
 ARG DEBIAN_FRONTEND
 
-# enable AWS SAM CLI completion
-ADD --chown=${CONTAINER_USER}:${CONTAINER_GROUP} --chmod=0644 "https://raw.githubusercontent.com/daisuke-awaji/sam_completion/master/sam_completion" "/usr/share/bash-completion/completions/sam"
-
-# transfer applications from builders
-COPY --from=aws-cloud-tools-aws-cli-builder "/usr/local/aws-cli" "/usr/local/aws-cli"
-COPY --from=aws-cloud-tools-aws-cli-builder "/usr/local/bin/" "/usr/local/bin/"
-COPY --from=aws-cloud-tools-aws-sam-cli-builder "/usr/local/aws-sam-cli" "/usr/local/aws-sam-cli"
-COPY --from=aws-cloud-tools-aws-sam-cli-builder "/usr/local/bin/" "/usr/local/bin/"
-COPY --from=aws-cloud-tools-helm-builder "/usr/local/bin/" "/usr/local/bin/"
-COPY --from=aws-cloud-tools-kops-builder "/usr/local/bin/" "/usr/local/bin/"
-COPY --from=aws-cloud-tools-kubectl-builder "/usr/local/bin/" "/usr/local/bin/"
-COPY --from=aws-cloud-tools-terraform-builder "/usr/local/bin/" "/usr/local/bin/"
-COPY --from=aws-cloud-tools-terragrunt-builder "/usr/local/bin/" "/usr/local/bin/"
+# set locales
+ENV LANG C.UTF-8
+ENV TZ=UTC
 
 # setup user profile
 RUN groupadd --gid 1000 ${CONTAINER_USER} && \
@@ -235,13 +227,6 @@ RUN groupadd --gid 1000 ${CONTAINER_USER} && \
          "ConnectTimeout 5\n" \
          "ServerAliveCountMax 2\n" \
          "ServerAliveInterval 15\n" > "/home/${CONTAINER_USER}/.ssh/config" && \
-# enable HELM, AWS CLI, TF completion
-    helm completion bash > "/usr/share/bash-completion/completions/helm" && \
-    kops completion bash > "/usr/share/bash-completion/completions/kops" && \
-    kubectl completion bash > "/usr/share/bash-completion/completions/kubectl" && \
-    echo "complete -C /usr/local/bin/aws_completer aws" > "/usr/share/bash-completion/completions/aws" && \
-    echo "complete -C /usr/local/bin/terraform terraform" > "/usr/share/bash-completion/completions/terraform" && \
-    echo "complete -C /usr/local/bin/terragrunt terragrunt" > "/usr/share/bash-completion/completions/terragrunt" && \
 # make sure about owner consistency of user profile directory content
     chown -vR ${CONTAINER_USER}:${CONTAINER_GROUP} "/home/${CONTAINER_USER}" && \
 # install required packages
@@ -260,11 +245,30 @@ RUN groupadd --gid 1000 ${CONTAINER_USER} && \
     locale-gen && \
     update-locale LANG=C.UTF-8 && \
 # disable bell and startup message for screen
-    sed --in-place 's/vbell on/vbell off/;/startup_message off/s/^#//' /etc/screenrc
+    sed --in-place 's/vbell on/vbell off/;/startup_message off/s/^#//' /etc/screenrc && \
+# enable tools completions (not required to run any tool)
+    echo "complete -C /usr/local/bin/aws_completer aws" > "/usr/share/bash-completion/completions/aws" && \
+    echo "complete -C /usr/local/bin/terraform terraform" > "/usr/share/bash-completion/completions/terraform" && \
+    echo "complete -C /usr/local/bin/terragrunt terragrunt" > "/usr/share/bash-completion/completions/terragrunt"
 
-# set locales
-ENV LANG C.UTF-8
-ENV TZ=UTC
+# enable AWS SAM CLI completion
+ADD --chown=${CONTAINER_USER}:${CONTAINER_GROUP} --chmod=0644 "https://raw.githubusercontent.com/daisuke-awaji/sam_completion/master/sam_completion" "/usr/share/bash-completion/completions/sam"
+
+# transfer tools from builders
+COPY --from=aws-cloud-tools-aws-cli-builder "/usr/local/aws-cli" "/usr/local/aws-cli"
+COPY --from=aws-cloud-tools-aws-cli-builder "/usr/local/bin/" "/usr/local/bin/"
+COPY --from=aws-cloud-tools-aws-sam-cli-builder "/usr/local/aws-sam-cli" "/usr/local/aws-sam-cli"
+COPY --from=aws-cloud-tools-aws-sam-cli-builder "/usr/local/bin/" "/usr/local/bin/"
+COPY --from=aws-cloud-tools-helm-builder "/usr/local/bin/" "/usr/local/bin/"
+COPY --from=aws-cloud-tools-kops-builder "/usr/local/bin/" "/usr/local/bin/"
+COPY --from=aws-cloud-tools-kubectl-builder "/usr/local/bin/" "/usr/local/bin/"
+COPY --from=aws-cloud-tools-terraform-builder "/usr/local/bin/" "/usr/local/bin/"
+COPY --from=aws-cloud-tools-terragrunt-builder "/usr/local/bin/" "/usr/local/bin/"
+
+# enable tools completions (required to run given tool to generate completion file content)
+RUN helm completion bash > "/usr/share/bash-completion/completions/helm" && \
+    kops completion bash > "/usr/share/bash-completion/completions/kops" && \
+    kubectl completion bash > "/usr/share/bash-completion/completions/kubectl"
 
 # user home directory as workdir
 WORKDIR "/home/${CONTAINER_USER}"

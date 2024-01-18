@@ -142,7 +142,7 @@ jobs:
             TERRAGRUNT_CLI_VERSION=${{ env.TERRAGRUNT_CLI_VERSION }}
             WORKSPACE_ROOT_DIR=${{ env.WORKSPACE_ROOT_DIR }}
           load: false
-          no-cache: true
+          no-cache: false
           platforms: linux/amd64,linux/arm64
       - name: 'Load Docker image (amd64)'
         if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
@@ -160,7 +160,7 @@ jobs:
             TERRAGRUNT_CLI_VERSION=${{ env.TERRAGRUNT_CLI_VERSION }}
             WORKSPACE_ROOT_DIR=${{ env.WORKSPACE_ROOT_DIR }}
           load: true
-          no-cache: true
+          no-cache: false
           tags: ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }}
           platforms: linux/amd64
       - name: 'Test Docker image (amd64)'
@@ -190,7 +190,7 @@ jobs:
             TERRAGRUNT_CLI_VERSION=${{ env.TERRAGRUNT_CLI_VERSION }}
             WORKSPACE_ROOT_DIR=${{ env.WORKSPACE_ROOT_DIR }}
           push: true
-          no-cache: true
+          no-cache: false
           github-token: ${{ secrets.GH_TOKEN }}
           secrets: |
             GIT_AUTH_TOKEN=${{ secrets.GH_TOKEN }}
