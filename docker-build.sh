@@ -41,6 +41,7 @@ docker buildx build --network=host \
                     --force-rm --rm \
                     --platform ${TARGETPLATFORM} \
                     --build-arg TARGETOS=${TARGETOS} \
+                    --build-arg ANSIBLE_CLI_VERSION=${ANSIBLE_CLI_VERSION} \
                     --build-arg AWS_CLI_VERSION=${AWS_CLI_VERSION} \
                     --build-arg AWS_SAM_CLI_VERSION=${AWS_SAM_CLI_VERSION} \
                     --build-arg HELM_CLI_VERSION=${HELM_CLI_VERSION} \

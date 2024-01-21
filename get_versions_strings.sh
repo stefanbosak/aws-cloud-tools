@@ -27,6 +27,7 @@ declare -a resources_array=("AWS_CLI_VERSION"
 
 declare -A resources_dictionary
 
+resources_dictionary["ANSIBLE_CLI_VERSION"]="ansible/ansible"
 resources_dictionary["AWS_CLI_VERSION"]="aws/aws-cli"
 resources_dictionary["AWS_SAM_CLI_VERSION"]="aws/aws-sam-cli"
 resources_dictionary["HELM_CLI_VERSION"]="helm/helm"

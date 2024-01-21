@@ -18,6 +18,10 @@ if [ ${?} -ne 0 ]; then
   exit 1
 fi
 
+echo -ne "ANSIBLE_CLI_VERSION="
+ANSIBLE_CLI_VERSION_STR=$(${DOCKER_CMD} "ansible --version")
+echo "${ANSIBLE_CLI_VERSION_STR}" | awk -F"core " '/core/{print "v"$2}' | sed 's/]//'
+
 echo -ne "AWS_CLI_VERSION="
 AWS_CLI_VERSION_STR=$(${DOCKER_CMD} "aws --version")
 echo "${AWS_CLI_VERSION_STR}" | awk -F' ' '{print $1}' | awk -F'/' '{print $2}'

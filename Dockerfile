@@ -10,24 +10,27 @@ ARG CONTAINER_GROUP=user
 ARG DEBIAN_RELEASE=testing-slim
 ARG DEBIAN_FRONTEND=noninteractive
 
+# ansible CLI tools versions
+ARG ANSIBLE_CLI_VERSION=2.16.2
+
 # AWS CLI tools versions
-ARG AWS_CLI_VERSION=2.15.9
+ARG AWS_CLI_VERSION=2.15.12
 ARG AWS_SAM_CLI_VERSION=v1.107.0
 
 # Helm version
-ARG HELM_CLI_VERSION=v3.13.3
+ARG HELM_CLI_VERSION=v3.14.0
 
 # kubectl version
-ARG KUBECTL_CLI_VERSION=v1.29.0
+ARG KUBECTL_CLI_VERSION=v1.29.1
 
 # kops version
 ARG KOPS_CLI_VERSION=v1.28.2
 
 # Terraform version
-ARG TERRAFORM_CLI_VERSION=1.6.6
+ARG TERRAFORM_CLI_VERSION=1.7.0
 
 # Terragrunt version
-ARG TERRAGRUNT_CLI_VERSION=v0.54.15
+ARG TERRAGRUNT_CLI_VERSION=v0.54.20
 
 
 # container as builder for preparing AWS cloud tools
@@ -44,6 +47,25 @@ WORKDIR "${WORKSPACE_ROOT_DIR}"
 RUN apt-get update && \
     apt-get -y --no-install-recommends install ca-certificates binutils curl unzip && \
     apt-get clean && rm -rf "/var/lib/apt/lists/*"
+
+# container as builder for preparing AWS cloud tools
+FROM aws-cloud-tools-builder AS aws-cloud-tools-ansible-cli-builder
+
+LABEL stage="aws-cloud-tools-ansible-cli-builder" \
+      description="Debian-based container builder for preparing AWS cloud tool ansible"
+
+ARG TARGETOS
+ARG TARGETARCH
+ARG ANSIBLE_CLI_VERSION
+
+ARG WORKSPACE_ROOT_DIR
+
+WORKDIR "${WORKSPACE_ROOT_DIR}"
+
+# download and install ansible tool
+RUN apt-get -y --no-install-recommends install python3-pip && \
+    apt-get clean && rm -rf "/var/lib/apt/lists/*"
+RUN python3 -m pip install --break-system-packages  "https://github.com/ansible/ansible/archive/refs/tags/${ANSIBLE_CLI_VERSION}.tar.gz"
 
 
 # container as builder for preparing AWS cloud tools
@@ -213,7 +235,7 @@ ENV TZ=UTC
 
 # setup user profile
 RUN groupadd --gid 1000 ${CONTAINER_USER} && \
-    useradd --gid ${CONTAINER_GROUP} --create-home --uid 1000 ${CONTAINER_USER} && \
+    useradd --gid ${CONTAINER_GROUP} --groups sudo,${CONTAINER_USER} --create-home --uid 1000 ${CONTAINER_USER} && \
 # SSH client configuration
     mkdir -v "/home/${CONTAINER_USER}/.ssh" && \
     echo "Host *\n" \
@@ -233,10 +255,10 @@ RUN groupadd --gid 1000 ${CONTAINER_USER} && \
     apt-get update && \
     apt-get -y dist-upgrade && \
     apt-get -y --no-install-recommends install ca-certificates curl wget openssl \
-                                               openssh-client autossh \
+                                               openssh-client autossh plocate sudo \
                                                iputils-ping iproute2 mtr nmap \
                                                mariadb-client postgresql-client sqlite3 \
-                                               dnsutils whois dialog \
+                                               dnsutils whois dialog python3-argcomplete \
                                                bc inotify-tools git jq less locales \
                                                bash-completion nano screen tmux && \
     apt-get clean && rm -rf "/var/lib/apt/lists/*" && \
@@ -246,6 +268,10 @@ RUN groupadd --gid 1000 ${CONTAINER_USER} && \
     update-locale LANG=C.UTF-8 && \
 # disable bell and startup message for screen
     sed --in-place 's/vbell on/vbell off/;/startup_message off/s/^#//' /etc/screenrc && \
+# allow sudo without password for CONTAINER_USER
+    echo "${CONTAINER_USER} ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/${CONTAINER_USER}" && \
+# update plocate database
+    updatedb && \
 # enable tools completions (not required to run any tool)
     echo "complete -C /usr/local/bin/aws_completer aws" > "/usr/share/bash-completion/completions/aws" && \
     echo "complete -C /usr/local/bin/terraform terraform" > "/usr/share/bash-completion/completions/terraform" && \
@@ -255,6 +281,8 @@ RUN groupadd --gid 1000 ${CONTAINER_USER} && \
 ADD --chown=${CONTAINER_USER}:${CONTAINER_GROUP} --chmod=0644 "https://raw.githubusercontent.com/daisuke-awaji/sam_completion/master/sam_completion" "/usr/share/bash-completion/completions/sam"
 
 # transfer tools from builders
+COPY --from=aws-cloud-tools-ansible-cli-builder "/usr/local/bin" "/usr/local/bin"
+COPY --from=aws-cloud-tools-ansible-cli-builder "/usr/local/lib/" "/usr/local/lib"
 COPY --from=aws-cloud-tools-aws-cli-builder "/usr/local/aws-cli" "/usr/local/aws-cli"
 COPY --from=aws-cloud-tools-aws-cli-builder "/usr/local/bin/" "/usr/local/bin/"
 COPY --from=aws-cloud-tools-aws-sam-cli-builder "/usr/local/aws-sam-cli" "/usr/local/aws-sam-cli"
@@ -268,7 +296,8 @@ COPY --from=aws-cloud-tools-terragrunt-builder "/usr/local/bin/" "/usr/local/bin
 # enable tools completions (required to run given tool to generate completion file content)
 RUN helm completion bash > "/usr/share/bash-completion/completions/helm" && \
     kops completion bash > "/usr/share/bash-completion/completions/kops" && \
-    kubectl completion bash > "/usr/share/bash-completion/completions/kubectl"
+    kubectl completion bash > "/usr/share/bash-completion/completions/kubectl" && \
+    activate-global-python-argcomplete
 
 # user home directory as workdir
 WORKDIR "/home/${CONTAINER_USER}"

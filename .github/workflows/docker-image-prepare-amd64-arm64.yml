@@ -10,8 +10,12 @@ on:
     - cron: "45 22 * * *"
   workflow_dispatch:
     inputs:
+      ANSIBLE_CLI_VERSION:
+        description: 'ANSIBLE_CLI_VERSION (2.16.2)'
+        required: false
+        type: string
       AWS_CLI_VERSION:
-        description: 'AWS_CLI_VERSION (2.15.9)'
+        description: 'AWS_CLI_VERSION (2.15.12)'
         required: false
         type: string
       AWS_SAM_CLI_VERSION:
@@ -19,7 +23,7 @@ on:
         required: false
         type: string
       HELM_CLI_VERSION:
-        description: 'HELM_CLI_VERSION (v3.13.3)'
+        description: 'HELM_CLI_VERSION (v3.14.0)'
         required: false
         type: string
       KOPS_CLI_VERSION:
@@ -27,15 +31,15 @@ on:
         required: false
         type: string
       KUBECTL_CLI_VERSION:
-        description: 'KUBECTL_CLI_VERSION (v1.29.0)'
+        description: 'KUBECTL_CLI_VERSION (v1.29.1)'
         required: false
         type: string
       TERRAFORM_CLI_VERSION:
-        description: 'TERRAFORM_CLI_VERSION (1.6.6)'
+        description: 'TERRAFORM_CLI_VERSION (1.7.0)'
         required: false
         type: string
       TERRAGRUNT_CLI_VERSION:
-        description: 'TERRAGRUNT_CLI_VERSION (v0.54.15)'
+        description: 'TERRAGRUNT_CLI_VERSION (v0.54.20)'
         required: false
         type: string
       CONTAINER_TAG:
@@ -62,6 +66,9 @@ jobs:
           ./setvariables.sh
           echo "CONTAINER_TAG=initial" >> ${GITHUB_ENV}
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            if [[ "${{ github.event.inputs.ANSIBLE_CLI_VERSION }}" != "" ]]; then
+              sed -i "s/ANSIBLE_CLI_VERSION=.*/ANSIBLE_CLI_VERSION=${{ github.event.inputs.ANSIBLE_CLI_VERSION }}/g" /tmp/github_env_tail
+            fi
             if [[ "${{ github.event.inputs.AWS_CLI_VERSION }}" != "" ]]; then
               sed -i "s/AWS_CLI_VERSION=.*/AWS_CLI_VERSION=${{ github.event.inputs.AWS_CLI_VERSION }}/g" /tmp/github_env_tail
             fi
@@ -133,6 +140,7 @@ jobs:
           context: .
           file: ./Dockerfile
           build-args: |
+            ANSIBLE_CLI_VERSION=${{ env.ANSIBLE_CLI_VERSION }}
             AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}
             AWS_SAM_CLI_VERSION=${{ env.AWS_SAM_CLI_VERSION }}
             HELM_CLI_VERSION=${{ env.HELM_CLI_VERSION }}
@@ -151,6 +159,7 @@ jobs:
           context: .
           file: ./Dockerfile
           build-args: |
+            ANSIBLE_CLI_VERSION=${{ env.ANSIBLE_CLI_VERSION }}
             AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}
             AWS_SAM_CLI_VERSION=${{ env.AWS_SAM_CLI_VERSION }}
             HELM_CLI_VERSION=${{ env.HELM_CLI_VERSION }}
@@ -166,6 +175,7 @@ jobs:
       - name: 'Test Docker image (amd64)'
         if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
         run: |
+          docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "ansible --version"
           docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "aws --version"
           docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "session-manager-plugin --version"
           docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "sam --version"
@@ -181,6 +191,7 @@ jobs:
           context: .
           file: ./Dockerfile
           build-args: |
+            ANSIBLE_CLI_VERSION=${{ env.ANSIBLE_CLI_VERSION }}
             AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}
             AWS_SAM_CLI_VERSION=${{ env.AWS_SAM_CLI_VERSION }}
             HELM_CLI_VERSION=${{ env.HELM_CLI_VERSION }}
