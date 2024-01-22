@@ -256,11 +256,11 @@ RUN groupadd --gid 1000 ${CONTAINER_USER} && \
     apt-get -y dist-upgrade && \
     apt-get -y --no-install-recommends install ca-certificates curl wget openssl \
                                                openssh-client autossh plocate sudo \
-                                               iputils-ping iproute2 mtr nmap \
+                                               iputils-ping iproute2 mtr nmap lsof \
                                                mariadb-client postgresql-client sqlite3 \
                                                dnsutils whois dialog python3-argcomplete \
                                                bc inotify-tools git jq less locales \
-                                               bash-completion nano screen tmux && \
+                                               bash-completion nano screen tmux vi && \
     apt-get clean && rm -rf "/var/lib/apt/lists/*" && \
 # set locale to UTF-8
     sed --in-place '/en_US.UTF-8/s/^# //' /etc/locale.gen && \
@@ -273,12 +273,12 @@ RUN groupadd --gid 1000 ${CONTAINER_USER} && \
 # update plocate database
     updatedb && \
 # enable tools completions (not required to run any tool)
-    echo "complete -C /usr/local/bin/aws_completer aws" > "/usr/share/bash-completion/completions/aws" && \
-    echo "complete -C /usr/local/bin/terraform terraform" > "/usr/share/bash-completion/completions/terraform" && \
-    echo "complete -C /usr/local/bin/terragrunt terragrunt" > "/usr/share/bash-completion/completions/terragrunt"
+    echo "complete -C aws_completer aws" > "/usr/share/bash-completion/completions/aws" && \
+    echo "complete -C terraform terraform" > "/usr/share/bash-completion/completions/terraform" && \
+    echo "complete -C terragrunt terragrunt" > "/usr/share/bash-completion/completions/terragrunt"
 
-# enable AWS SAM CLI completion
-ADD --chown=${CONTAINER_USER}:${CONTAINER_GROUP} --chmod=0644 "https://raw.githubusercontent.com/daisuke-awaji/sam_completion/master/sam_completion" "/usr/share/bash-completion/completions/sam"
+# enable AWS SAM CLI (v1.58) completion
+ADD --chown=${CONTAINER_USER}:${CONTAINER_GROUP} --chmod=0644 "https://raw.githubusercontent.com/demotodo/sam_completion/master/sam_completion" "/usr/share/bash-completion/completions/sam"
 
 # transfer tools from builders
 COPY --from=aws-cloud-tools-ansible-cli-builder "/usr/local/bin" "/usr/local/bin"

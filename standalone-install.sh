@@ -120,7 +120,7 @@ resources_dictionary["kubectl"]="https://dl.k8s.io/release/${KUBECTL_CLI_VERSION
 resources_dictionary["helm"]="https://get.helm.sh/helm-${HELM_CLI_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz"
 resources_dictionary["terraform"]="https://releases.hashicorp.com/terraform/${TERRAFORM_CLI_VERSION}/terraform_${TERRAFORM_CLI_VERSION}_${TARGETOS}_${TARGETARCH}.zip"
 resources_dictionary["terragrunt"]="https://github.com/gruntwork-io/terragrunt/releases/download/${TERRAGRUNT_CLI_VERSION}/terragrunt_${TARGETOS}_${TARGETARCH}"
-resources_dictionary["sam_completion"]="https://raw.githubusercontent.com/daisuke-awaji/sam_completion/master/sam_completion"
+resources_dictionary["sam_completion"]="https://raw.githubusercontent.com/demotodo/sam_completion/master/sam_completion"
 
 ## now loop through the above dictionary items
 for key in "${!resources_dictionary[@]}"; do
@@ -232,7 +232,7 @@ else
 fi
 
 echo "Enabling completion for AWS CLI..."
-bash -c "echo 'complete -C /usr/local/bin/aws_completer aws' > ${bash_completion_dir}/aws"
+bash -c "echo 'complete -C aws_completer aws' > ${bash_completion_dir}/aws"
 
 echo "Enabling completion for AWS SAM CLI..."
 bash -c "mv ${WORKSPACE_ROOT_DIR}/sam_completion ${bash_completion_dir}/sam"
@@ -247,9 +247,9 @@ echo "Enabling completion for kubectl CLI..."
 bash -c "kubectl completion bash > ${bash_completion_dir}/kubectl"
 
 echo "Enabling completion for terraform..."
-bash -c "echo 'complete -C /usr/local/bin/terraform terraform' > ${bash_completion_dir}/terraform"
+bash -c "echo 'complete -C terraform terraform' > ${bash_completion_dir}/terraform"
 
 echo "Enabling completion for terragrunt..."
-bash -c "echo 'complete -C /usr/local/bin/terragrunt terragrunt' > ${bash_completion_dir}/terragrunt"
+bash -c "echo 'complete -C terragrunt terragrunt' > ${bash_completion_dir}/terragrunt"
 
 popd
