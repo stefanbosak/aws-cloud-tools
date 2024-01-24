@@ -5,6 +5,7 @@ common tools (pre-defined versions) frequently required when working
 with [AWS](https://aws.amazon.com/) ecosystem/environment. 
 
 covered common CLI tools to interact with AWS ecosystem:
+- [Ansible CLI](https://docs.ansible.com/ansible/latest/command_guide/command_line_tools.html)
 - [AWS CLI](https://aws.amazon.com/cli/)
 - [AWS SAM CLI](https://github.com/aws/aws-sam-cli)
 - [HELM CLI](https://helm.sh/docs/helm/)
