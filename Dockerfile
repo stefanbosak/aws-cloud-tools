@@ -260,7 +260,7 @@ RUN groupadd --gid 1000 ${CONTAINER_USER} && \
                                                mariadb-client postgresql-client sqlite3 \
                                                dnsutils whois dialog python3-argcomplete \
                                                bc inotify-tools git jq less locales \
-                                               bash-completion nano screen tmux vi && \
+                                               bash-completion nano screen tmux vim && \
     apt-get clean && rm -rf "/var/lib/apt/lists/*" && \
 # set locale to UTF-8
     sed --in-place '/en_US.UTF-8/s/^# //' /etc/locale.gen && \
