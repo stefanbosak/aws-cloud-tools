@@ -41,6 +41,10 @@ echo "${KOPS_CLI_VERSION_STR}" | awk -F'git-' 'NR==1 {print $2}' | sed 's/)//'
 echo -ne "KUBECTL_CLI_VERSION="
 KUBECTL_CLI_VERSION_STR=$(${DOCKER_CMD} "kubectl version --client")
 echo "${KUBECTL_CLI_VERSION_STR}" | awk -F': ' 'NR==1 {print $2}'
+echo -ne "KUBECTL_CLI_VERSION="
+
+K9S_CLI_VERSION_STR=$(${DOCKER_CMD} "k9s version")
+echo "${K9S_CLI_VERSION_STR}" | awk '/Version:/ {print $2}'
 
 echo -ne "TERRAFORM_CLI_VERSION="
 TERRAFORM_CLI_VERSION_STR=$(${DOCKER_CMD} "terraform version")

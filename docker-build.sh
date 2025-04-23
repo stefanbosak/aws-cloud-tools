@@ -47,6 +47,7 @@ docker buildx build --network=host \
                     --build-arg HELM_CLI_VERSION=${HELM_CLI_VERSION} \
                     --build-arg KOPS_CLI_VERSION=${KOPS_CLI_VERSION} \
                     --build-arg KUBECTL_CLI_VERSION=${KUBECTL_CLI_VERSION} \
+                    --build-arg K9S_CLI_VERSION=${K9S_CLI_VERSION} \
                     --build-arg TERRAFORM_CLI_VERSION=${TERRAFORM_CLI_VERSION} \
                     --build-arg TERRAGRUNT_CLI_VERSION=${TERRAGRUNT_CLI_VERSION} \
                     --build-arg WORKSPACE_ROOT_DIR=${WORKSPACE_ROOT_DIR} \

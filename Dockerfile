@@ -11,26 +11,29 @@ ARG DEBIAN_RELEASE=testing-slim
 ARG DEBIAN_FRONTEND=noninteractive
 
 # ansible CLI tools versions
-ARG ANSIBLE_CLI_VERSION=2.16.2
+ARG ANSIBLE_CLI_VERSION=2.19.0b1
 
 # AWS CLI tools versions
-ARG AWS_CLI_VERSION=2.15.12
-ARG AWS_SAM_CLI_VERSION=v1.107.0
+ARG AWS_CLI_VERSION=2.26.6
+ARG AWS_SAM_CLI_VERSION=v1.137.1
 
 # Helm version
-ARG HELM_CLI_VERSION=v3.14.0
+ARG HELM_CLI_VERSION=v3.17.3
 
 # kubectl version
-ARG KUBECTL_CLI_VERSION=v1.29.1
+ARG KUBECTL_CLI_VERSION=v1.32.3
+
+# kubectl version
+ARG K9S_CLI_VERSION=v0.50.4
 
 # kops version
-ARG KOPS_CLI_VERSION=v1.28.2
+ARG KOPS_CLI_VERSION=v1.31.0
 
 # Terraform version
-ARG TERRAFORM_CLI_VERSION=1.7.0
+ARG TERRAFORM_CLI_VERSION=1.11.4
 
 # Terragrunt version
-ARG TERRAGRUNT_CLI_VERSION=v0.54.20
+ARG TERRAGRUNT_CLI_VERSION=v0.77.22
 
 
 # container as builder for preparing AWS cloud tools
@@ -177,6 +180,26 @@ RUN install -v -o root -g root -m 0755 "${WORKSPACE_ROOT_DIR}/kubectl" "/usr/loc
 
 
 # container as builder for preparing AWS cloud tools
+FROM aws-cloud-tools-builder AS aws-cloud-tools-k9s-builder
+
+LABEL stage="aws-cloud-tools-k9s-builder" \
+      description="Debian-based container builder for preparing AWS cloud tool k9s CLI"
+
+ARG TARGETOS
+ARG TARGETARCH
+ARG K9S_CLI_VERSION
+
+ARG WORKSPACE_ROOT_DIR
+
+WORKDIR "${WORKSPACE_ROOT_DIR}"
+
+# download k9s CLI binary file
+ADD "https://github.com/derailed/k9s/releases/download/${K9S_CLI_VERSION}/k9s_Linux_${TARGETARCH}.tar.gz" "${WORKSPACE_ROOT_DIR}/"
+
+# install k9s
+RUN tar -zxf "k9s_Linux_${TARGETARCH}.tar.gz" -C "/usr/local/bin" --no-anchored "k9s"
+
+# container as builder for preparing AWS cloud tools
 FROM aws-cloud-tools-builder AS aws-cloud-tools-terraform-builder
 
 LABEL stage="aws-cloud-tools-terraform-builder" \
@@ -290,6 +313,7 @@ COPY --from=aws-cloud-tools-aws-sam-cli-builder "/usr/local/bin/" "/usr/local/bi
 COPY --from=aws-cloud-tools-helm-builder "/usr/local/bin/" "/usr/local/bin/"
 COPY --from=aws-cloud-tools-kops-builder "/usr/local/bin/" "/usr/local/bin/"
 COPY --from=aws-cloud-tools-kubectl-builder "/usr/local/bin/" "/usr/local/bin/"
+COPY --from=aws-cloud-tools-k9s-builder "/usr/local/bin/" "/usr/local/bin/"
 COPY --from=aws-cloud-tools-terraform-builder "/usr/local/bin/" "/usr/local/bin/"
 COPY --from=aws-cloud-tools-terragrunt-builder "/usr/local/bin/" "/usr/local/bin/"
 

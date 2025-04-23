@@ -117,6 +117,7 @@ resources_dictionary["aws-sam-cli"]="${AWS_SAM_CLI_URI}"
 resources_dictionary["session-manager-plugin"]="${AWS_SESSION_MANAGER_PLUGIN_URI}"
 resources_dictionary["kops"]="https://github.com/kubernetes/kops/releases/download/${KOPS_CLI_VERSION}/kops-${TARGETOS}-${TARGETARCH}"
 resources_dictionary["kubectl"]="https://dl.k8s.io/release/${KUBECTL_CLI_VERSION}/bin/linux/${TARGETARCH}/kubectl"
+resources_dictionary["k9s"]="https://github.com/derailed/k9s/releases/download/${K9S_CLI_VERSION}/k9s_Linux_${TARGETARCH}.tar.gz"
 resources_dictionary["helm"]="https://get.helm.sh/helm-${HELM_CLI_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz"
 resources_dictionary["terraform"]="https://releases.hashicorp.com/terraform/${TERRAFORM_CLI_VERSION}/terraform_${TERRAFORM_CLI_VERSION}_${TARGETOS}_${TARGETARCH}.zip"
 resources_dictionary["terragrunt"]="https://github.com/gruntwork-io/terragrunt/releases/download/${TERRAGRUNT_CLI_VERSION}/terragrunt_${TARGETOS}_${TARGETARCH}"
@@ -206,6 +207,17 @@ if [ ${?} -eq 0 ]; then
   echo "Tool kubectl has been installed successfully"
 else
   echo "Tool kubectl has not been installed, terminating"
+  exit 1
+fi
+
+# install k9s
+echo "Installing k9s CLI..."
+tar -zxf "k9s_Linux_${TARGETARCH}.tar.gz" -C "/usr/local/bin" --strip-components 1 --no-anchored "k9s"
+
+if [ ${?} -eq 0 ]; then
+  echo "Tool k9s has been installed successfully"
+else
+  echo "Tool k9s has not been installed, terminating"
   exit 1
 fi
 
