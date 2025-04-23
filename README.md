@@ -63,8 +63,7 @@ __supported platforms (OS/architecture):__
 
 Pull images from following container registries (platform is recognized and selected automatically):
 - [DockerHubCR](https://hub.docker.com/r/developmententity/aws-cloud-tools) (IPv4 & IPv6): `docker pull developmententity/aws-cloud-tools:initial`
-- GitHubCR (IPv4 only): `docker pull ghcr.io/stefanbosak/aws-cloud-tools:initial`
-- VultrCR (IPv4 & IPv6): `docker pull sjc.vultrcr.com/developmententity/aws-cloud-tools:initial`
+- [GitHubCR](https://github.com/users/stefanbosak/packages/container/package/aws-cloud-tools) (IPv4 only): `docker pull ghcr.io/stefanbosak/aws-cloud-tools:initial`
 
 ### Docker container approach
 Docker build wrapper script is covering creation of container
