@@ -321,6 +321,7 @@ COPY --from=aws-cloud-tools-terragrunt-builder "/usr/local/bin/" "/usr/local/bin
 RUN helm completion bash > "/usr/share/bash-completion/completions/helm" && \
     kops completion bash > "/usr/share/bash-completion/completions/kops" && \
     kubectl completion bash > "/usr/share/bash-completion/completions/kubectl" && \
+    k9s completion bash > "/usr/share/bash-completion/completions/k9s" && \
     activate-global-python-argcomplete
 
 # user home directory as workdir
