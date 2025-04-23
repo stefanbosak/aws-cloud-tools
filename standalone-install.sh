@@ -212,7 +212,7 @@ fi
 
 # install k9s
 echo "Installing k9s CLI..."
-tar -zxf "k9s_Linux_${TARGETARCH}.tar.gz" -C "/usr/local/bin" --strip-components 1 --no-anchored "k9s"
+tar -zxf "k9s_Linux_${TARGETARCH}.tar.gz" -C "/usr/local/bin" --no-anchored "k9s"
 
 if [ ${?} -eq 0 ]; then
   echo "Tool k9s has been installed successfully"
@@ -257,6 +257,9 @@ bash -c "kops completion bash > ${bash_completion_dir}/kops"
 
 echo "Enabling completion for kubectl CLI..."
 bash -c "kubectl completion bash > ${bash_completion_dir}/kubectl"
+
+echo "Enabling completion for k9s CLI..."
+bash -c "k9s completion bash > ${bash_completion_dir}/k9s"
 
 echo "Enabling completion for terraform..."
 bash -c "echo 'complete -C terraform terraform' > ${bash_completion_dir}/terraform"

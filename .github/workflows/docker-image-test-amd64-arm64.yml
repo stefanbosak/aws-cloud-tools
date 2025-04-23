@@ -29,6 +29,7 @@ jobs:
           helm version
           kops version
           kubectl version --client
+          k9s version
           terraform version
           terragrunt --version
 
@@ -54,4 +55,5 @@ jobs:
           docker run --entrypoint "/bin/sh" --network=none --rm --name aws-cloud-test docker.io/developmententity/aws-cloud-tools:initial -c "helm version"
           docker run --entrypoint "/bin/sh" --network=none --rm --name aws-cloud-test docker.io/developmententity/aws-cloud-tools:initial -c "kops version"
           docker run --entrypoint "/bin/sh" --network=none --rm --name aws-cloud-test docker.io/developmententity/aws-cloud-tools:initial -c "kubectl version --client"
+          docker run --entrypoint "/bin/sh" --network=none --rm --name aws-cloud-test docker.io/developmententity/aws-cloud-tools:initial -c "k9s version"
           docker run --entrypoint "/bin/sh" --network=none --rm --name aws-cloud-test docker.io/developmententity/aws-cloud-tools:initial -c "terragrunt --version"
