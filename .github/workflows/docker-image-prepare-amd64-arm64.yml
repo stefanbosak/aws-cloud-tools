@@ -31,7 +31,7 @@ on:
         required: false
         type: string
       KUBECTL_CLI_VERSION:
-        description: 'KUBECTL_CLI_VERSION (v1.32.3)'
+        description: 'KUBECTL_CLI_VERSION (v1.32.4)'
         required: false
         type: string
       K9S_CLI_VERSION:
