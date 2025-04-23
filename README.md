@@ -11,6 +11,7 @@ covered common CLI tools to interact with AWS ecosystem:
 - [HELM CLI](https://helm.sh/docs/helm/)
 - [kops CLI](https://kops.sigs.k8s.io/)
 - [kubectl CLI](https://kubernetes.io/docs/reference/kubectl/)
+- [k9s CLI](https://k9scli.io/)
 - [Terraform CLI](https://developer.hashicorp.com/terraform/cli)
 - [Terragrunt CLI](https://terragrunt.gruntwork.io/)
 
