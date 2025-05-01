@@ -51,8 +51,8 @@ __Hint for local execution of GitHub Actions workflow file__
   - [act tool install script](https://raw.githubusercontent.com/nektos/act/master/install.sh)
 
 __scripts and files:__
-- [![build_status_badge](https://github.com/stefanbosak/aws-cloud-tools/actions/workflows/docker-image-prepare-amd64-arm64.yml/badge.svg?branch=main)](.github/workflows/docker-image-prepare-amd64-arm64.yml): GitHub Actions workflow file for automation of Docker image preparation (amd64, arm64)
-- [![build_status_badge](https://github.com/stefanbosak/aws-cloud-tools/actions/workflows/docker-image-test-amd64-arm64.yml/badge.svg?branch=main)](.github/workflows/docker-image-test-amd64-arm64.yml)
+- [![build_status_badge](../..//actions/workflows/docker-image-prepare-amd64-arm64.yml/badge.svg?branch=main)](.github/workflows/docker-image-prepare-amd64-arm64.yml): GitHub Actions workflow file for automation of Docker image preparation (amd64, arm64)
+- [![build_status_badge](../../actions/workflows/docker-image-test-amd64-arm64.yml/badge.svg?branch=main)](.github/workflows/docker-image-test-amd64-arm64.yml)
 : GitHub Actions workflow file for automation of Docker image testing (amd64, arm64)
   - MacOS Docker is covered via Colima (prerequisite; installation might take long time, sometimes it is not deterministic and execution could fail, situation might change in the future)
 - [act.sh](act.sh): act script for local execution of GitHub actions workflows pre-configured to operate in dry-run mode (check script before first run)
@@ -94,4 +94,4 @@ will be also pre-enabled for all corresponding tools. Uninstallation is supporte
 To run this script user has to able to have root priviledges (e.g. run via sudo).
 
 __scripts and files:__
-- [![build_status_badge](https://github.com/stefanbosak/aws-cloud-tools/actions/workflows/standalone-test-amd64.yml/badge.svg?branch=main)](.github/workflows/standalone-test-amd64.yml): standalone installer script
+- [![build_status_badge](../../actions/workflows/standalone-test-amd64.yml/badge.svg?branch=main)](.github/workflows/standalone-test-amd64.yml): standalone installer script
