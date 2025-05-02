@@ -44,6 +44,7 @@ LABEL stage="aws-cloud-tools-builder" \
 
 ARG DEBIAN_FRONTEND
 
+ARG WORKSPACE_ROOT_DIR
 WORKDIR "${WORKSPACE_ROOT_DIR}"
 
 # install required packages and additional applications
@@ -62,7 +63,6 @@ ARG TARGETARCH
 ARG ANSIBLE_CLI_VERSION
 
 ARG WORKSPACE_ROOT_DIR
-
 WORKDIR "${WORKSPACE_ROOT_DIR}"
 
 # download and install ansible tool
@@ -82,7 +82,6 @@ ARG TARGETARCH
 ARG AWS_CLI_VERSION
 
 ARG WORKSPACE_ROOT_DIR
-
 WORKDIR "${WORKSPACE_ROOT_DIR}"
 
 # download AWS CLI, AWS session-manager-plugin
@@ -107,7 +106,6 @@ ARG TARGETARCH
 ARG AWS_SAM_CLI_VERSION
 
 ARG WORKSPACE_ROOT_DIR
-
 WORKDIR "${WORKSPACE_ROOT_DIR}"
 
 # download and install AWS SAM CLI
@@ -127,7 +125,6 @@ ARG TARGETARCH
 ARG HELM_CLI_VERSION
 
 ARG WORKSPACE_ROOT_DIR
-
 WORKDIR "${WORKSPACE_ROOT_DIR}"
 
 # download HELM archive file
@@ -148,7 +145,6 @@ ARG TARGETARCH
 ARG KOPS_CLI_VERSION
 
 ARG WORKSPACE_ROOT_DIR
-
 WORKDIR "${WORKSPACE_ROOT_DIR}"
 
 # download kubectl CLI binary file
@@ -169,7 +165,6 @@ ARG TARGETARCH
 ARG KUBECTL_CLI_VERSION
 
 ARG WORKSPACE_ROOT_DIR
-
 WORKDIR "${WORKSPACE_ROOT_DIR}"
 
 # download kubectl CLI binary file
@@ -190,7 +185,6 @@ ARG TARGETARCH
 ARG K9S_CLI_VERSION
 
 ARG WORKSPACE_ROOT_DIR
-
 WORKDIR "${WORKSPACE_ROOT_DIR}"
 
 # download k9s CLI binary file
@@ -210,7 +204,6 @@ ARG TARGETARCH
 ARG TERRAFORM_CLI_VERSION
 
 ARG WORKSPACE_ROOT_DIR
-
 WORKDIR "${WORKSPACE_ROOT_DIR}"
 
 # download TF CLI archive file
@@ -231,7 +224,6 @@ ARG TARGETARCH
 ARG TERRAGRUNT_CLI_VERSION
 
 ARG WORKSPACE_ROOT_DIR
-
 WORKDIR "${WORKSPACE_ROOT_DIR}"
 
 # download kubectl CLI binary file
@@ -242,7 +234,7 @@ RUN install -v -o root -g root -m 0755 "${WORKSPACE_ROOT_DIR}/terragrunt_${TARGE
 
 
 # container as final image for providing AWS cloud tools
-FROM debian:${DEBIAN_RELEASE} as aws-cloud-tools-image
+FROM debian:${DEBIAN_RELEASE} AS aws-cloud-tools-image
 
 LABEL stage="aws-cloud-tools-image" \
       description="Debian-based container with AWS cloud tools"
@@ -253,7 +245,7 @@ ARG CONTAINER_GROUP
 ARG DEBIAN_FRONTEND
 
 # set locales
-ENV LANG C.UTF-8
+ENV LANG=C.UTF-8
 ENV TZ=UTC
 
 # setup user profile
