@@ -40,7 +40,9 @@ ARG TERRAGRUNT_CLI_VERSION=v0.77.22
 FROM debian:${DEBIAN_RELEASE} AS aws-cloud-tools-builder
 
 LABEL stage="aws-cloud-tools-builder" \
-      description="Debian-based container builder for preparing AWS cloud tools"
+      description="Debian-based container builder for preparing AWS cloud tools" \
+      org.opencontainers.image.description="Debian-based container builder for preparing AWS cloud tools" \
+      org.opencontainers.image.source=https://github.com/stefanbosak/aws-cloud-tools
 
 ARG DEBIAN_FRONTEND
 
@@ -56,7 +58,9 @@ RUN apt-get update && \
 FROM aws-cloud-tools-builder AS aws-cloud-tools-ansible-cli-builder
 
 LABEL stage="aws-cloud-tools-ansible-cli-builder" \
-      description="Debian-based container builder for preparing AWS cloud tool ansible"
+      description="Debian-based container builder for preparing AWS cloud tool ansible" \
+      org.opencontainers.image.description="Debian-based container builder for preparing AWS cloud tool ansible" \
+      org.opencontainers.image.source=https://github.com/stefanbosak/aws-cloud-tools
 
 ARG TARGETOS
 ARG TARGETARCH
@@ -75,7 +79,9 @@ RUN python3 -m pip install --break-system-packages  "https://github.com/ansible/
 FROM aws-cloud-tools-builder AS aws-cloud-tools-aws-cli-builder
 
 LABEL stage="aws-cloud-tools-aws-cli-builder" \
-      description="Debian-based container builder for preparing AWS cloud tool AWS CLI"
+      description="Debian-based container builder for preparing AWS cloud tool AWS CLI" \
+      org.opencontainers.image.description="Debian-based container builder for preparing AWS cloud tool AWS CLI" \
+      org.opencontainers.image.source=https://github.com/stefanbosak/aws-cloud-tools
 
 ARG TARGETOS
 ARG TARGETARCH
@@ -99,7 +105,9 @@ RUN mkdir -v "${WORKSPACE_ROOT_DIR}/awscli" && unzip "awscli.zip" -d "${WORKSPAC
 FROM aws-cloud-tools-builder AS aws-cloud-tools-aws-sam-cli-builder
 
 LABEL stage="aws-cloud-tools-aws-sam-cli-builder" \
-      description="Debian-based container builder for preparing AWS cloud tool AWS SAM CLI"
+      description="Debian-based container builder for preparing AWS cloud tool AWS SAM CLI" \
+      org.opencontainers.image.description="Debian-based container builder for preparing AWS cloud tool AWS SAM CLI" \
+      org.opencontainers.image.source=https://github.com/stefanbosak/aws-cloud-tools
 
 ARG TARGETOS
 ARG TARGETARCH
@@ -118,7 +126,9 @@ RUN uri=$(echo "https://github.com/aws/aws-sam-cli/releases/download/${AWS_SAM_C
 FROM aws-cloud-tools-builder AS aws-cloud-tools-helm-builder
 
 LABEL stage="aws-cloud-tools-helm-builder" \
-      description="Debian-based container builder for preparing AWS cloud tool HELM CLI"
+      description="Debian-based container builder for preparing AWS cloud tool HELM CLI" \
+      org.opencontainers.image.description="Debian-based container builder for preparing AWS cloud tool HELM CLI" \
+      org.opencontainers.image.source=https://github.com/stefanbosak/aws-cloud-tools
 
 ARG TARGETOS
 ARG TARGETARCH
@@ -138,7 +148,9 @@ RUN mkdir -v "${WORKSPACE_ROOT_DIR}/helm" && tar -zxf "helm-${HELM_CLI_VERSION}-
 FROM aws-cloud-tools-builder AS aws-cloud-tools-kops-builder
 
 LABEL stage="aws-cloud-tools-kubectl-builder" \
-      description="Debian-based container builder for preparing AWS cloud tool kops CLI"
+      description="Debian-based container builder for preparing AWS cloud tool kops CLI" \
+      org.opencontainers.image.description="Debian-based container builder for preparing AWS cloud tool kops CLI" \
+      org.opencontainers.image.source=https://github.com/stefanbosak/aws-cloud-tools
 
 ARG TARGETOS
 ARG TARGETARCH
@@ -158,7 +170,9 @@ RUN install -v -o root -g root -m 0755 "${WORKSPACE_ROOT_DIR}/kops-${TARGETOS}-$
 FROM aws-cloud-tools-builder AS aws-cloud-tools-kubectl-builder
 
 LABEL stage="aws-cloud-tools-kubectl-builder" \
-      description="Debian-based container builder for preparing AWS cloud tool kubectl CLI"
+      description="Debian-based container builder for preparing AWS cloud tool kubectl CLI" \
+      org.opencontainers.image.description="Debian-based container builder for preparing AWS cloud tool kubectl CLI" \
+      org.opencontainers.image.source=https://github.com/stefanbosak/aws-cloud-tools
 
 ARG TARGETOS
 ARG TARGETARCH
@@ -197,7 +211,9 @@ RUN tar -zxf "k9s_Linux_${TARGETARCH}.tar.gz" -C "/usr/local/bin" --no-anchored 
 FROM aws-cloud-tools-builder AS aws-cloud-tools-terraform-builder
 
 LABEL stage="aws-cloud-tools-terraform-builder" \
-      description="Debian-based container builder for preparing AWS cloud tool terraform"
+      description="Debian-based container builder for preparing AWS cloud tool terraform" \
+      org.opencontainers.image.description="Debian-based container builder for preparing AWS cloud tool terraform" \
+      org.opencontainers.image.source=https://github.com/stefanbosak/aws-cloud-tools
 
 ARG TARGETOS
 ARG TARGETARCH
@@ -217,7 +233,9 @@ RUN unzip "terraform_${TERRAFORM_CLI_VERSION}_${TARGETOS}_${TARGETARCH}.zip" -d 
 FROM aws-cloud-tools-builder AS aws-cloud-tools-terragrunt-builder
 
 LABEL stage="aws-cloud-tools-kubectl-builder" \
-      description="Debian-based container builder for preparing AWS cloud tool terragrunt CLI"
+      description="Debian-based container builder for preparing AWS cloud tool terragrunt CLI" \
+      org.opencontainers.image.description="Debian-based container builder for preparing AWS cloud tool terragrunt CLI" \
+      org.opencontainers.image.source=https://github.com/stefanbosak/aws-cloud-tools
 
 ARG TARGETOS
 ARG TARGETARCH
@@ -237,7 +255,10 @@ RUN install -v -o root -g root -m 0755 "${WORKSPACE_ROOT_DIR}/terragrunt_${TARGE
 FROM debian:${DEBIAN_RELEASE} AS aws-cloud-tools-image
 
 LABEL stage="aws-cloud-tools-image" \
-      description="Debian-based container with AWS cloud tools"
+      description="Debian-based container with AWS cloud tools" \
+      org.opencontainers.image.description="Debian-based container with AWS cloud tools" \
+      org.opencontainers.image.source=https://github.com/stefanbosak/aws-cloud-tools
+
 
 ARG CONTAINER_USER
 ARG CONTAINER_GROUP
