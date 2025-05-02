@@ -27,9 +27,9 @@ jobs:
           session-manager-plugin --version
           sam --version
           helm version
+          k9s version
           kops version
           kubectl version --client
-          k9s version
           terraform version
           terragrunt --version
 
@@ -51,8 +51,8 @@ jobs:
           session-manager-plugin --version
           sam --version
           helm version
+          k9s version
           kops version
           kubectl version --client
-          k9s version
           terraform version
           terragrunt --version

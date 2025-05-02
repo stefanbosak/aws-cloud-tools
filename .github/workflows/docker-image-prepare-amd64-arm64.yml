@@ -172,9 +172,9 @@ jobs:
             AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}
             AWS_SAM_CLI_VERSION=${{ env.AWS_SAM_CLI_VERSION }}
             HELM_CLI_VERSION=${{ env.HELM_CLI_VERSION }}
+            K9S_CLI_VERSION=${{ env.K9S_CLI_VERSION }}
             KOPS_CLI_VERSION=${{ env.KOPS_CLI_VERSION }}
             KUBECTL_CLI_VERSION=${{ env.KUBECTL_CLI_VERSION }}
-            K9S_CLI_VERSION=${{ env.K9S_CLI_VERSION }}
             TERRAFORM_CLI_VERSION=${{ env.TERRAFORM_CLI_VERSION }}
             TERRAGRUNT_CLI_VERSION=${{ env.TERRAGRUNT_CLI_VERSION }}
             WORKSPACE_ROOT_DIR=${{ env.WORKSPACE_ROOT_DIR }}
@@ -186,15 +186,23 @@ jobs:
       - name: 'Test Docker image (amd64)'
         if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
         run: |
+          echo -ne "ANSIBLE_CLI_VERSION="
           docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "ansible --version"
+          echo -ne "AWS_CLI_VERSION="
           docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "aws --version"
-          docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "session-manager-plugin --version"
+          echo -ne "AWS_SAM_CLI_VERSION="
           docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "sam --version"
+          echo -ne "HELM_CLI_VERSION="
           docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "helm version"
-          docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "kops version"
-          docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "kubectl version --client"
+          echo -ne "K9S_CLI_VERSION="
           docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "k9s version"
+          echo -ne "KOPS_CLI_VERSION="
+          docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "kops version"
+          echo -ne "KUBECTL_CLI_VERSION="
+          docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "kubectl version --client"
+          echo -ne "TERRAFORM_CLI_VERSION="
           docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "terraform version"
+          echo -ne "TERRAGRUNT_CLI_VERSION="
           docker container run --platform linux/amd64 --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "terragrunt --version"
       - name: 'Tag and push multi-platforms Docker images to preconfigured container registries'
         if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
@@ -207,9 +215,9 @@ jobs:
             AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}
             AWS_SAM_CLI_VERSION=${{ env.AWS_SAM_CLI_VERSION }}
             HELM_CLI_VERSION=${{ env.HELM_CLI_VERSION }}
+            K9S_CLI_VERSION=${{ env.K9S_CLI_VERSION }}
             KOPS_CLI_VERSION=${{ env.KOPS_CLI_VERSION }}
             KUBECTL_CLI_VERSION=${{ env.KUBECTL_CLI_VERSION }}
-            K9S_CLI_VERSION=${{ env.K9S_CLI_VERSION }}
             TERRAFORM_CLI_VERSION=${{ env.TERRAFORM_CLI_VERSION }}
             TERRAGRUNT_CLI_VERSION=${{ env.TERRAGRUNT_CLI_VERSION }}
             WORKSPACE_ROOT_DIR=${{ env.WORKSPACE_ROOT_DIR }}
