@@ -125,7 +125,7 @@ resources_dictionary["sam_completion"]="https://raw.githubusercontent.com/demoto
 
 ## now loop through the above dictionary items
 for key in "${!resources_dictionary[@]}"; do
-  echo -ne "Downloading ${key} (${resources_dictionary[$key]})..."
+  echo -ne "Downloading [${key}](${resources_dictionary[$key]})..."
 
   if [[ "${key}" =~ "aws" ]]; then
     # handle downloading of AWS resources specificly due to AWS inconsistent naming of architectures
