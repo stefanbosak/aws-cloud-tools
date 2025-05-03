@@ -54,15 +54,15 @@ jobs:
     steps:
       - name: 'Checkout'
         uses: actions/checkout@main
-      - name: 'Install required packages (amd64)'
+      - name: 'Install required packages (arm64)'
         run: |
           sudo apt-get update && \
           sudo apt-get -y --no-install-recommends install ca-certificates && \
           sudo apt-get clean && sudo rm -rf "/var/lib/apt/lists/*"
-      - name: 'Perform standalone install (amd64)'
+      - name: 'Perform standalone install (arm64)'
         run: |
           sudo ./standalone-install.sh
-      - name: 'AWS cloud tools test (amd64)'
+      - name: 'AWS cloud tools test (arm64)'
         run: |
           echo -ne "AWS_CLI_VERSION="
           aws --version | awk -F' ' '{print $1}' | awk -F'/' '{print $2}'
