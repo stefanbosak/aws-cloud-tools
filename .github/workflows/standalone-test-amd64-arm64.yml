@@ -9,8 +9,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  test-on-linux-x86:
-    runs-on: ubuntu-latest
+  test-on-linux:
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04-arm]
     permissions:
       contents: read
       packages: write
@@ -18,51 +21,16 @@ jobs:
     steps:
       - name: 'Checkout'
         uses: actions/checkout@main
-      - name: 'Install required packages (amd64)'
+      - name: 'Install required packages'
         run: |
           sudo apt-get update && \
           sudo apt-get -y --no-install-recommends install ca-certificates && \
           sudo apt-get clean && sudo rm -rf "/var/lib/apt/lists/*"
-      - name: 'Perform standalone install (amd64)'
+      - name: 'Perform standalone install'
         run: |
           sudo ./standalone-install.sh
-      - name: 'AWS cloud tools test (amd64)'
-        run: |
-          echo -ne "AWS_CLI_VERSION="
-          aws --version | awk -F' ' '{print $1}' | awk -F'/' '{print $2}'
-          echo -ne "AWS_SAM_CLI_VERSION="
-          sam --version | awk '{print "v"$NF}'
-          echo -ne "HELM_CLI_VERSION="
-          helm version --short | awk -F'+' '{print $1}'
-          echo -ne "K9S_CLI_VERSION="
-          k9s version | awk '/Version:/ {print $2}'
-          echo -ne "KOPS_CLI_VERSION="
-          kops version | awk -F'git-' 'NR==1 {print $2}' | sed 's/)//'
-          echo -ne "KUBECTL_CLI_VERSION="
-          kubectl version --client | awk -F': ' 'NR==1 {print $2}'
-          echo -ne "TERRAFORM_CLI_VERSION="
-          terraform version | awk -F'v' 'NR==1 {print $2}'
-          echo -ne "TERRAGRUNT_CLI_VERSION="
-          terragrunt --version | awk 'NR==1 {print $NF}'
-
-  test-on-linux-arm:
-    runs-on: ubuntu-24.04-arm
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: 'Checkout'
-        uses: actions/checkout@main
-      - name: 'Install required packages (arm64)'
-        run: |
-          sudo apt-get update && \
-          sudo apt-get -y --no-install-recommends install ca-certificates && \
-          sudo apt-get clean && sudo rm -rf "/var/lib/apt/lists/*"
-      - name: 'Perform standalone install (arm64)'
-        run: |
-          sudo ./standalone-install.sh
-      - name: 'AWS cloud tools test (arm64)'
+      - name: 'AWS cloud tools test'
+        shell: bash
         run: |
           echo -ne "AWS_CLI_VERSION="
           aws --version | awk -F' ' '{print $1}' | awk -F'/' '{print $2}'
