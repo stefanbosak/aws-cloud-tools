@@ -15,7 +15,7 @@ jobs:
       matrix:
         runner: [ubuntu-latest, ubuntu-24.04-arm]
     permissions:
-      contents: write
+      contents: read
       packages: write
     container:
       image: docker.io/developmententity/aws-cloud-tools:initial
@@ -26,6 +26,7 @@ jobs:
       - name: 'Docker image test'
         shell: bash
         run: |
+          echo "HOME: ${HOME}"
           echo -ne "ANSIBLE_CLI_VERSION="
           ansible --version | awk -F"core " '/core/{print "v"$2}' | sed 's/]//'
           echo -ne "AWS_CLI_VERSION="
