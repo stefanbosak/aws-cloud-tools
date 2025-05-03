@@ -158,6 +158,7 @@ jobs:
           load: false
           provenance: false
           no-cache: false
+          platforms: linux/amd64,linux/arm64
       - name: 'Load Docker image'
         if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
         uses: docker/build-push-action@master
@@ -226,6 +227,7 @@ jobs:
           tags: |
             ${{ secrets.DH_USER }}/${{ env.REPOSITORY_NAME }}:${{ env.CONTAINER_TAG }}
             ${{ env.GH_REGISTRY }}/${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.CONTAINER_TAG }}
+          platforms: linux/amd64,linux/arm64
       - name: 'Pull git'
         if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
         run: |
