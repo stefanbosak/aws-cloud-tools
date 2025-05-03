@@ -23,7 +23,7 @@ source "${cwd}/set_latest_versions_strings.sh"
 
 # default target OS, architecture and platforms
 export TARGETOS=${TARGETOS:-linux}
-export TARGETARCH=${TARGETARCH:-amd64}
+export TARGETARCH=${TARGETARCH:-$(dpkg --print-architecture)}
 export TARGETPLATFORM=${TARGETPLATFORM:-"${TARGETOS}/${TARGETARCH}"}
 
 # set location of workspace directory
