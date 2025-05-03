@@ -226,6 +226,10 @@ jobs:
           tags: |
             ${{ secrets.DH_USER }}/${{ env.REPOSITORY_NAME }}:${{ env.CONTAINER_TAG }}
             ${{ env.GH_REGISTRY }}/${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.CONTAINER_TAG }}
+      - name: 'Pull git'
+        if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
+        run: |
+          git pull --rebase
       - name: 'Push git changes'
         if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
         uses: ad-m/github-push-action@master
