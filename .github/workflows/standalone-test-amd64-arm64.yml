@@ -1,4 +1,4 @@
-name: 'Test standalone (amd64)'
+name: 'Test standalone'
 run-name: '${{ github.ref_type }}_${{ github.ref_name }}@${{ github.triggering_actor }}'
 
 concurrency:
