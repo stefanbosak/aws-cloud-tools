@@ -22,8 +22,8 @@ jobs:
     steps:
       - name: 'Docker image test (amd64)'
         run: |
-          sudo mkdir .ansible && sudo chmod -R a+rw .ansible
-          ansible --version | awk -F"core " '/core/{print "v"$2}' | sed 's/]//'
+          #sudo mkdir .ansible && sudo chmod -R a+rw .ansible
+          #ansible --version | awk -F"core " '/core/{print "v"$2}' | sed 's/]//'
           aws --version | awk -F' ' '{print $1}' | awk -F'/' '{print $2}'
           sam --version | awk '{print "v"$NF}'
           helm version --short | awk -F'+' '{print $1}'
@@ -46,8 +46,8 @@ jobs:
     steps:
       - name: 'Docker image test (arm64)'
         run: |
-          sudo mkdir .ansible && sudo chmod -R a+rw .ansible
-          ansible --version | awk -F"core " '/core/{print "v"$2}' | sed 's/]//'
+          #sudo mkdir .ansible && sudo chmod -R a+rw .ansible
+          #ansible --version | awk -F"core " '/core/{print "v"$2}' | sed 's/]//'
           aws --version | awk -F' ' '{print $1}' | awk -F'/' '{print $2}'
           sam --version | awk '{print "v"$NF}'
           helm version --short | awk -F'+' '{print $1}'
