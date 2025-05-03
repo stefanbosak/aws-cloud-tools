@@ -28,9 +28,6 @@ jobs:
           sudo ./standalone-install.sh
       - name: 'AWS cloud tools test (amd64)'
         run: |
-          #sudo mkdir .ansible && sudo chmod -R a+rw .ansible
-          #echo -ne "ANSIBLE_CLI_VERSION="
-          ansible --version | awk -F"core " '/core/{print "v"$2}' | sed 's/]//'
           echo -ne "AWS_CLI_VERSION="
           aws --version | awk -F' ' '{print $1}' | awk -F'/' '{print $2}'
           echo -ne "AWS_SAM_CLI_VERSION="
