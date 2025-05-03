@@ -21,6 +21,7 @@ jobs:
       image: docker.io/developmententity/aws-cloud-tools:initial
       options:
         -v /dev:/dev
+        -u root
 
     steps:
       - name: 'Docker image test'
