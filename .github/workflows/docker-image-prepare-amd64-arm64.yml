@@ -15,11 +15,11 @@ on:
         required: false
         type: string
       AWS_CLI_VERSION:
-        description: 'AWS_CLI_VERSION (2.27.6)'
+        description: 'AWS_CLI_VERSION (2.27.7)'
         required: false
         type: string
       AWS_SAM_CLI_VERSION:
-        description: 'AWS_SAM_CLI_VERSION (v1.137.1)'
+        description: 'AWS_SAM_CLI_VERSION (v1.138.0)'
         required: false
         type: string
       HELM_CLI_VERSION:
@@ -43,7 +43,7 @@ on:
         required: false
         type: string
       TERRAGRUNT_CLI_VERSION:
-        description: 'TERRAGRUNT_CLI_VERSION (v0.77.22)'
+        description: 'TERRAGRUNT_CLI_VERSION (v0.78.0)'
         required: false
         type: string
       CONTAINER_TAG:
