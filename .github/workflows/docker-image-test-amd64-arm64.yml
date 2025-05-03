@@ -15,7 +15,7 @@ jobs:
       matrix:
         runner: [ubuntu-latest, ubuntu-24.04-arm]
     permissions:
-      contents: read
+      contents: write
       packages: write
     container:
       image: docker.io/developmententity/aws-cloud-tools:initial
@@ -26,10 +26,8 @@ jobs:
       - name: 'Docker image test'
         shell: bash
         run: |
-          # ansible require write permissions even for request for version
-          # (temporarily disable)
-          #echo -ne "ANSIBLE_CLI_VERSION="
-          #ansible --version | awk -F"core " '/core/{print "v"$2}' | sed 's/]//'
+          echo -ne "ANSIBLE_CLI_VERSION="
+          ansible --version | awk -F"core " '/core/{print "v"$2}' | sed 's/]//'
           echo -ne "AWS_CLI_VERSION="
           aws --version | awk -F' ' '{print $1}' | awk -F'/' '{print $2}'
           echo -ne "AWS_SAM_CLI_VERSION="
