@@ -93,4 +93,4 @@ will be also pre-enabled for all corresponding tools. Uninstallation is supporte
 To run this script user has to able to have root priviledges (e.g. run via sudo).
 
 __scripts and files:__
-- [![build_status_badge](../../actions/workflows/standalone-test-amd64.yml/badge.svg?branch=main)](.github/workflows/standalone-test-amd64.yml): standalone installer script
+- [![build_status_badge](../../actions/workflows/standalone-test-amd64-arm64.yml/badge.svg?branch=main)](.github/workflows/standalone-test-amd64.yml): standalone installer script
