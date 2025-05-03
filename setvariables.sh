@@ -122,6 +122,7 @@ if [ ! -z "${CLI_VERSIONS_CHANGED_DIFF}" ]; then
     git diff -- "${PUSHED_CLI_VERSIONS_FILE_NAME_PATH}"
     git add "${PUSHED_CLI_VERSIONS_FILE_NAME_PATH}"
     git commit -o "${PUSHED_CLI_VERSIONS_FILE_NAME_PATH}" -m "Updated PUSHED_CLI_VERSIONS.txt"
+    git pull --rebase
   fi
 fi
 
