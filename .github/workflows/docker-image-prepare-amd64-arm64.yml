@@ -151,7 +151,7 @@ jobs:
           package-name: ${{ env.REPOSITORY_NAME }}
           package-type: 'container'
           token: ${{ secrets.GH_TOKEN }}
-          min-versions-to-keep: 2
+          min-versions-to-keep: 3
       - name: 'Build multi-platforms Docker images'
         if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
         uses: docker/build-push-action@master
