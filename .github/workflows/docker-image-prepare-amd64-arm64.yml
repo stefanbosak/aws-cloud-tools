@@ -113,10 +113,10 @@ jobs:
           echo "GITHUB_ENV:"
           cat ${GITHUB_ENV}
       - name: 'Set up QEMU (arm64)'
-         if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
-         uses: docker/setup-qemu-action@master
-         with:
-           platforms: linux/amd64, linux/arm64
+        if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
+        uses: docker/setup-qemu-action@master
+        with:
+          platforms: linux/amd64, linux/arm64
       - name: 'Set up Docker buildx'
         if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
         uses: docker/setup-buildx-action@master
