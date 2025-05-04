@@ -331,11 +331,11 @@ COPY --from=aws-cloud-tools-terraform-builder "/usr/local/bin/" "/usr/local/bin/
 COPY --from=aws-cloud-tools-terragrunt-builder "/usr/local/bin/" "/usr/local/bin/"
 
 # enable tools completions (required to run given tool to generate completion file content)
-#RUN helm completion bash > "/usr/share/bash-completion/completions/helm"
-RUN kops completion bash > "/usr/share/bash-completion/completions/kops"
-RUN kubectl completion bash > "/usr/share/bash-completion/completions/kubectl"
-RUN k9s completion bash > "/usr/share/bash-completion/completions/k9s"
-RUN activate-global-python-argcomplete
+RUN helm completion bash > "/usr/share/bash-completion/completions/helm" && \
+    kops completion bash > "/usr/share/bash-completion/completions/kops" && \
+    kubectl completion bash > "/usr/share/bash-completion/completions/kubectl" && \
+    k9s completion bash > "/usr/share/bash-completion/completions/k9s" && \
+    activate-global-python-argcomplete
 
 # user home directory as workdir
 WORKDIR "/home/${CONTAINER_USER}"
