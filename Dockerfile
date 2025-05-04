@@ -11,8 +11,7 @@ ARG DEBIAN_RELEASE=stable-slim
 ARG DEBIAN_FRONTEND=noninteractive
 
 # ansible CLI tools versions
-ARG 
-ANSIBLE_CLI_VERSION=2.19.0b1
+ARG ANSIBLE_CLI_VERSION=2.19.0b1
 
 # AWS CLI tools versions
 ARG AWS_CLI_VERSION=2.27.7
