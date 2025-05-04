@@ -143,6 +143,15 @@ jobs:
           password: ${{ secrets.DH_TOKEN }}
           ecr: false
           logout: true
+      - name: 'Clean old containers'
+        if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
+        uses: actions/delete-package-versions@main
+        with:
+          owner: ${{ github.repository_owner }}
+          package-name: ${{ env.REPOSITORY_NAME }}
+          package-type: 'container'
+          token: ${{ secrets.GH_TOKEN }}
+          min-versions-to-keep: 2
       - name: 'Build multi-platforms Docker images'
         if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
         uses: docker/build-push-action@master
