@@ -11,7 +11,8 @@ ARG DEBIAN_RELEASE=stable-slim
 ARG DEBIAN_FRONTEND=noninteractive
 
 # ansible CLI tools versions
-ARG ANSIBLE_CLI_VERSION=2.19.0b1
+ARG 
+ANSIBLE_CLI_VERSION=2.19.0b1
 
 # AWS CLI tools versions
 ARG AWS_CLI_VERSION=2.27.7
@@ -331,7 +332,7 @@ COPY --from=aws-cloud-tools-terraform-builder "/usr/local/bin/" "/usr/local/bin/
 COPY --from=aws-cloud-tools-terragrunt-builder "/usr/local/bin/" "/usr/local/bin/"
 
 # enable tools completions (required to run given tool to generate completion file content)
-RUN helm completion bash > "/usr/share/bash-completion/completions/helm"
+#RUN helm completion bash > "/usr/share/bash-completion/completions/helm"
 RUN kops completion bash > "/usr/share/bash-completion/completions/kops"
 RUN kubectl completion bash > "/usr/share/bash-completion/completions/kubectl"
 RUN k9s completion bash > "/usr/share/bash-completion/completions/k9s"
