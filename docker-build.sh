@@ -37,8 +37,7 @@ for tool in ${TOOLS}; do
 done
 
 # build docker image
-docker buildx build --network=host \
-                    --force-rm --rm \
+docker buildx build --network=host --force-rm --rm \
                     --platform ${TARGETPLATFORM} \
                     --build-arg TARGETOS=${TARGETOS} \
                     --build-arg ANSIBLE_CLI_VERSION=${ANSIBLE_CLI_VERSION} \
@@ -51,8 +50,9 @@ docker buildx build --network=host \
                     --build-arg TERRAFORM_CLI_VERSION=${TERRAFORM_CLI_VERSION} \
                     --build-arg TERRAGRUNT_CLI_VERSION=${TERRAGRUNT_CLI_VERSION} \
                     --build-arg WORKSPACE_ROOT_DIR=${WORKSPACE_ROOT_DIR} \
+                    --build-arg CONTAINER_USER=${CONTAINER_USER} \
+                    --build-arg CONTAINER_GROUP=${CONTAINER_GROUP} \
                     -t "${CONTAINER_NAME}${CONTAINER_TAG}" -f "${cwd}/Dockerfile" "${cwd}"
-
 
 # clean temporary images
 docker image prune -f --filter label="stage=aws-cloud-tools-image" --filter "dangling=true"
