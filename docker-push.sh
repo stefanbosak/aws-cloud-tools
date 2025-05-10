@@ -33,6 +33,15 @@ if [ -z "${CONTAINER_REPOSITORY}" ]; then
   exit 1
 fi
 
+# source image (local build)
+CONTAINER_SOURCE_IMAGE="${CONTAINER_IMAGE_NAME}${CONTAINER_IMAGE_TAG}"
+
+# destination image (remote container repository)
+CONTAINER_TARGET_IMAGE="${CONTAINER_REPOSITORY}${CONTAINER_IMAGE_NAME}${CONTAINER_IMAGE_TAG}"
+
+# login to DockerHub (GitHub package is using GitHub token)
+#docker login
+
 # tag container image before uploading
 docker image tag "${CONTAINER_SOURCE_IMAGE}" "${CONTAINER_TARGET_IMAGE}"
 

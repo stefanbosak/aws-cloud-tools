@@ -52,7 +52,8 @@ docker buildx build --network=host --force-rm --rm \
                     --build-arg WORKSPACE_ROOT_DIR=${WORKSPACE_ROOT_DIR} \
                     --build-arg CONTAINER_USER=${CONTAINER_USER} \
                     --build-arg CONTAINER_GROUP=${CONTAINER_GROUP} \
-                    -t "${CONTAINER_NAME}${CONTAINER_TAG}" -f "${cwd}/Dockerfile" "${cwd}"
+                    -t "${CONTAINER_IMAGE_NAME}${CONTAINER_IMAGE_TAG}" \
+                    -f "${cwd}/Dockerfile" "${cwd}"
 
 # clean temporary images
-docker image prune -f --filter label="stage=aws-cloud-tools-image" --filter "dangling=true"
+docker image prune -f --filter label="stage=aws-cloud-tools-*" --filter "dangling=true"

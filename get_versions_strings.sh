@@ -9,9 +9,6 @@ SITE="github.com"
 URI_PREFIX="https://${SITE}/"
 API_URI_PREFIX="https://api.${SITE}/"
 
-# amount of latest versions strings to show
-CLI_VERSIONS_AMOUNT=${CLI_VERSIONS_AMOUNT:-1}
-
 # check prerequisites (if all required tools are available)
 TOOLS="curl git jq"
 
@@ -54,25 +51,25 @@ for key in ${keys}; do
     fi
   done
 
+  # extract tool version for git tag
+  tool_version=$(git ls-remote --refs --sort='version:refname' --tags "${URI_PREFIX}${resources_dictionary[$key]}" | awk -F"/" '!($0 ~ /alpha|beta|rc|dev|None|list|nightly|\{/){print $NF}' | tail -n 1)
+
+  # try to extract release url
+  tool_uri=$(curl -s -H "Accept: application/vnd.github+json" "${API_URI_PREFIX}repos/${resources_dictionary[$key]}/releases/tags/${tool_version}" | jq -r '.html_url')
+
+  # if no release url recognized change tool version based on data in PUSHED_CLI_VERSIONS.txt
+  #
+  # NOTE: release assets of given tool might be not ready but tool git tag already exists
+  #
+  if [ "${tool_uri}" = "null" ]; then
+    # extract tool version from lastly pushed versions
+    tool_version=$(awk -F "=" '/'"${key}"'/ {print $NF}' "${cwd}/PUSHED_CLI_VERSIONS.txt")
+  fi
+
   if [ ${special_version_string_handling} -eq 1 ]; then
     # specific handling of version string is required ("v" at the beggining has to be removed from version string)
-    git ls-remote --refs --sort='version:refname' --tags "${URI_PREFIX}${resources_dictionary[$key]}" | awk -F"/" '!($0 ~ /alpha|beta|rc|dev|None|list|nightly|\{/){print $NF}' | tail -n ${CLI_VERSIONS_AMOUNT} | sed 's/^v//g'
+    echo "${tool_version#v}"
   else
-    # extract tool version for git tag
-    tool_version=$(git ls-remote --refs --sort='version:refname' --tags "${URI_PREFIX}${resources_dictionary[$key]}" | awk -F"/" '!($0 ~ /alpha|beta|rc|dev|None|list|nightly|\{/){print $NF}' | tail -n ${CLI_VERSIONS_AMOUNT})
-
-    # try to extract release url
-    tool_uri=$(curl -s -H "Accept: application/vnd.github+json" "${API_URI_PREFIX}/repos/${resources_dictionary[$key]}/releases/tags/${tool_version}" | jq -r '.html_url')
-
-    # if no release url recognized change tool version based on data in PUSHED_CLI_VERSIONS.txt
-    #
-    # NOTE: release assets of given tool might be not ready but tool git tag already exists
-    #
-    if [ "${tool_uri}" = "null" ]; then
-      # extract tool version from lastly pushed versions
-      tool_version=$(awk -F "=" '/'"${key}"'/ {print $NF}' "${cwd}/PUSHED_CLI_VERSIONS.txt")
-    fi
-
     echo "${tool_version}"
   fi
 

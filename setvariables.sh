@@ -21,6 +21,15 @@ export GITHUB_ENV_TAIL_FILE=${GITHUB_ENV_TAIL_FILE:-"/tmp/github_env_tail"}
 # (any tool version can be overrided via corresponding variable)
 source "${cwd}/set_latest_versions_strings.sh"
 
+# Ubuntu releases URI
+export UBUNTU_RELEASES_URI="https://changelogs.ubuntu.com/meta-release"
+
+# Ubuntu LTS releases URI (comment if prefer non-LTS)
+export UBUNTU_RELEASES_URI="${UBUNTU_RELEASES_URI}-lts"
+
+# extract last supported Ubuntu LTS release
+export UBUNTU_RELEASE=$(curl -s "${UBUNTU_RELEASES_URI}" | awk '/^Version:/ {if ($2 ~ /^[0-9]{2}\.[0-9]{2}\./) version=substr($2, 1, 5)} /^Supported: 1/ {if (version) print version}' | tail -n 1)
+
 # default target OS, architecture and platforms
 export TARGETOS=${TARGETOS:-linux}
 export TARGETARCH=${TARGETARCH:-$(dpkg --print-architecture)}
@@ -34,16 +43,22 @@ export WORKSPACE_ROOT_DIR=${WORKSPACE_ROOT_DIR:-"/tmp/workspace"}
 export CONTAINER_USER=${CONTAINER_USER:-"user"}
 export CONTAINER_GROUP=${CONTAINER_GROUP:-"user"}
 
-# Docker container entities
+# container name
 export CONTAINER_NAME=${CONTAINER_NAME:-"aws-cloud-tools"}
 
+# container image name
+export CONTAINER_IMAGE_NAME=${CONTAINER_IMAGE_NAME:-"aws-cloud-tools"}
+
 # it is crutial to have ":" in the beginning of the string
-export CONTAINER_TAG=${CONTAINER_TAG:-":initial"}
+export CONTAINER_IMAGE_TAG=${CONTAINER_TAG:-":initial"}
 
 # it is crutial to have "/" at the end of the string
 export CONTAINER_REPOSITORY=${CONTAINER_REPOSITORY:-""}
 
-export CONTAINER_IMAGE=${CONTAINER_IMAGE:-"${CONTAINER_REPOSITORY}${CONTAINER_NAME}${CONTAINER_TAG}"}
+# docker compose settings
+export COMPOSE_DOCKER_CLI_BUILD=1
+export DOCKER_BUILDKIT=1
+export DOCKER_DEFAULT_PLATFORM="${TARGETPLATFORM}"
 
 # ansible CLI tool version
 export ANSIBLE_CLI_VERSION=${ANSIBLE_CLI_VERSION:-2.19.0b1}
