@@ -57,6 +57,4 @@ docker buildx build --network=host --force-rm --rm \
 
 # clean temporary stage images
 # - regexp in container image filters are still not supported in Docker
-for image_id in $(docker image ls --filter "label=stage=${CONTAINER_IMAGE_NAME}-image" --filter "dangling=true" -q); do
-  docker image rm -f "${image_id}"
-done
+docker image prune -f --filter "label=stage=${CONTAINER_IMAGE_NAME}-image"
