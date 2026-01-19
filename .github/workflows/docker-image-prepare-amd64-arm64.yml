@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
     inputs:
       ANSIBLE_CLI_VERSION:
-        description: 'ANSIBLE_CLI_VERSION (2.19.0b4)'
+        description: 'ANSIBLE_CLI_VERSION (v2.20.1)'
         required: false
         type: string
       AWS_CLI_VERSION:
@@ -19,31 +19,31 @@ on:
         required: false
         type: string
       AWS_SAM_CLI_VERSION:
-        description: 'AWS_SAM_CLI_VERSION (v1.139.0)'
+        description: 'AWS_SAM_CLI_VERSION (v1.151.0)'
         required: false
         type: string
       HELM_CLI_VERSION:
-        description: 'HELM_CLI_VERSION (v3.18.0)'
+        description: 'HELM_CLI_VERSION (v4.0.5)'
         required: false
         type: string
       K9S_CLI_VERSION:
-        description: 'K9S_CLI_VERSION (v0.50.6)'
+        description: 'K9S_CLI_VERSION (v0.50.18)'
         required: false
         type: string
       KOPS_CLI_VERSION:
-        description: 'KOPS_CLI_VERSION (v1.32.0)'
+        description: 'KOPS_CLI_VERSION (v1.34.1)'
         required: false
         type: string
       KUBECTL_CLI_VERSION:
-        description: 'KUBECTL_CLI_VERSION (v1.33.1)'
+        description: 'KUBECTL_CLI_VERSION (v1.35.0)'
         required: false
         type: string
       TERRAFORM_CLI_VERSION:
-        description: 'TERRAFORM_CLI_VERSION (1.12.1)'
+        description: 'TERRAFORM_CLI_VERSION (1.14.3)'
         required: false
         type: string
       TERRAGRUNT_CLI_VERSION:
-        description: 'TERRAGRUNT_CLI_VERSION (v0.80.2)'
+        description: 'TERRAGRUNT_CLI_VERSION (v0.97.2)'
         required: false
         type: string
       CONTAINER_TAG:
