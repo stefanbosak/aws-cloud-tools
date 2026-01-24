@@ -52,7 +52,7 @@ for key in ${keys}; do
   done
 
   # extract tool version for git tag
-  tool_version=$(git ls-remote --refs --sort='version:refname' --tags "${URI_PREFIX}${resources_dictionary[$key]}" | awk -F"/" '!($0 ~ /alpha|beta|rc|dev|None|list|nightly|\{/){print $NF}' | tail -n 1)
+  tool_version=$(git ls-remote --refs --sort='version:refname' --tags "${URI_PREFIX}${resources_dictionary[$key]}" | grep -vE 'alpha|beta|rc|dev|None|list|nightly|\{' | cut -d'/' -f3 | tail -n 1)
 
   # try to extract release url
   tool_uri=$(curl -s -H "Accept: application/vnd.github+json" "${API_URI_PREFIX}repos/${resources_dictionary[$key]}/releases/tags/${tool_version}" | jq -r '.html_url')
