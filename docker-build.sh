@@ -38,20 +38,21 @@ done
 
 # build docker image
 docker buildx build --network=host --force-rm --rm \
-                    --platform ${TARGETPLATFORM} \
-                    --build-arg TARGETOS=${TARGETOS} \
-                    --build-arg ANSIBLE_CLI_VERSION=${ANSIBLE_CLI_VERSION} \
-                    --build-arg AWS_CLI_VERSION=${AWS_CLI_VERSION} \
-                    --build-arg AWS_SAM_CLI_VERSION=${AWS_SAM_CLI_VERSION} \
-                    --build-arg HELM_CLI_VERSION=${HELM_CLI_VERSION} \
-                    --build-arg KOPS_CLI_VERSION=${KOPS_CLI_VERSION} \
-                    --build-arg KUBECTL_CLI_VERSION=${KUBECTL_CLI_VERSION} \
-                    --build-arg K9S_CLI_VERSION=${K9S_CLI_VERSION} \
-                    --build-arg TERRAFORM_CLI_VERSION=${TERRAFORM_CLI_VERSION} \
-                    --build-arg TERRAGRUNT_CLI_VERSION=${TERRAGRUNT_CLI_VERSION} \
-                    --build-arg WORKSPACE_ROOT_DIR=${WORKSPACE_ROOT_DIR} \
-                    --build-arg CONTAINER_USER=${CONTAINER_USER} \
-                    --build-arg CONTAINER_GROUP=${CONTAINER_GROUP} \
+                    --provenance=false --sbom=false --no-cache \
+                    --platform "${TARGETPLATFORM}" \
+                    --build-arg TARGETOS="${TARGETOS}" \
+                    --build-arg ANSIBLE_CLI_VERSION="${ANSIBLE_CLI_VERSION}" \
+                    --build-arg AWS_CLI_VERSION="${AWS_CLI_VERSION}" \
+                    --build-arg AWS_SAM_CLI_VERSION="${AWS_SAM_CLI_VERSION}" \
+                    --build-arg HELM_CLI_VERSION="${HELM_CLI_VERSION}" \
+                    --build-arg KOPS_CLI_VERSION="${KOPS_CLI_VERSION}" \
+                    --build-arg KUBECTL_CLI_VERSION="${KUBECTL_CLI_VERSION}" \
+                    --build-arg K9S_CLI_VERSION="${K9S_CLI_VERSION}" \
+                    --build-arg TERRAFORM_CLI_VERSION="${TERRAFORM_CLI_VERSION}" \
+                    --build-arg TERRAGRUNT_CLI_VERSION="${TERRAGRUNT_CLI_VERSION}" \
+                    --build-arg WORKSPACE_ROOT_DIR="${WORKSPACE_ROOT_DIR}" \
+                    --build-arg CONTAINER_USER="${CONTAINER_USER}" \
+                    --build-arg CONTAINER_GROUP="${CONTAINER_GROUP}" \
                     -t "${CONTAINER_IMAGE_NAME}${CONTAINER_IMAGE_TAG}" \
                     -f "${cwd}/Dockerfile" "${cwd}"
 
