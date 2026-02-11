@@ -2,7 +2,7 @@ name: 'Prepare multi-platform Docker images'
 run-name: '${{ github.ref_type }}_${{ github.ref_name }}@${{ github.triggering_actor }}'
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
 on:
@@ -107,6 +107,7 @@ jobs:
           ./setvariables.sh
           cat /tmp/github_env_tail >> ${GITHUB_ENV}
           echo "WORKSPACE_ROOT_DIR=${{ github.workspace }}/workspace" >> ${GITHUB_ENV}
+          echo "TIMESTAMP=$(git log -1 --format=%cI)" >> ${GITHUB_ENV}
           echo "REPOSITORY_NAME=${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}" >> ${GITHUB_ENV}
           echo "/tmp/github_env_tail:"
           cat /tmp/github_env_tail
@@ -240,8 +241,13 @@ jobs:
           secrets: |
             GIT_AUTH_TOKEN=${{ secrets.GH_TOKEN }}
           tags: |
-            ${{ secrets.DH_USER }}/${{ env.REPOSITORY_NAME }}:${{ env.CONTAINER_TAG }}
-            ${{ env.GH_REGISTRY }}/${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.CONTAINER_TAG }}
+            ${{ env.GH_REGISTRY }}/${{ github.repository }}:${{ env.CONTAINER_TAG }}
+            ${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ env.REPOSITORY_NAME }}:${{ env.CONTAINER_TAG }}
+          labels: |
+            org.opencontainers.image.created=${{ env.TIMESTAMP }}
+            org.opencontainers.image.authors=${{ github.repository_owner }}
+            org.opencontainers.image.url=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
           platforms: linux/amd64,linux/arm64
       - name: 'Pull git'
         if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
