@@ -132,7 +132,7 @@ jobs:
         with:
           registry: ${{ env.GH_REGISTRY }}
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.GH_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
           ecr: false
           logout: true
       - name: 'Login to DockerHub Container Registry'
@@ -144,15 +144,16 @@ jobs:
           password: ${{ secrets.DH_TOKEN }}
           ecr: false
           logout: true
-      - name: 'Clean old containers'
+      - name: 'Clean old containers in GitHub Container Registry'
         if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
         uses: actions/delete-package-versions@main
         with:
           owner: ${{ github.repository_owner }}
           package-name: ${{ env.REPOSITORY_NAME }}
           package-type: 'container'
-          token: ${{ secrets.GH_TOKEN }}
-          min-versions-to-keep: 3
+          token: ${{ secrets.GITHUB_TOKEN }}
+          delete-only-untagged-versions: 'true'
+          min-versions-to-keep: 2
       - name: 'Build multi-platforms Docker images'
         if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
         uses: docker/build-push-action@master
@@ -237,9 +238,9 @@ jobs:
           push: true
           provenance: false
           no-cache: false
-          github-token: ${{ secrets.GH_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           secrets: |
-            GIT_AUTH_TOKEN=${{ secrets.GH_TOKEN }}
+            GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
           tags: |
             ${{ env.GH_REGISTRY }}/${{ github.repository }}:${{ env.CONTAINER_TAG }}
             ${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ env.REPOSITORY_NAME }}:${{ env.CONTAINER_TAG }}
@@ -249,6 +250,8 @@ jobs:
             org.opencontainers.image.url=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
           platforms: linux/amd64,linux/arm64
+          outputs: |
+            type=image,compression=gzip,compression-level=3,force-compression=true
       - name: 'Pull git'
         if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
         shell: bash
@@ -264,4 +267,4 @@ jobs:
         if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
         uses: ad-m/github-push-action@master
         with:
-          github_token: ${{ secrets.GH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
