@@ -1,4 +1,4 @@
-name: 'Prepare multi-platform Docker images'
+name: 'Emulated: prepare → test → scan'
 run-name: '${{ github.ref_type }}_${{ github.ref_name }}@${{ github.triggering_actor }}'
 
 concurrency:
@@ -50,6 +50,11 @@ on:
         description: 'CONTAINER_TAG (initial)'
         required: false
         type: string
+      SKIP_VERSION_CHANGE:
+        description: 'SKIP_VERSION_CHANGE (false)'
+        required: false
+        type: boolean
+        default: false
 
 env:
   GH_REGISTRY: ghcr.io
@@ -57,7 +62,8 @@ env:
   TEST_TAG: test
 
 jobs:
-  docker-build-test-tag-push:
+  build:
+    name: 'Prepare multi-platform Docker images'
     runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
@@ -65,10 +71,16 @@ jobs:
     permissions:
       contents: write
       packages: write
+    outputs:
+      REPOSITORY_NAME: ${{ steps.params.outputs.REPOSITORY_NAME }}
+      CONTAINER_TAG: ${{ steps.params.outputs.CONTAINER_TAG }}
     steps:
       - name: 'Checkout'
         uses: actions/checkout@main
-      - name: 'Set requested tools versions to GITHUB_ENV'
+
+      - name: 'Set requested tools versions to GITHUB_ENV and GITHUB_OUTPUT'
+        id: params
+        shell: bash
         run: |
           ./setvariables.sh
           echo "CONTAINER_TAG=initial" >> ${GITHUB_ENV}
@@ -85,14 +97,14 @@ jobs:
             if [[ "${{ github.event.inputs.HELM_CLI_VERSION }}" != "" ]]; then
               sed -i "s/HELM_CLI_VERSION=.*/HELM_CLI_VERSION=${{ github.event.inputs.HELM_CLI_VERSION }}/g" /tmp/github_env_tail
             fi
+            if [[ "${{ github.event.inputs.K9S_CLI_VERSION }}" != "" ]]; then
+              sed -i "s/K9S_CLI_VERSION=.*/K9S_CLI_VERSION=${{ github.event.inputs.K9S_CLI_VERSION }}/g" /tmp/github_env_tail
+            fi
             if [[ "${{ github.event.inputs.KOPS_CLI_VERSION }}" != "" ]]; then
               sed -i "s/KOPS_CLI_VERSION=.*/KOPS_CLI_VERSION=${{ github.event.inputs.KOPS_CLI_VERSION }}/g" /tmp/github_env_tail
             fi
             if [[ "${{ github.event.inputs.KUBECTL_CLI_VERSION }}" != "" ]]; then
               sed -i "s/KUBECTL_CLI_VERSION=.*/KUBECTL_CLI_VERSION=${{ github.event.inputs.KUBECTL_CLI_VERSION }}/g" /tmp/github_env_tail
-            fi
-            if [[ "${{ github.event.inputs.K9S_CLI_VERSION }}" != "" ]]; then
-              sed -i "s/K9S_CLI_VERSION=.*/K9S_CLI_VERSION=${{ github.event.inputs.K9S_CLI_VERSION }}/g" /tmp/github_env_tail
             fi
             if [[ "${{ github.event.inputs.TERRAFORM_CLI_VERSION }}" != "" ]]; then
               sed -i "s/TERRAFORM_CLI_VERSION=.*/TERRAFORM_CLI_VERSION=${{ github.event.inputs.TERRAFORM_CLI_VERSION }}/g" /tmp/github_env_tail
@@ -113,21 +125,28 @@ jobs:
           cat /tmp/github_env_tail
           echo "GITHUB_ENV:"
           cat ${GITHUB_ENV}
+          echo "REPOSITORY_NAME=${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}" >> ${GITHUB_OUTPUT}
+          echo "CONTAINER_TAG=$(grep '^CONTAINER_TAG=' ${GITHUB_ENV} | tail -1 | cut -d'=' -f2)" >> ${GITHUB_OUTPUT}
+          echo "GITHUB_OUTPUT:"
+          cat ${GITHUB_OUTPUT}
+
       - name: 'Set up QEMU (arm64)'
-        if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
+        if: ${{ env.CLI_VERSIONS_CHANGED == '1' || github.event.inputs.SKIP_VERSION_CHANGE == 'true' }}
         uses: docker/setup-qemu-action@master
         with:
           platforms: linux/arm64
+
       - name: 'Set up Docker buildx'
-        if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
+        if: ${{ env.CLI_VERSIONS_CHANGED == '1' || github.event.inputs.SKIP_VERSION_CHANGE == 'true' }}
         uses: docker/setup-buildx-action@master
         with:
           version: latest
           driver-opts: |
             network=host
             image=moby/buildkit:master
+
       - name: 'Login to GitHub Container Registry'
-        if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
+        if: ${{ env.CLI_VERSIONS_CHANGED == '1' || github.event.inputs.SKIP_VERSION_CHANGE == 'true' }}
         uses: docker/login-action@master
         with:
           registry: ${{ env.GH_REGISTRY }}
@@ -135,8 +154,9 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           ecr: false
           logout: true
+
       - name: 'Login to DockerHub Container Registry'
-        if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
+        if: ${{ env.CLI_VERSIONS_CHANGED == '1' || github.event.inputs.SKIP_VERSION_CHANGE == 'true' }}
         uses: docker/login-action@master
         with:
           registry: ${{ env.DH_REGISTRY }}
@@ -144,8 +164,9 @@ jobs:
           password: ${{ secrets.DH_TOKEN }}
           ecr: false
           logout: true
+
       - name: 'Clean old containers in GitHub Container Registry'
-        if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
+        if: ${{ env.CLI_VERSIONS_CHANGED == '1' || github.event.inputs.SKIP_VERSION_CHANGE == 'true' }}
         uses: actions/delete-package-versions@main
         with:
           owner: ${{ github.repository_owner }}
@@ -154,72 +175,9 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           delete-only-untagged-versions: 'true'
           min-versions-to-keep: 2
-      - name: 'Build multi-platforms Docker images'
-        if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
-        uses: docker/build-push-action@master
-        with:
-          context: .
-          file: ./Dockerfile
-          build-args: |
-            ANSIBLE_CLI_VERSION=${{ env.ANSIBLE_CLI_VERSION }}
-            AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}
-            AWS_SAM_CLI_VERSION=${{ env.AWS_SAM_CLI_VERSION }}
-            HELM_CLI_VERSION=${{ env.HELM_CLI_VERSION }}
-            KOPS_CLI_VERSION=${{ env.KOPS_CLI_VERSION }}
-            KUBECTL_CLI_VERSION=${{ env.KUBECTL_CLI_VERSION }}
-            K9S_CLI_VERSION=${{ env.K9S_CLI_VERSION }}
-            TERRAFORM_CLI_VERSION=${{ env.TERRAFORM_CLI_VERSION }}
-            TERRAGRUNT_CLI_VERSION=${{ env.TERRAGRUNT_CLI_VERSION }}
-            WORKSPACE_ROOT_DIR=${{ env.WORKSPACE_ROOT_DIR }}
-          load: false
-          provenance: false
-          no-cache: false
-          platforms: linux/amd64,linux/arm64
-      - name: 'Load Docker image (amd64)'
-        if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
-        uses: docker/build-push-action@master
-        with:
-          context: .
-          file: ./Dockerfile
-          build-args: |
-            ANSIBLE_CLI_VERSION=${{ env.ANSIBLE_CLI_VERSION }}
-            AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}
-            AWS_SAM_CLI_VERSION=${{ env.AWS_SAM_CLI_VERSION }}
-            HELM_CLI_VERSION=${{ env.HELM_CLI_VERSION }}
-            K9S_CLI_VERSION=${{ env.K9S_CLI_VERSION }}
-            KOPS_CLI_VERSION=${{ env.KOPS_CLI_VERSION }}
-            KUBECTL_CLI_VERSION=${{ env.KUBECTL_CLI_VERSION }}
-            TERRAFORM_CLI_VERSION=${{ env.TERRAFORM_CLI_VERSION }}
-            TERRAGRUNT_CLI_VERSION=${{ env.TERRAGRUNT_CLI_VERSION }}
-            WORKSPACE_ROOT_DIR=${{ env.WORKSPACE_ROOT_DIR }}
-          load: true
-          provenance: false
-          no-cache: false
-          tags: ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }}
-      - name: 'Test Docker image (amd64)'
-        if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
-        shell: bash
-        run: |
-          echo -ne "ANSIBLE_CLI_VERSION="
-          docker container run --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "ansible --version" | awk -F"core " '/core/{print "v"$2}' | sed 's/]//'
-          echo -ne "AWS_CLI_VERSION="
-          docker container run --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "aws --version" | awk -F' ' '{print $1}' | awk -F'/' '{print $2}'
-          echo -ne "AWS_SAM_CLI_VERSION="
-          docker container run --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "sam --version" | awk '{print "v"$NF}'
-          echo -ne "HELM_CLI_VERSION="
-          docker container run --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "helm version --short" | awk -F'+' '{print $1}'
-          echo -ne "K9S_CLI_VERSION="
-          docker container run --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "k9s version" | awk '/Version:/ {print $2}'
-          echo -ne "KOPS_CLI_VERSION="
-          docker container run --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "kops version" | awk -F'git-' 'NR==1 {print $2}' | sed 's/)//'
-          echo -ne "KUBECTL_CLI_VERSION="
-          docker container run --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "kubectl version --client" | awk -F': ' 'NR==1 {print $2}'
-          echo -ne "TERRAFORM_CLI_VERSION="
-          docker container run --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "terraform version" | awk -F'v' 'NR==1 {print $2}'
-          echo -ne "TERRAGRUNT_CLI_VERSION="
-          docker container run --entrypoint="/bin/sh" --rm ${{ github.repository_owner }}/${{ env.REPOSITORY_NAME }}:${{ env.TEST_TAG }} -c "terragrunt --version" | awk 'NR==1 {print $NF}'
-      - name: 'Tag and push multi-platforms Docker images to preconfigured container registries'
-        if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
+
+      - name: 'Build, tag and push multi-platform Docker images to preconfigured container registries'
+        if: ${{ env.CLI_VERSIONS_CHANGED == '1' || github.event.inputs.SKIP_VERSION_CHANGE == 'true' }}
         uses: docker/build-push-action@master
         with:
           context: .
@@ -252,19 +210,118 @@ jobs:
           platforms: linux/amd64,linux/arm64
           outputs: |
             type=image,compression=gzip,compression-level=3,force-compression=true
+
       - name: 'Pull git'
-        if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
-        shell: bash
+        if: ${{ env.CLI_VERSIONS_CHANGED == '1' }}
         run: |
-          export GIT_USER_NAME="GitHub Actions"
-          export GIT_USER_EMAIL="<>"
-          export GIT_COMMITTER_NAME="${GIT_USER_NAME}"
-          export GIT_COMMITTER_EMAIL="${GIT_USER_EMAIL}"
-          export GIT_AUTHOR_NAME="${GIT_USER_NAME}"
-          export GIT_AUTHOR_EMAIL="${GIT_USER_EMAIL}"
           git pull --rebase
+
       - name: 'Push git changes'
-        if: ${{ env.CLI_VERSIONS_CHANGED == 1 }}
+        if: ${{ env.CLI_VERSIONS_CHANGED == '1' }}
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+
+  test:
+    name: 'Test multi-platform Docker images'
+    needs: build
+    if: success()
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04-arm]
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: 'Run tests in Docker container'
+        shell: bash
+        run: |
+          docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            ${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.build.outputs.REPOSITORY_NAME }}:${{ needs.build.outputs.CONTAINER_TAG }} \
+            sh -c 'v=$(ansible --version | grep -oP "\d+\.\d+\.\d+(-\d+)?"); echo "ANSIBLE_CLI_VERSION=${v}";'
+
+          docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            ${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.build.outputs.REPOSITORY_NAME }}:${{ needs.build.outputs.CONTAINER_TAG }} \
+            sh -c 'v=$(aws --version | grep -oP "\d+\.\d+\.\d+(-\d+)?"); echo "AWS_CLI_VERSION=${v}";'
+
+          docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            ${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.build.outputs.REPOSITORY_NAME }}:${{ needs.build.outputs.CONTAINER_TAG }} \
+            sh -c 'v=$(sam --version | grep -oP "\d+\.\d+\.\d+(-\d+)?"); echo "AWS_SAM_CLI_VERSION=${v}";'
+
+          docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            ${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.build.outputs.REPOSITORY_NAME }}:${{ needs.build.outputs.CONTAINER_TAG }} \
+            sh -c 'v=$(helm version --short | grep -oP "\d+\.\d+\.\d+(-\d+)?"); echo "HELM_CLI_VERSION=${v}";'
+
+          docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            ${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.build.outputs.REPOSITORY_NAME }}:${{ needs.build.outputs.CONTAINER_TAG }} \
+            sh -c 'v=$(k9s version | grep -oP "\d+\.\d+\.\d+(-\d+)?"); echo "K9S_CLI_VERSION=${v}";'
+
+          docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            ${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.build.outputs.REPOSITORY_NAME }}:${{ needs.build.outputs.CONTAINER_TAG }} \
+            sh -c 'v=$(kops version | grep -oP "\d+\.\d+\.\d+(-\d+)?"); echo "KOPS_CLI_VERSION=${v}";'
+
+          docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            ${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.build.outputs.REPOSITORY_NAME }}:${{ needs.build.outputs.CONTAINER_TAG }} \
+            sh -c 'v=$(kubectl version --client | grep Client | grep -oP "\d+\.\d+\.\d+(-\d+)?"); echo "KUBECTL_CLI_VERSION=${v}";'
+
+          docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            ${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.build.outputs.REPOSITORY_NAME }}:${{ needs.build.outputs.CONTAINER_TAG }} \
+            sh -c 'v=$(terraform version | grep -oP "\d+\.\d+\.\d+(-\d+)?"); echo "TERRAFORM_CLI_VERSION=${v}";'
+
+          docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            ${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.build.outputs.REPOSITORY_NAME }}:${{ needs.build.outputs.CONTAINER_TAG }} \
+            sh -c 'v=$(terragrunt --version | grep -oP "\d+\.\d+\.\d+(-\d+)?"); echo "TERRAGRUNT_CLI_VERSION=${v}";'
+
+  scan:
+    name: 'Scan multi-platform Docker images'
+    needs: [build, test]
+    if: success()
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04-arm]
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@main
+
+      - name: 'Run Trivy scan'
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.build.outputs.REPOSITORY_NAME }}:${{ needs.build.outputs.CONTAINER_TAG }}'
+          format: 'json'
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH,MEDIUM,LOW'
+          exit-code: '0'
+          version: 'latest'
+          output: scan-report-${{ matrix.runner }}.json
+
+      - name: 'Store scan report as artifact'
+        uses: actions/upload-artifact@main
+        with:
+          name: scan-report-${{ matrix.runner }}
+          path: scan-report-${{ matrix.runner }}.json
+          retention-days: 7
+          overwrite: true
+          compression-level: 0

@@ -1,0 +1,447 @@
+name: 'Native: prepare → test → scan'
+run-name: '${{ github.ref_type }}_${{ github.ref_name }}@${{ github.triggering_actor }}'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+on:
+  schedule:
+    - cron: "45 22 * * *"
+  workflow_dispatch:
+    inputs:
+      ANSIBLE_CLI_VERSION:
+        description: 'ANSIBLE_CLI_VERSION (v2.20.1)'
+        required: false
+        type: string
+      AWS_CLI_VERSION:
+        description: 'AWS_CLI_VERSION (2.27.12)'
+        required: false
+        type: string
+      AWS_SAM_CLI_VERSION:
+        description: 'AWS_SAM_CLI_VERSION (v1.151.0)'
+        required: false
+        type: string
+      HELM_CLI_VERSION:
+        description: 'HELM_CLI_VERSION (v4.0.5)'
+        required: false
+        type: string
+      K9S_CLI_VERSION:
+        description: 'K9S_CLI_VERSION (v0.50.18)'
+        required: false
+        type: string
+      KOPS_CLI_VERSION:
+        description: 'KOPS_CLI_VERSION (v1.34.1)'
+        required: false
+        type: string
+      KUBECTL_CLI_VERSION:
+        description: 'KUBECTL_CLI_VERSION (v1.35.0)'
+        required: false
+        type: string
+      TERRAFORM_CLI_VERSION:
+        description: 'TERRAFORM_CLI_VERSION (1.14.3)'
+        required: false
+        type: string
+      TERRAGRUNT_CLI_VERSION:
+        description: 'TERRAGRUNT_CLI_VERSION (v0.97.2)'
+        required: false
+        type: string
+      CONTAINER_TAG:
+        description: 'CONTAINER_TAG (initial)'
+        required: false
+        type: string
+      SKIP_VERSION_CHANGE:
+        description: 'SKIP_VERSION_CHANGE (false)'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  GH_REGISTRY: ghcr.io
+  DH_REGISTRY: docker.io
+  TEST_TAG: test
+
+jobs:
+  prepare:
+    name: 'Prepare parameters and clean old images'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      REPOSITORY_NAME: ${{ steps.params.outputs.REPOSITORY_NAME }}
+      CONTAINER_TAG: ${{ steps.params.outputs.CONTAINER_TAG }}
+      TIMESTAMP: ${{ steps.params.outputs.TIMESTAMP }}
+      CLI_VERSIONS_CHANGED: ${{ steps.params.outputs.CLI_VERSIONS_CHANGED }}
+      ANSIBLE_CLI_VERSION: ${{ steps.params.outputs.ANSIBLE_CLI_VERSION }}
+      AWS_CLI_VERSION: ${{ steps.params.outputs.AWS_CLI_VERSION }}
+      AWS_SAM_CLI_VERSION: ${{ steps.params.outputs.AWS_SAM_CLI_VERSION }}
+      HELM_CLI_VERSION: ${{ steps.params.outputs.HELM_CLI_VERSION }}
+      K9S_CLI_VERSION: ${{ steps.params.outputs.K9S_CLI_VERSION }}
+      KOPS_CLI_VERSION: ${{ steps.params.outputs.KOPS_CLI_VERSION }}
+      KUBECTL_CLI_VERSION: ${{ steps.params.outputs.KUBECTL_CLI_VERSION }}
+      TERRAFORM_CLI_VERSION: ${{ steps.params.outputs.TERRAFORM_CLI_VERSION }}
+      TERRAGRUNT_CLI_VERSION: ${{ steps.params.outputs.TERRAGRUNT_CLI_VERSION }}
+      WORKSPACE_ROOT_DIR: ${{ steps.params.outputs.WORKSPACE_ROOT_DIR }}
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@main
+
+      - name: 'Set requested tools versions to GITHUB_ENV and GITHUB_OUTPUT'
+        id: params
+        shell: bash
+        run: |
+          ./setvariables.sh
+          echo "CONTAINER_TAG=initial" >> ${GITHUB_ENV}
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            if [[ "${{ github.event.inputs.ANSIBLE_CLI_VERSION }}" != "" ]]; then
+              sed -i "s/ANSIBLE_CLI_VERSION=.*/ANSIBLE_CLI_VERSION=${{ github.event.inputs.ANSIBLE_CLI_VERSION }}/g" /tmp/github_env_tail
+            fi
+            if [[ "${{ github.event.inputs.AWS_CLI_VERSION }}" != "" ]]; then
+              sed -i "s/AWS_CLI_VERSION=.*/AWS_CLI_VERSION=${{ github.event.inputs.AWS_CLI_VERSION }}/g" /tmp/github_env_tail
+            fi
+            if [[ "${{ github.event.inputs.AWS_SAM_CLI_VERSION }}" != "" ]]; then
+              sed -i "s/AWS_SAM_CLI_VERSION=.*/AWS_SAM_CLI_VERSION=${{ github.event.inputs.AWS_SAM_CLI_VERSION }}/g" /tmp/github_env_tail
+            fi
+            if [[ "${{ github.event.inputs.HELM_CLI_VERSION }}" != "" ]]; then
+              sed -i "s/HELM_CLI_VERSION=.*/HELM_CLI_VERSION=${{ github.event.inputs.HELM_CLI_VERSION }}/g" /tmp/github_env_tail
+            fi
+            if [[ "${{ github.event.inputs.K9S_CLI_VERSION }}" != "" ]]; then
+              sed -i "s/K9S_CLI_VERSION=.*/K9S_CLI_VERSION=${{ github.event.inputs.K9S_CLI_VERSION }}/g" /tmp/github_env_tail
+            fi
+            if [[ "${{ github.event.inputs.KOPS_CLI_VERSION }}" != "" ]]; then
+              sed -i "s/KOPS_CLI_VERSION=.*/KOPS_CLI_VERSION=${{ github.event.inputs.KOPS_CLI_VERSION }}/g" /tmp/github_env_tail
+            fi
+            if [[ "${{ github.event.inputs.KUBECTL_CLI_VERSION }}" != "" ]]; then
+              sed -i "s/KUBECTL_CLI_VERSION=.*/KUBECTL_CLI_VERSION=${{ github.event.inputs.KUBECTL_CLI_VERSION }}/g" /tmp/github_env_tail
+            fi
+            if [[ "${{ github.event.inputs.TERRAFORM_CLI_VERSION }}" != "" ]]; then
+              sed -i "s/TERRAFORM_CLI_VERSION=.*/TERRAFORM_CLI_VERSION=${{ github.event.inputs.TERRAFORM_CLI_VERSION }}/g" /tmp/github_env_tail
+            fi
+            if [[ "${{ github.event.inputs.TERRAGRUNT_CLI_VERSION }}" != "" ]]; then
+              sed -i "s/TERRAGRUNT_CLI_VERSION=.*/TERRAGRUNT_CLI_VERSION=${{ github.event.inputs.TERRAGRUNT_CLI_VERSION }}/g" /tmp/github_env_tail
+            fi
+            if [[ "${{ github.event.inputs.CONTAINER_TAG }}" != "" ]]; then
+              sed -i "s/CONTAINER_TAG=.*/CONTAINER_TAG=${{ github.event.inputs.CONTAINER_TAG }}/g" >> ${GITHUB_ENV}
+            fi
+          fi
+          ./setvariables.sh
+          cat /tmp/github_env_tail >> ${GITHUB_ENV}
+          echo "WORKSPACE_ROOT_DIR=${{ github.workspace }}/workspace" >> ${GITHUB_ENV}
+          echo "TIMESTAMP=$(git log -1 --format=%cI)" >> ${GITHUB_ENV}
+          echo "REPOSITORY_NAME=${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}" >> ${GITHUB_ENV}
+          echo "/tmp/github_env_tail:"
+          cat /tmp/github_env_tail
+          echo "GITHUB_ENV:"
+          cat ${GITHUB_ENV}
+          echo "REPOSITORY_NAME=${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}" >> ${GITHUB_OUTPUT}
+          echo "CONTAINER_TAG=$(grep '^CONTAINER_TAG=' ${GITHUB_ENV} | tail -1 | cut -d'=' -f2)" >> ${GITHUB_OUTPUT}
+          echo "TIMESTAMP=$(git log -1 --format=%cI)" >> ${GITHUB_OUTPUT}
+          echo "CLI_VERSIONS_CHANGED=${CLI_VERSIONS_CHANGED}" >> ${GITHUB_OUTPUT}
+          grep -E '^[A-Z_]+_CLI_VERSION=' /tmp/github_env_tail >> ${GITHUB_OUTPUT}
+          echo "WORKSPACE_ROOT_DIR=${{ github.workspace }}/workspace" >> ${GITHUB_OUTPUT}
+          echo "GITHUB_OUTPUT:"
+          cat ${GITHUB_OUTPUT}
+
+      - name: 'Login to GitHub Container Registry'
+        if: ${{ env.CLI_VERSIONS_CHANGED == '1' || github.event.inputs.SKIP_VERSION_CHANGE == 'true' }}
+        uses: docker/login-action@master
+        with:
+          registry: ${{ env.GH_REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          ecr: false
+          logout: true
+
+      - name: 'Login to DockerHub Container Registry'
+        if: ${{ env.CLI_VERSIONS_CHANGED == '1' || github.event.inputs.SKIP_VERSION_CHANGE == 'true' }}
+        uses: docker/login-action@master
+        with:
+          registry: ${{ env.DH_REGISTRY }}
+          username: ${{ secrets.DH_USER }}
+          password: ${{ secrets.DH_TOKEN }}
+          ecr: false
+          logout: true
+
+      - name: 'Clean old containers in GitHub Container Registry'
+        if: ${{ env.CLI_VERSIONS_CHANGED == '1' || github.event.inputs.SKIP_VERSION_CHANGE == 'true' }}
+        uses: actions/delete-package-versions@main
+        with:
+          owner: ${{ github.repository_owner }}
+          package-name: ${{ env.REPOSITORY_NAME }}
+          package-type: 'container'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          delete-only-untagged-versions: 'true'
+          min-versions-to-keep: 2
+
+  build:
+    name: 'Build Docker image (${{ matrix.platform }})'
+    needs: prepare
+    if: needs.prepare.outputs.CLI_VERSIONS_CHANGED == '1' || github.event.inputs.SKIP_VERSION_CHANGE == 'true'
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            platform: linux/amd64
+            platform_pair: linux-amd64
+          - runner: ubuntu-24.04-arm
+            platform: linux/arm64
+            platform_pair: linux-arm64
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@main
+
+      - name: 'Set up Docker buildx'
+        uses: docker/setup-buildx-action@master
+        with:
+          version: latest
+          driver-opts: |
+            network=host
+            image=moby/buildkit:master
+
+      - name: 'Login to GitHub Container Registry'
+        uses: docker/login-action@master
+        with:
+          registry: ${{ env.GH_REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          ecr: false
+          logout: true
+
+      - name: 'Login to DockerHub Container Registry'
+        uses: docker/login-action@master
+        with:
+          registry: ${{ env.DH_REGISTRY }}
+          username: ${{ secrets.DH_USER }}
+          password: ${{ secrets.DH_TOKEN }}
+          ecr: false
+          logout: true
+
+      - name: 'Build and push image by digest (no tag)'
+        id: build
+        uses: docker/build-push-action@master
+        with:
+          context: .
+          file: ./Dockerfile
+          build-args: |
+            ANSIBLE_CLI_VERSION=${{ needs.prepare.outputs.ANSIBLE_CLI_VERSION }}
+            AWS_CLI_VERSION=${{ needs.prepare.outputs.AWS_CLI_VERSION }}
+            AWS_SAM_CLI_VERSION=${{ needs.prepare.outputs.AWS_SAM_CLI_VERSION }}
+            HELM_CLI_VERSION=${{ needs.prepare.outputs.HELM_CLI_VERSION }}
+            K9S_CLI_VERSION=${{ needs.prepare.outputs.K9S_CLI_VERSION }}
+            KOPS_CLI_VERSION=${{ needs.prepare.outputs.KOPS_CLI_VERSION }}
+            KUBECTL_CLI_VERSION=${{ needs.prepare.outputs.KUBECTL_CLI_VERSION }}
+            TERRAFORM_CLI_VERSION=${{ needs.prepare.outputs.TERRAFORM_CLI_VERSION }}
+            TERRAGRUNT_CLI_VERSION=${{ needs.prepare.outputs.TERRAGRUNT_CLI_VERSION }}
+            WORKSPACE_ROOT_DIR=${{ needs.prepare.outputs.WORKSPACE_ROOT_DIR }}
+          push: true
+          provenance: false
+          no-cache: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          secrets: |
+            GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          labels: |
+            org.opencontainers.image.created=${{ needs.prepare.outputs.TIMESTAMP }}
+            org.opencontainers.image.authors=${{ github.repository_owner }}
+            org.opencontainers.image.url=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+          platforms: ${{ matrix.platform }}
+          outputs: |
+            type=image,name=${{ env.GH_REGISTRY }}/${{ github.repository }},push-by-digest=true,name-canonical=true,push=true,compression=gzip,compression-level=3,force-compression=true
+            type=image,name=${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.prepare.outputs.REPOSITORY_NAME }},push-by-digest=true,name-canonical=true,push=true,compression=gzip,compression-level=3,force-compression=true
+
+      - name: 'Export digest to artifact'
+        shell: bash
+        run: |
+          mkdir -p /tmp/digests
+          digest="${{ steps.build.outputs.digest }}"
+          touch "/tmp/digests/${digest#sha256:}"
+
+      - name: 'Upload digest artifact'
+        uses: actions/upload-artifact@main
+        with:
+          name: digests-${{ matrix.platform_pair }}
+          path: /tmp/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: 'Pull git'
+        if: ${{ needs.prepare.outputs.CLI_VERSIONS_CHANGED == '1' }}
+        run: |
+          git pull --rebase
+
+      - name: 'Push git changes'
+        if: ${{ needs.prepare.outputs.CLI_VERSIONS_CHANGED == '1' }}
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+  merge:
+    name: 'Merge multi-platform image manifests'
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: 'Download all digest artifacts'
+        uses: actions/download-artifact@main
+        with:
+          path: /tmp/digests
+          pattern: digests-*
+          merge-multiple: true
+
+      - name: 'Set up Docker buildx'
+        uses: docker/setup-buildx-action@master
+        with:
+          version: latest
+          driver-opts: |
+            network=host
+            image=moby/buildkit:master
+
+      - name: 'Login to GitHub Container Registry'
+        uses: docker/login-action@master
+        with:
+          registry: ${{ env.GH_REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          ecr: false
+          logout: true
+
+      - name: 'Login to DockerHub Container Registry'
+        uses: docker/login-action@master
+        with:
+          registry: ${{ env.DH_REGISTRY }}
+          username: ${{ secrets.DH_USER }}
+          password: ${{ secrets.DH_TOKEN }}
+          ecr: false
+          logout: true
+
+      - name: 'Create and push multi-platform manifest to GitHub Container Registry'
+        shell: bash
+        run: |
+          docker buildx imagetools create \
+            -t ${{ env.GH_REGISTRY }}/${{ github.repository }}:${{ needs.prepare.outputs.CONTAINER_TAG }} \
+            $(printf '${{ env.GH_REGISTRY }}/${{ github.repository }}@sha256:%s ' $(ls /tmp/digests))
+
+      - name: 'Create and push multi-platform manifest to DockerHub'
+        shell: bash
+        run: |
+          docker buildx imagetools create \
+            -t ${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.prepare.outputs.REPOSITORY_NAME }}:${{ needs.prepare.outputs.CONTAINER_TAG }} \
+            $(printf '${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.prepare.outputs.REPOSITORY_NAME }}@sha256:%s ' $(ls /tmp/digests))
+
+      - name: 'Inspect final manifest'
+        shell: bash
+        run: |
+          docker buildx imagetools inspect \
+            ${{ env.GH_REGISTRY }}/${{ github.repository }}:${{ needs.prepare.outputs.CONTAINER_TAG }}
+
+  test:
+    name: 'Test Docker image (${{ matrix.runner }})'
+    needs: [prepare, merge]
+    if: success()
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04-arm]
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: 'Run tests in Docker container'
+        shell: bash
+        run: |
+          docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            ${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.prepare.outputs.REPOSITORY_NAME }}:${{ needs.prepare.outputs.CONTAINER_TAG }} \
+            sh -c 'v=$(ansible --version | grep -oP "\d+\.\d+\.\d+(-\d+)?"); echo "ANSIBLE_CLI_VERSION=${v}";'
+
+          docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            ${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.prepare.outputs.REPOSITORY_NAME }}:${{ needs.prepare.outputs.CONTAINER_TAG }} \
+            sh -c 'v=$(aws --version | grep -oP "\d+\.\d+\.\d+(-\d+)?"); echo "AWS_CLI_VERSION=${v}";'
+
+          docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            ${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.prepare.outputs.REPOSITORY_NAME }}:${{ needs.prepare.outputs.CONTAINER_TAG }} \
+            sh -c 'v=$(sam --version | grep -oP "\d+\.\d+\.\d+(-\d+)?"); echo "AWS_SAM_CLI_VERSION=${v}";'
+
+          docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            ${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.prepare.outputs.REPOSITORY_NAME }}:${{ needs.prepare.outputs.CONTAINER_TAG }} \
+            sh -c 'v=$(helm version --short | grep -oP "\d+\.\d+\.\d+(-\d+)?"); echo "HELM_CLI_VERSION=${v}";'
+
+          docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            ${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.prepare.outputs.REPOSITORY_NAME }}:${{ needs.prepare.outputs.CONTAINER_TAG }} \
+            sh -c 'v=$(k9s version | grep -oP "\d+\.\d+\.\d+(-\d+)?"); echo "K9S_CLI_VERSION=${v}";'
+
+          docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            ${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.prepare.outputs.REPOSITORY_NAME }}:${{ needs.prepare.outputs.CONTAINER_TAG }} \
+            sh -c 'v=$(kops version | grep -oP "\d+\.\d+\.\d+(-\d+)?"); echo "KOPS_CLI_VERSION=${v}";'
+
+          docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            ${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.prepare.outputs.REPOSITORY_NAME }}:${{ needs.prepare.outputs.CONTAINER_TAG }} \
+            sh -c 'v=$(kubectl version --client | grep Client | grep -oP "\d+\.\d+\.\d+(-\d+)?"); echo "KUBECTL_CLI_VERSION=${v}";'
+
+          docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            ${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.prepare.outputs.REPOSITORY_NAME }}:${{ needs.prepare.outputs.CONTAINER_TAG }} \
+            sh -c 'v=$(terraform version | grep -oP "\d+\.\d+\.\d+(-\d+)?"); echo "TERRAFORM_CLI_VERSION=${v}";'
+
+          docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            ${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.prepare.outputs.REPOSITORY_NAME }}:${{ needs.prepare.outputs.CONTAINER_TAG }} \
+            sh -c 'v=$(terragrunt --version | grep -oP "\d+\.\d+\.\d+(-\d+)?"); echo "TERRAGRUNT_CLI_VERSION=${v}";'
+
+  scan:
+    name: 'Scan multi-platform Docker images'
+    needs: [prepare, merge, test]
+    if: success()
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04-arm]
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@main
+
+      - name: 'Run Trivy scan'
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.prepare.outputs.REPOSITORY_NAME }}:${{ needs.prepare.outputs.CONTAINER_TAG }}'
+          format: 'json'
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH,MEDIUM,LOW'
+          exit-code: '0'
+          version: 'latest'
+          output: scan-report-${{ matrix.runner }}.json
+
+      - name: 'Store scan report as artifact'
+        uses: actions/upload-artifact@main
+        with:
+          name: scan-report-${{ matrix.runner }}
+          path: scan-report-${{ matrix.runner }}.json
+          retention-days: 7
+          overwrite: true
+          compression-level: 0
