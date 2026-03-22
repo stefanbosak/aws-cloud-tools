@@ -138,7 +138,7 @@ jobs:
           echo "CONTAINER_TAG=$(grep '^CONTAINER_TAG=' ${GITHUB_ENV} | tail -1 | cut -d'=' -f2)" >> ${GITHUB_OUTPUT}
           echo "TIMESTAMP=$(git log -1 --format=%cI)" >> ${GITHUB_OUTPUT}
           echo "CLI_VERSIONS_CHANGED=${CLI_VERSIONS_CHANGED}" >> ${GITHUB_OUTPUT}
-          grep -E '^[A-Z_]+_CLI_VERSION=' /tmp/github_env_tail >> ${GITHUB_OUTPUT}
+          grep -E '^[A-Z0-9_]+_CLI_VERSION=' /tmp/github_env_tail >> ${GITHUB_OUTPUT}
           echo "WORKSPACE_ROOT_DIR=${{ github.workspace }}/workspace" >> ${GITHUB_OUTPUT}
           echo "GITHUB_OUTPUT:"
           cat ${GITHUB_OUTPUT}
