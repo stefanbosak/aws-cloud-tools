@@ -356,7 +356,7 @@ jobs:
 
   scan:
     name: 'Scan image (${{ matrix.platform_pair }})'
-    needs: [build, test]
+    needs: [build]
     if: success()
     runs-on: ${{ matrix.runner }}
     strategy:
