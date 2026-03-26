@@ -59,6 +59,7 @@ on:
 env:
   GH_REGISTRY: ghcr.io
   DH_REGISTRY: docker.io
+  DHI_REGISTRY: dhi.io
   TEST_TAG: test
 
 jobs:
@@ -70,6 +71,7 @@ jobs:
       packages: write
     outputs:
       REPOSITORY_NAME: ${{ steps.params.outputs.REPOSITORY_NAME }}
+      REPOSITORY_DESCRIPTION: ${{ steps.params.outputs.REPOSITORY_DESCRIPTION }}
       CONTAINER_TAG: ${{ steps.params.outputs.CONTAINER_TAG }}
       TIMESTAMP: ${{ steps.params.outputs.TIMESTAMP }}
       CLI_VERSIONS_CHANGED: ${{ steps.params.outputs.CLI_VERSIONS_CHANGED }}
@@ -86,6 +88,12 @@ jobs:
     steps:
       - name: 'Checkout'
         uses: actions/checkout@main
+
+      - name: 'Get repository description'
+        id: repo
+        uses: stefanbosak/gh-actions/get-repo-description@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 'Set requested tools versions to GITHUB_ENV and GITHUB_OUTPUT'
         id: params
@@ -140,31 +148,12 @@ jobs:
           echo "CLI_VERSIONS_CHANGED=${CLI_VERSIONS_CHANGED}" >> ${GITHUB_OUTPUT}
           grep -E '^[A-Z0-9_]+_CLI_VERSION=' /tmp/github_env_tail >> ${GITHUB_OUTPUT}
           echo "WORKSPACE_ROOT_DIR=${{ github.workspace }}/workspace" >> ${GITHUB_OUTPUT}
+          echo "REPOSITORY_DESCRIPTION=${{ steps.repo.outputs.description }}" >> ${GITHUB_OUTPUT}
           echo "GITHUB_OUTPUT:"
           cat ${GITHUB_OUTPUT}
 
-      - name: 'Login to GitHub Container Registry'
-        if: ${{ env.CLI_VERSIONS_CHANGED == '1' || github.event.inputs.SKIP_VERSION_CHANGE == 'true' }}
-        uses: docker/login-action@master
-        with:
-          registry: ${{ env.GH_REGISTRY }}
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          ecr: false
-          logout: true
-
-      - name: 'Login to DockerHub Container Registry'
-        if: ${{ env.CLI_VERSIONS_CHANGED == '1' || github.event.inputs.SKIP_VERSION_CHANGE == 'true' }}
-        uses: docker/login-action@master
-        with:
-          registry: ${{ env.DH_REGISTRY }}
-          username: ${{ secrets.DH_USER }}
-          password: ${{ secrets.DH_TOKEN }}
-          ecr: false
-          logout: true
-
-      - name: 'Clean old containers in GitHub Container Registry'
-        if: ${{ env.CLI_VERSIONS_CHANGED == '1' || github.event.inputs.SKIP_VERSION_CHANGE == 'true' }}
+      - name: 'Cleanup ${{ env.GH_REGISTRY }} registry'
+        if: ${{ needs.prepare.outputs.CLI_VERSIONS_CHANGED == '1' || github.event.inputs.SKIP_VERSION_CHANGE == 'true' }}
         uses: actions/delete-package-versions@main
         with:
           owner: ${{ github.repository_owner }}
@@ -173,6 +162,18 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           delete-only-untagged-versions: 'true'
           min-versions-to-keep: 2
+
+      - name: 'Cleanup ${{ env.DH_REGISTRY }} registry'
+        if: ${{ needs.prepare.outputs.CLI_VERSIONS_CHANGED == '1' || github.event.inputs.SKIP_VERSION_CHANGE == 'true' }}
+        uses: stefanbosak/gh-actions/cleanup-dockerhub-old-digests@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.run_id }}
+          ref-name: ${{ github.ref_name }}
+          dh-user: ${{ secrets.DH_USER }}
+          dh-token: ${{ secrets.DH_TOKEN }}
+          repository-name: ${{ env.REPOSITORY_NAME }}
 
   build:
     name: 'Build Docker image (${{ matrix.platform }})'
@@ -204,7 +205,7 @@ jobs:
             network=host
             image=moby/buildkit:master
 
-      - name: 'Login to GitHub Container Registry'
+      - name: 'Login to ${{ env.GH_REGISTRY }} registry'
         uses: docker/login-action@master
         with:
           registry: ${{ env.GH_REGISTRY }}
@@ -213,10 +214,19 @@ jobs:
           ecr: false
           logout: true
 
-      - name: 'Login to DockerHub Container Registry'
+      - name: 'Login to ${{ env.DH_REGISTRY }} registry'
         uses: docker/login-action@master
         with:
           registry: ${{ env.DH_REGISTRY }}
+          username: ${{ secrets.DH_USER }}
+          password: ${{ secrets.DH_TOKEN }}
+          ecr: false
+          logout: true
+
+      - name: 'Login to ${{ env.DHI_REGISTRY }} registry'
+        uses: docker/login-action@master
+        with:
+          registry: ${{ env.DHI_REGISTRY }}
           username: ${{ secrets.DH_USER }}
           password: ${{ secrets.DH_TOKEN }}
           ecr: false
@@ -247,6 +257,7 @@ jobs:
             GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
           labels: |
             org.opencontainers.image.created=${{ needs.prepare.outputs.TIMESTAMP }}
+            org.opencontainers.image.description=${{ needs.prepare.outputs.REPOSITORY_DESCRIPTION }}
             org.opencontainers.image.authors=${{ github.repository_owner }}
             org.opencontainers.image.url=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
@@ -304,7 +315,7 @@ jobs:
             network=host
             image=moby/buildkit:master
 
-      - name: 'Login to GitHub Container Registry'
+      - name: 'Login to ${{ env.GH_REGISTRY }} registry'
         uses: docker/login-action@master
         with:
           registry: ${{ env.GH_REGISTRY }}
@@ -313,7 +324,7 @@ jobs:
           ecr: false
           logout: true
 
-      - name: 'Login to DockerHub Container Registry'
+      - name: 'Login to ${{ env.DH_REGISTRY }} registry'
         uses: docker/login-action@master
         with:
           registry: ${{ env.DH_REGISTRY }}
@@ -322,34 +333,63 @@ jobs:
           ecr: false
           logout: true
 
-      - name: 'Create and push multi-platform manifest to GitHub Container Registry'
+      - name: 'Store multi-platform image in ${{ env.GH_REGISTRY }}'
         shell: bash
         run: |
           docker buildx imagetools create \
             -t ${{ env.GH_REGISTRY }}/${{ github.repository }}:${{ needs.prepare.outputs.CONTAINER_TAG }} \
             $(printf '${{ env.GH_REGISTRY }}/${{ github.repository }}@sha256:%s ' $(ls /tmp/digests))
 
-      - name: 'Create and push multi-platform manifest to DockerHub'
+      - name: 'Store multi-platform image in ${{ env.DH_REGISTRY }}'
         shell: bash
         run: |
           docker buildx imagetools create \
             -t ${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.prepare.outputs.REPOSITORY_NAME }}:${{ needs.prepare.outputs.CONTAINER_TAG }} \
             $(printf '${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.prepare.outputs.REPOSITORY_NAME }}@sha256:%s ' $(ls /tmp/digests))
 
-      - name: 'Inspect final manifest'
+      - name: 'Extract all stored digests'
         shell: bash
         run: |
-          docker buildx imagetools inspect \
-            ${{ env.GH_REGISTRY }}/${{ github.repository }}:${{ needs.prepare.outputs.CONTAINER_TAG }}
+          JSON=$(docker buildx imagetools inspect ${{ env.GH_REGISTRY }}/${{ github.repository }}:${{ needs.prepare.outputs.CONTAINER_TAG }} --format '{{json .}}')
+
+          ALL_DIGESTS=$(echo "${JSON}" | jq -r '
+            [
+              .manifest.digest,
+
+              (
+                .manifest.manifests[]
+                | select(.mediaType == "application/vnd.docker.distribution.manifest.v2+json")
+                | .digest
+              )
+            ]
+            | join(" ")
+          ')
+
+          echo "${ALL_DIGESTS}" > /tmp/digests-all.txt
+
+      - name: 'Upload extracted digests as artifact'
+        uses: actions/upload-artifact@main
+        with:
+          name: digests-all
+          path: /tmp/digests-all.txt
+          if-no-files-found: error
+          retention-days: 7
 
   test:
-    name: 'Test Docker image (${{ matrix.runner }})'
+    name: 'Test image (${{ matrix.platform_pair }})'
     needs: [prepare, merge]
     if: success()
     runs-on: ${{ matrix.runner }}
     strategy:
+      fail-fast: false
       matrix:
-        runner: [ubuntu-latest, ubuntu-24.04-arm]
+        include:
+          - runner: ubuntu-latest
+            platform: linux/amd64
+            platform_pair: linux-amd64
+          - runner: ubuntu-24.04-arm
+            platform: linux/arm64
+            platform_pair: linux-arm64
     permissions:
       contents: read
       packages: read
@@ -412,13 +452,20 @@ jobs:
             sh -c 'v=$(terragrunt --version | grep -oP "\d+\.\d+\.\d+(-\d+)?"); echo "TERRAGRUNT_CLI_VERSION=${v}";'
 
   scan:
-    name: 'Scan multi-platform Docker images'
+    name: 'Scan image (${{ matrix.platform_pair }})'
     needs: [prepare, merge, test]
     if: success()
     runs-on: ${{ matrix.runner }}
     strategy:
+      fail-fast: false
       matrix:
-        runner: [ubuntu-latest, ubuntu-24.04-arm]
+        include:
+          - runner: ubuntu-latest
+            platform: linux/amd64
+            platform_pair: linux-amd64
+          - runner: ubuntu-24.04-arm
+            platform: linux/arm64
+            platform_pair: linux-arm64
     permissions:
       contents: read
       packages: read
