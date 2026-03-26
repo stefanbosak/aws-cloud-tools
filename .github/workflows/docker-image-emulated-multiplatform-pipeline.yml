@@ -6,8 +6,6 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  schedule:
-    - cron: "45 22 * * *"
   workflow_dispatch:
     inputs:
       ANSIBLE_CLI_VERSION:
