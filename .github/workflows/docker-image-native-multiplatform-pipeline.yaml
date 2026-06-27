@@ -1,0 +1,822 @@
+name: 'Native: prepare → test → scan'
+run-name: 'Native: ${{ github.ref_type }}_${{ github.ref_name }}@${{ github.triggering_actor }}'
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+on:
+  repository_dispatch:
+    types: [new-release]
+  workflow_dispatch:
+    inputs:
+      ANSIBLE_CLI_VERSION:
+        description: 'ANSIBLE_CLI_VERSION'
+        required: false
+        type: string
+        default: 'v2.21.1'
+      AWS_CLI_VERSION:
+        description: 'AWS_CLI_VERSION'
+        required: false
+        type: string
+        default: '2.35.11'
+      AWS_SAM_CLI_VERSION:
+        description: 'AWS_SAM_CLI_VERSION'
+        required: false
+        type: string
+        default: 'sam-cli-nightly'
+      AWS_SM_CLI_VERSION:
+        description: 'AWS_SM_CLI_VERSION'
+        required: false
+        type: string
+        default: '1.2.835.0'
+      AWS_CH_CLI_VERSION:
+        description: 'AWS_CH_CLI_VERSION'
+        required: false
+        type: string
+        default: '0.12.0'
+      CM_CTL_CLI_VERSION:
+        description: 'CM_CTL_CLI_VERSION'
+        required: false
+        type: string
+        default: 'v2.5.0'
+      HELM_CLI_VERSION:
+        description: 'HELM_CLI_VERSION'
+        required: false
+        type: string
+        default: 'v4.2.2'
+      K9S_CLI_VERSION:
+        description: 'K9S_CLI_VERSION'
+        required: false
+        type: string
+        default: 'v0.51.0'
+      KOPS_CLI_VERSION:
+        description: 'KOPS_CLI_VERSION'
+        required: false
+        type: string
+        default: 'v1.36.0-beta.1'
+      KUBECTL_CLI_VERSION:
+        description: 'KUBECTL_CLI_VERSION'
+        required: false
+        type: string
+        default: 'v1.37.0-alpha.2'
+      KUSTOMIZE_CLI_VERSION:
+        description: 'KUSTOMIZE_CLI_VERSION'
+        required: false
+        type: string
+        default: '5.8.1'
+      TERRAFORM_CLI_VERSION:
+        description: 'TERRAFORM_CLI_VERSION'
+        required: false
+        type: string
+        default: '1.16.0-alpha20260626'
+      TERRAGRUNT_CLI_VERSION:
+        description: 'TERRAGRUNT_CLI_VERSION'
+        required: false
+        type: string
+        default: 'v1.1.0-rc3'
+      CONTAINER_TAG:
+        description: 'CONTAINER_TAG'
+        required: false
+        type: string
+        default: 'initial'
+
+env:
+  GH_REGISTRY: ghcr.io
+  DH_REGISTRY: docker.io
+  DHI_REGISTRY: dhi.io
+  CONTAINER_TAG: initial
+
+jobs:
+  prepare:
+    name: 'Preparation, cleanup'
+    runs-on: ubuntu-slim
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      REPOSITORY_NAME: ${{ steps.params.outputs.REPOSITORY_NAME }}
+      REPOSITORY_DESCRIPTION: ${{ steps.params.outputs.REPOSITORY_DESCRIPTION }}
+      CONTAINER_TAG: ${{ steps.params.outputs.CONTAINER_TAG }}
+      TIMESTAMP: ${{ steps.params.outputs.TIMESTAMP }}
+      ANSIBLE_CLI_RELEASE_VERSION: ${{ steps.params.outputs.ANSIBLE_CLI_RELEASE_VERSION }}
+      AWS_CLI_RELEASE_VERSION: ${{ steps.params.outputs.AWS_CLI_RELEASE_VERSION }}
+      AWS_SAM_CLI_RELEASE_VERSION: ${{ steps.params.outputs.AWS_SAM_CLI_RELEASE_VERSION }}
+      AWS_SM_CLI_RELEASE_VERSION: ${{ steps.params.outputs.AWS_SM_CLI_RELEASE_VERSION }}
+      AWS_CH_CLI_RELEASE_VERSION: ${{ steps.params.outputs.AWS_CH_CLI_RELEASE_VERSION }}
+      CM_CTL_CLI_RELEASE_VERSION: ${{ steps.params.outputs.CM_CTL_CLI_RELEASE_VERSION }}
+      HELM_CLI_RELEASE_VERSION: ${{ steps.params.outputs.HELM_CLI_RELEASE_VERSION }}
+      K9S_CLI_RELEASE_VERSION: ${{ steps.params.outputs.K9S_CLI_RELEASE_VERSION }}
+      KOPS_CLI_RELEASE_VERSION: ${{ steps.params.outputs.KOPS_CLI_RELEASE_VERSION }}
+      KUBECTL_CLI_RELEASE_VERSION: ${{ steps.params.outputs.KUBECTL_CLI_RELEASE_VERSION }}
+      KUSTOMIZE_CLI_RELEASE_VERSION: ${{ steps.params.outputs.KUSTOMIZE_CLI_RELEASE_VERSION }}
+      TERRAFORM_CLI_RELEASE_VERSION: ${{ steps.params.outputs.TERRAFORM_CLI_RELEASE_VERSION }}
+      TERRAGRUNT_CLI_RELEASE_VERSION: ${{ steps.params.outputs.TERRAGRUNT_CLI_RELEASE_VERSION }}
+      WORKSPACE_ROOT_DIR: ${{ steps.params.outputs.WORKSPACE_ROOT_DIR }}
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@main
+
+      - name: 'Get repository description'
+        id: repo
+        uses: stefanbosak/gh-actions/get-repo-description@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 'Set tools versions to GITHUB_ENV and GITHUB_OUTPUT'
+        id: params
+        env:
+          CHANGES_JSON: ${{ toJson(github.event.client_payload.changes) }}
+        run: |
+          CONTAINER_TAG="${{ env.CONTAINER_TAG }}"
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            ANSIBLE_CLI_RELEASE_VERSION="${{ github.event.inputs.ANSIBLE_CLI_VERSION }}"
+            AWS_CLI_RELEASE_VERSION="${{ github.event.inputs.AWS_CLI_VERSION }}"
+            AWS_SAM_CLI_RELEASE_VERSION="${{ github.event.inputs.AWS_SAM_CLI_VERSION }}"
+            AWS_SM_CLI_RELEASE_VERSION="${{ github.event.inputs.AWS_SM_CLI_VERSION }}"
+            AWS_CH_CLI_RELEASE_VERSION="${{ github.event.inputs.AWS_CH_CLI_VERSION }}"
+            CM_CTL_CLI_RELEASE_VERSION="${{ github.event.inputs.CM_CTL_CLI_VERSION }}"
+            HELM_CLI_RELEASE_VERSION="${{ github.event.inputs.HELM_CLI_VERSION }}"
+            K9S_CLI_RELEASE_VERSION="${{ github.event.inputs.K9S_CLI_VERSION }}"
+            KOPS_CLI_RELEASE_VERSION="${{ github.event.inputs.KOPS_CLI_VERSION }}"
+            KUBECTL_CLI_RELEASE_VERSION="${{ github.event.inputs.KUBECTL_CLI_VERSION }}"
+            KUSTOMIZE_CLI_RELEASE_VERSION="${{ github.event.inputs.KUSTOMIZE_CLI_VERSION }}"
+            TERRAFORM_CLI_RELEASE_VERSION="${{ github.event.inputs.TERRAFORM_CLI_VERSION }}"
+            TERRAGRUNT_CLI_RELEASE_VERSION="${{ github.event.inputs.TERRAGRUNT_CLI_VERSION }}"
+            CONTAINER_TAG="${{ github.event.inputs.CONTAINER_TAG }}"
+          fi
+          REPOSITORY_NAME="$(echo '${{ github.repository }}' | cut -d'/' -f2)"
+          REPOSITORY_DESCRIPTION="${{ steps.repo.outputs.description }}"
+          echo "WORKSPACE_ROOT_DIR=${{ github.workspace }}/workspace" >> ${GITHUB_ENV}
+          echo "REPOSITORY_NAME=${REPOSITORY_NAME}" >> ${GITHUB_ENV}
+          echo "REPOSITORY_DESCRIPTION=${REPOSITORY_DESCRIPTION}" >> ${GITHUB_ENV}
+          TIMESTAMP="$(git log -1 --format=%cI)"
+          echo "TIMESTAMP=${TIMESTAMP}" >> ${GITHUB_ENV}
+          if [[ "${{ github.event_name }}" == "repository_dispatch" ]]; then
+            ANSIBLE_CLI_RELEASE_VERSION=$(echo "${CHANGES_JSON}" | jq -r '.[] | select(.repo == "ansible") | .tag')
+            AWS_CLI_RELEASE_VERSION=$(echo "${CHANGES_JSON}" | jq -r '.[] | select(.repo == "aws-cli") | .tag')
+            AWS_SAM_CLI_RELEASE_VERSION=$(echo "${CHANGES_JSON}" | jq -r '.[] | select(.repo == "aws-sam-cli") | .tag')
+            AWS_SM_CLI_RELEASE_VERSION=$(echo "${CHANGES_JSON}" | jq -r '.[] | select(.repo == "session-manager-plugin") | .tag')
+            AWS_CH_CLI_RELEASE_VERSION=$(echo "${CHANGES_JSON}" | jq -r '.[] | select(.repo == "amazon-ecr-credential-helper") | .tag')
+            CM_CTL_CLI_RELEASE_VERSION=$(echo "${CHANGES_JSON}" | jq -r '.[] | select(.repo == "cmctl") | .tag')
+            HELM_CLI_RELEASE_VERSION=$(echo "${CHANGES_JSON}" | jq -r '.[] | select(.repo == "helm") | .tag')
+            K9S_CLI_RELEASE_VERSION=$(echo "${CHANGES_JSON}" | jq -r '.[] | select(.repo == "k9s") | .tag')
+            KOPS_CLI_RELEASE_VERSION=$(echo "${CHANGES_JSON}" | jq -r '.[] | select(.repo == "kops") | .tag')
+            KUBECTL_CLI_RELEASE_VERSION=$(echo "${CHANGES_JSON}" | jq -r '.[] | select(.repo == "kubernetes") | .tag')
+            KUSTOMIZE_CLI_RELEASE_VERSION=$(echo "${CHANGES_JSON}" | jq -r '.[] | select(.repo == "kustomize") | .tag')
+            TERRAFORM_CLI_RELEASE_VERSION=$(echo "${CHANGES_JSON}" | jq -r '.[] | select(.repo == "terraform") | .tag')
+            TERRAGRUNT_CLI_RELEASE_VERSION=$(echo "${CHANGES_JSON}" | jq -r '.[] | select(.repo == "terragrunt") | .tag')
+          fi
+          echo "GITHUB_ENV:"
+          cat ${GITHUB_ENV}
+          echo "CONTAINER_TAG=${CONTAINER_TAG}" >> ${GITHUB_OUTPUT}
+          echo "WORKSPACE_ROOT_DIR=${{ github.workspace }}/workspace" >> ${GITHUB_OUTPUT}
+          echo "REPOSITORY_NAME=${REPOSITORY_NAME}" >> ${GITHUB_OUTPUT}
+          echo "REPOSITORY_DESCRIPTION=${REPOSITORY_DESCRIPTION}" >> ${GITHUB_OUTPUT}
+          echo "TIMESTAMP=${TIMESTAMP}" >> ${GITHUB_OUTPUT}
+          echo "ANSIBLE_CLI_RELEASE_VERSION=${ANSIBLE_CLI_RELEASE_VERSION}" >> ${GITHUB_OUTPUT}
+          echo "AWS_CLI_RELEASE_VERSION=${AWS_CLI_RELEASE_VERSION#v}" >> ${GITHUB_OUTPUT}
+          echo "AWS_SAM_CLI_RELEASE_VERSION=${AWS_SAM_CLI_RELEASE_VERSION}" >> ${GITHUB_OUTPUT}
+          echo "AWS_SM_CLI_RELEASE_VERSION=${AWS_SM_CLI_RELEASE_VERSION#v}" >> ${GITHUB_OUTPUT}
+          echo "AWS_CH_CLI_RELEASE_VERSION=${AWS_CH_CLI_RELEASE_VERSION#v}" >> ${GITHUB_OUTPUT}
+          echo "CM_CTL_CLI_RELEASE_VERSION=${CM_CTL_CLI_RELEASE_VERSION}" >> ${GITHUB_OUTPUT}
+          echo "HELM_CLI_RELEASE_VERSION=${HELM_CLI_RELEASE_VERSION}" >> ${GITHUB_OUTPUT}
+          echo "K9S_CLI_RELEASE_VERSION=${K9S_CLI_RELEASE_VERSION}" >> ${GITHUB_OUTPUT}
+          echo "KOPS_CLI_RELEASE_VERSION=${KOPS_CLI_RELEASE_VERSION}" >> ${GITHUB_OUTPUT}
+          echo "KUBECTL_CLI_RELEASE_VERSION=${KUBECTL_CLI_RELEASE_VERSION}" >> ${GITHUB_OUTPUT}
+          echo "KUSTOMIZE_CLI_RELEASE_VERSION=${KUSTOMIZE_CLI_RELEASE_VERSION#kustomize/v}" >> ${GITHUB_OUTPUT}
+          echo "TERRAFORM_CLI_RELEASE_VERSION=${TERRAFORM_CLI_RELEASE_VERSION#v}" >> ${GITHUB_OUTPUT}
+          echo "TERRAGRUNT_CLI_RELEASE_VERSION=${TERRAGRUNT_CLI_RELEASE_VERSION}" >> ${GITHUB_OUTPUT}
+          echo "GITHUB_OUTPUT:"
+          cat ${GITHUB_OUTPUT}
+
+      - name: 'Check GHCR package exists'
+        id: pkg-check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          count=$(gh api "/user/packages/container/${{ env.REPOSITORY_NAME }}/versions" --jq 'length' 2> /dev/null || echo 0)
+          echo "count=$count" >> "${GITHUB_OUTPUT}"
+
+      - name: 'Cleanup ${{ env.GH_REGISTRY }} registry'
+        if: steps.pkg-check.outputs.count != '0'
+        uses: actions/delete-package-versions@main
+        env:
+          ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+        with:
+          owner: ${{ github.repository_owner }}
+          package-name: ${{ env.REPOSITORY_NAME }}
+          package-type: 'container'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          delete-only-untagged-versions: 'true'
+          min-versions-to-keep: 2
+
+      - name: 'Cleanup ${{ env.DH_REGISTRY }} registry'
+        uses: stefanbosak/gh-actions/cleanup-dockerhub-old-digests@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.run_id }}
+          ref-name: ${{ github.ref_name }}
+          dh-user: ${{ secrets.DH_USER }}
+          dh-token: ${{ secrets.DH_TOKEN }}
+          repository-name: ${{ env.REPOSITORY_NAME }}
+
+  build:
+    name: 'Build image (${{ matrix.platform_pair }})'
+    needs: [prepare]
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-26.04
+            platform: linux/amd64
+            platform_pair: linux-amd64
+          - runner: ubuntu-26.04-arm
+            platform: linux/arm64
+            platform_pair: linux-arm64
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@main
+
+      - name: 'Set up Docker buildx'
+        uses: docker/setup-buildx-action@master
+        with:
+          version: latest
+          driver-opts: |
+            network=host
+            image=moby/buildkit:master
+
+      - name: 'Login to ${{ env.GH_REGISTRY }}'
+        uses: docker/login-action@master
+        with:
+          registry: ${{ env.GH_REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          ecr: false
+          logout: true
+
+      - name: 'Login to ${{ env.DH_REGISTRY }}'
+        uses: docker/login-action@master
+        with:
+          registry: ${{ env.DH_REGISTRY }}
+          username: ${{ secrets.DH_USER }}
+          password: ${{ secrets.DH_TOKEN }}
+          ecr: false
+          logout: true
+
+      - name: 'Login to ${{ env.DHI_REGISTRY }}'
+        uses: docker/login-action@master
+        with:
+          registry: ${{ env.DHI_REGISTRY }}
+          username: ${{ secrets.DH_USER }}
+          password: ${{ secrets.DH_TOKEN }}
+          ecr: false
+          logout: true
+
+      - name: 'Build, push image (no tag)'
+        id: build
+        uses: docker/build-push-action@master
+        with:
+          context: .
+          file: ./Dockerfile
+          build-args: |
+            ANSIBLE_CLI_VERSION=${{ needs.prepare.outputs.ANSIBLE_CLI_RELEASE_VERSION }}
+            AWS_CLI_VERSION=${{ needs.prepare.outputs.AWS_CLI_RELEASE_VERSION }}
+            AWS_SAM_CLI_VERSION=${{ needs.prepare.outputs.AWS_SAM_CLI_RELEASE_VERSION }}
+            AWS_SM_CLI_VERSION=${{ needs.prepare.outputs.AWS_SM_CLI_RELEASE_VERSION }}
+            AWS_CH_CLI_VERSION=${{ needs.prepare.outputs.AWS_CH_CLI_RELEASE_VERSION }}
+            CM_CTL_CLI_VERSION=${{ needs.prepare.outputs.CM_CTL_CLI_RELEASE_VERSION }}
+            HELM_CLI_VERSION=${{ needs.prepare.outputs.HELM_CLI_RELEASE_VERSION }}
+            K9S_CLI_VERSION=${{ needs.prepare.outputs.K9S_CLI_RELEASE_VERSION }}
+            KOPS_CLI_VERSION=${{ needs.prepare.outputs.KOPS_CLI_RELEASE_VERSION }}
+            KUBECTL_CLI_VERSION=${{ needs.prepare.outputs.KUBECTL_CLI_RELEASE_VERSION }}
+            KUSTOMIZE_CLI_VERSION=${{ needs.prepare.outputs.KUSTOMIZE_CLI_RELEASE_VERSION }}
+            TERRAFORM_CLI_VERSION=${{ needs.prepare.outputs.TERRAFORM_CLI_RELEASE_VERSION }}
+            TERRAGRUNT_CLI_VERSION=${{ needs.prepare.outputs.TERRAGRUNT_CLI_RELEASE_VERSION }}
+            WORKSPACE_ROOT_DIR=${{ needs.prepare.outputs.WORKSPACE_ROOT_DIR }}
+          push: true
+          provenance: false
+          no-cache: false
+          cache-from: type=registry,ref=${{ env.GH_REGISTRY }}/${{ github.repository }}:buildcache-${{ matrix.platform_pair }}
+          cache-to: type=registry,ref=${{ env.GH_REGISTRY }}/${{ github.repository }}:buildcache-${{ matrix.platform_pair }},mode=max
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          secrets: |
+            GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          labels: |
+            org.opencontainers.image.created=${{ needs.prepare.outputs.TIMESTAMP }}
+            org.opencontainers.image.description=${{ needs.prepare.outputs.REPOSITORY_DESCRIPTION }}
+            org.opencontainers.image.authors=${{ github.repository_owner }}
+            org.opencontainers.image.url=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+          platforms: ${{ matrix.platform }}
+          outputs: |
+            type=image,name=${{ env.GH_REGISTRY }}/${{ github.repository }},push-by-digest=true,name-canonical=true,push=true,compression=gzip,compression-level=3,force-compression=true
+            type=image,name=${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.prepare.outputs.REPOSITORY_NAME }},push-by-digest=true,name-canonical=true,push=true,compression=gzip,compression-level=3,force-compression=true
+
+      - name: 'Export digest to artifact'
+        run: |
+          mkdir -p /tmp/digests
+          digest="${{ steps.build.outputs.digest }}"
+          touch "/tmp/digests/${digest#sha256:}"
+
+      - name: 'Upload digest artifact'
+        uses: actions/upload-artifact@main
+        with:
+          name: digests-${{ matrix.platform_pair }}
+          path: /tmp/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  merge:
+    name: 'Merge multi-platform manifests'
+    needs: [prepare, build]
+    runs-on: ubuntu-26.04-arm
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    steps:
+      - name: 'Download all digest artifacts'
+        uses: actions/download-artifact@main
+        with:
+          path: /tmp/digests
+          pattern: digests-*
+          merge-multiple: true
+
+      - name: 'Install cosign'
+        uses: sigstore/cosign-installer@main
+
+      - name: 'Login to ${{ env.GH_REGISTRY }}'
+        uses: docker/login-action@master
+        with:
+          registry: ${{ env.GH_REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          ecr: false
+          logout: true
+
+      - name: 'Login to ${{ env.DH_REGISTRY }}'
+        uses: docker/login-action@master
+        with:
+          registry: ${{ env.DH_REGISTRY }}
+          username: ${{ secrets.DH_USER }}
+          password: ${{ secrets.DH_TOKEN }}
+          ecr: false
+          logout: true
+
+      - name: 'Store multi-platform image in ${{ env.GH_REGISTRY }}'
+        run: |
+          docker buildx imagetools create \
+            -t ${{ env.GH_REGISTRY }}/${{ github.repository }}:${{ needs.prepare.outputs.CONTAINER_TAG }} \
+            $(printf '${{ env.GH_REGISTRY }}/${{ github.repository }}@sha256:%s ' $(ls /tmp/digests))
+
+      - name: 'Sign multi-platform image index (${{ env.GH_REGISTRY }})'
+        run: |
+          IMAGE="${{ env.GH_REGISTRY }}/${{ github.repository }}:${{ needs.prepare.outputs.CONTAINER_TAG }}"
+          DIGEST=$(docker buildx imagetools inspect "${IMAGE}" --format '{{json .}}' | jq -r '.manifest.digest')
+          cosign sign --yes "${IMAGE}@${DIGEST}"
+
+      - name: 'Store multi-platform image in ${{ env.DH_REGISTRY }}'
+        run: |
+          docker buildx imagetools create \
+            -t ${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.prepare.outputs.REPOSITORY_NAME }}:${{ needs.prepare.outputs.CONTAINER_TAG }} \
+            $(printf '${{ env.DH_REGISTRY }}/${{ secrets.DH_USER }}/${{ needs.prepare.outputs.REPOSITORY_NAME }}@sha256:%s ' $(ls /tmp/digests))
+
+      - name: 'Extract all stored digests'
+        run: |
+          JSON=$(docker buildx imagetools inspect ${{ env.GH_REGISTRY }}/${{ github.repository }}:${{ needs.prepare.outputs.CONTAINER_TAG }} --format '{{json .}}')
+
+          ALL_DIGESTS=$(echo "${JSON}" | jq -r '
+            [
+              .manifest.digest,
+
+              (
+                .manifest.manifests[]
+                | select(.mediaType == "application/vnd.docker.distribution.manifest.v2+json")
+                | .digest
+              )
+            ]
+            | join(" ")
+          ')
+
+          echo "${ALL_DIGESTS}" > /tmp/digests-all.txt
+
+      - name: 'Upload extracted digests as artifact'
+        uses: actions/upload-artifact@main
+        with:
+          name: digests-all
+          path: /tmp/digests-all.txt
+          if-no-files-found: error
+          retention-days: 7
+
+  test:
+    name: 'Test image (${{ matrix.platform_pair }})'
+    needs: [prepare, build, merge]
+    if: success()
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-26.04
+            platform: linux/amd64
+            platform_pair: linux-amd64
+          - runner: ubuntu-26.04-arm
+            platform: linux/arm64
+            platform_pair: linux-arm64
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: 'Install cosign'
+        uses: sigstore/cosign-installer@main
+
+      - name: 'Verify image signature (${{ env.GH_REGISTRY }})'
+        run: |
+          IMAGE="${{ env.GH_REGISTRY }}/${{ github.repository }}:${{ needs.prepare.outputs.CONTAINER_TAG }}"
+          DIGEST=$(docker buildx imagetools inspect "${IMAGE}" --format '{{json .}}' | jq -r '.manifest.digest')
+          cosign verify \
+            --certificate-identity-regexp="https://github\.com/${{ github.repository }}/\.github/workflows/.*" \
+            --certificate-oidc-issuer="https://token.actions.githubusercontent.com" \
+            "${IMAGE}@${DIGEST}"
+
+      - name: 'Run tests in Docker container'
+        id: test
+        env:
+          ANSIBLE_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.ANSIBLE_CLI_RELEASE_VERSION }}
+          AWS_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.AWS_CLI_RELEASE_VERSION }}
+          AWS_SAM_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.AWS_SAM_CLI_RELEASE_VERSION }}
+          AWS_SM_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.AWS_SM_CLI_RELEASE_VERSION }}
+          AWS_CH_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.AWS_CH_CLI_RELEASE_VERSION }}
+          CM_CTL_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.CM_CTL_CLI_RELEASE_VERSION }}
+          HELM_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.HELM_CLI_RELEASE_VERSION }}
+          K9S_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.K9S_CLI_RELEASE_VERSION }}
+          KOPS_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.KOPS_CLI_RELEASE_VERSION }}
+          KUBECTL_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.KUBECTL_CLI_RELEASE_VERSION }}
+          KUSTOMIZE_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.KUSTOMIZE_CLI_RELEASE_VERSION }}
+          TERRAFORM_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.TERRAFORM_CLI_RELEASE_VERSION }}
+          TERRAGRUNT_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.TERRAGRUNT_CLI_RELEASE_VERSION }}
+        run: |
+          FAILED=0
+          IMAGE="${{ env.GH_REGISTRY }}/${{ github.repository }}:${{ needs.prepare.outputs.CONTAINER_TAG }}"
+
+          compare() {
+            local name="$1" actual="${2#v}" expected="${3#v}"
+            if [[ -z "${expected}" ]]; then
+              echo "SKIP: ${name} (no expected version provided)"
+              return
+            fi
+            if [[ "${actual}" == "${expected}" ]]; then
+              echo "PASS: ${name}: ${actual} == ${expected}"
+            else
+              echo "FAIL: ${name}: got '${actual}', expected '${expected}'"
+              FAILED=1
+            fi
+          }
+
+          ANSIBLE_CLI_VERSION=$(docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            "${IMAGE}" \
+            sh -c 'ansible --version | grep -oP "\d+\.\d+\.\d+(-\d+)?" | head -n 1')
+          echo "ANSIBLE_CLI_VERSION=${ANSIBLE_CLI_VERSION#v}"
+
+          AWS_CLI_VERSION=$(docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            "${IMAGE}" \
+            sh -c 'aws --version | grep -oP "\d+\.\d+\.\d+(-\d+)?" | head -n 1')
+          echo "AWS_CLI_VERSION=${AWS_CLI_VERSION#v}"
+
+          AWS_SAM_CLI_VERSION=$(docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            "${IMAGE}" \
+            sh -c "sam --version | awk '{print \$NF}'")
+          echo "AWS_SAM_CLI_VERSION=${AWS_SAM_CLI_VERSION#v}"
+
+          AWS_SM_CLI_VERSION=$(docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            "${IMAGE}" \
+            sh -c 'session-manager-plugin --version | grep -oP "\d+\.\d+\.\d+\.\d+(-\d+)?"')
+          echo "AWS_SM_CLI_VERSION=${AWS_SM_CLI_VERSION#v}"
+
+          AWS_CH_CLI_VERSION=$(docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            "${IMAGE}" \
+            sh -c 'docker-credential-ecr-login -v | grep -oP "\d+\.\d+\.\d+(-\d+)?"')
+          echo "AWS_CH_CLI_VERSION=${AWS_CH_CLI_VERSION#v}"
+
+          CM_CTL_CLI_VERSION=$(docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            "${IMAGE}" \
+            sh -c "cmctl version --client --short | awk '{print \$NF}'")
+          echo "CM_CTL_CLI_VERSION=${CM_CTL_CLI_VERSION#v}"
+
+          HELM_CLI_VERSION=$(docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            "${IMAGE}" \
+            sh -c "helm version --short | cut -d'+' -f1")
+          echo "HELM_CLI_VERSION=${HELM_CLI_VERSION#v}"
+
+          K9S_CLI_VERSION=$(docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            "${IMAGE}" \
+            sh -c "k9s version | awk '/Version/{print \$NF}'")
+          echo "K9S_CLI_VERSION=${K9S_CLI_VERSION#v}"
+
+          KOPS_CLI_VERSION=$(docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            "${IMAGE}" \
+            sh -c 'kops version --short')
+          echo "KOPS_CLI_VERSION=${KOPS_CLI_VERSION#v}"
+
+          KUBECTL_CLI_VERSION=$(docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            "${IMAGE}" \
+            sh -c "kubectl version --client=true -o json | jq -r '.clientVersion.gitVersion'")
+          echo "KUBECTL_CLI_VERSION=${KUBECTL_CLI_VERSION#v}"
+
+          KUSTOMIZE_CLI_VERSION=$(docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            "${IMAGE}" \
+            sh -c 'kustomize version')
+          echo "KUSTOMIZE_CLI_VERSION=${KUSTOMIZE_CLI_VERSION#v}"
+
+          TERRAFORM_CLI_VERSION=$(docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            "${IMAGE}" \
+            sh -c "terraform version -json | jq -r '.terraform_version'")
+          echo "TERRAFORM_CLI_VERSION=${TERRAFORM_CLI_VERSION#v}"
+
+          TERRAGRUNT_CLI_VERSION=$(docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            "${IMAGE}" \
+            sh -c 'terragrunt --version | grep -oP "\d+\.\d+\.\d+(-[a-zA-Z0-9]+(\.\d+)?)?"')
+          echo "TERRAGRUNT_CLI_VERSION=${TERRAGRUNT_CLI_VERSION#v}"
+
+          echo "--- Version comparison ---"
+          compare "ANSIBLE_CLI_VERSION"    "${ANSIBLE_CLI_VERSION}"    "${ANSIBLE_CLI_RELEASE_VERSION}"
+          compare "AWS_CLI_VERSION"        "${AWS_CLI_VERSION}"        "${AWS_CLI_RELEASE_VERSION}"
+          compare "AWS_SM_CLI_VERSION"     "${AWS_SM_CLI_VERSION}"     "${AWS_SM_CLI_RELEASE_VERSION}"
+          compare "AWS_CH_CLI_VERSION"     "${AWS_CH_CLI_VERSION}"     "${AWS_CH_CLI_RELEASE_VERSION}"
+          compare "CM_CTL_CLI_VERSION"     "${CM_CTL_CLI_VERSION}"     "${CM_CTL_CLI_RELEASE_VERSION}"
+          compare "HELM_CLI_VERSION"       "${HELM_CLI_VERSION}"       "${HELM_CLI_RELEASE_VERSION}"
+          compare "K9S_CLI_VERSION"        "${K9S_CLI_VERSION}"        "${K9S_CLI_RELEASE_VERSION}"
+          compare "KOPS_CLI_VERSION"       "${KOPS_CLI_VERSION}"       "${KOPS_CLI_RELEASE_VERSION}"
+          compare "KUBECTL_CLI_VERSION"    "${KUBECTL_CLI_VERSION}"    "${KUBECTL_CLI_RELEASE_VERSION}"
+          compare "KUSTOMIZE_CLI_VERSION"  "${KUSTOMIZE_CLI_VERSION}"  "${KUSTOMIZE_CLI_RELEASE_VERSION}"
+          compare "TERRAFORM_CLI_VERSION"  "${TERRAFORM_CLI_VERSION}"  "${TERRAFORM_CLI_RELEASE_VERSION}"
+          compare "TERRAGRUNT_CLI_VERSION" "${TERRAGRUNT_CLI_VERSION}" "${TERRAGRUNT_CLI_RELEASE_VERSION}"
+
+          if [[ ${FAILED} -ne 0 ]]; then
+            echo "One or more version checks failed!"
+            exit 1
+          fi
+
+  scan:
+    name: 'Scan image (${{ matrix.platform_pair }})'
+    needs: [prepare, build, merge]
+    if: success()
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-26.04
+            platform: linux/amd64
+            platform_pair: linux-amd64
+          - runner: ubuntu-26.04-arm
+            platform: linux/arm64
+            platform_pair: linux-arm64
+    permissions:
+      contents: read
+      packages: read
+      security-events: write
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@main
+
+      - name: 'Install cosign'
+        uses: sigstore/cosign-installer@main
+
+      - name: 'Verify image signature (${{ env.GH_REGISTRY }})'
+        run: |
+          IMAGE="${{ env.GH_REGISTRY }}/${{ github.repository }}:${{ needs.prepare.outputs.CONTAINER_TAG }}"
+          DIGEST=$(docker buildx imagetools inspect "${IMAGE}" --format '{{json .}}' | jq -r '.manifest.digest')
+          cosign verify \
+            --certificate-identity-regexp="https://github\.com/${{ github.repository }}/\.github/workflows/.*" \
+            --certificate-oidc-issuer="https://token.actions.githubusercontent.com" \
+            "${IMAGE}@${DIGEST}"
+
+      - name: 'Run Trivy scan (${{ matrix.platform_pair }})'
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ env.GH_REGISTRY }}/${{ github.repository }}:${{ needs.prepare.outputs.CONTAINER_TAG }}'
+          format: 'json'
+          scanners: 'vuln,secret,config'
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH,MEDIUM,LOW'
+          ignore-unfixed: 'false'
+          exit-code: '0'
+          version: 'latest'
+          list-all-pkgs: 'true'
+          output: scan-report-${{ matrix.platform_pair }}.json
+
+      - name: 'Run Trivy misconfig scan (${{ matrix.platform_pair }})'
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          scan-ref: '.'
+          format: 'json'
+          scanners: 'misconfig'
+          severity: 'CRITICAL,HIGH,MEDIUM,LOW'
+          exit-code: '0'
+          version: 'latest'
+          output: misconfig-report-${{ matrix.platform_pair }}.json
+
+      - name: 'Store scan report as artifact (${{ matrix.platform_pair }})'
+        if: always()
+        uses: actions/upload-artifact@main
+        with:
+          name: scan-report-${{ matrix.platform_pair }}
+          path: scan-report-${{ matrix.platform_pair }}.json
+          retention-days: 7
+          overwrite: true
+          compression-level: 0
+
+      - name: 'Store misconfig report as artifact (${{ matrix.platform_pair }})'
+        if: always()
+        uses: actions/upload-artifact@main
+        with:
+          name: misconfig-report-${{ matrix.platform_pair }}
+          path: misconfig-report-${{ matrix.platform_pair }}.json
+          retention-days: 7
+          overwrite: true
+          compression-level: 0
+
+      - name: 'Convert scan report to SARIF (${{ matrix.platform_pair }})'
+        if: always()
+        run: |
+          trivy convert \
+            --format sarif \
+            --output scan-report-${{ matrix.platform_pair }}.sarif \
+            scan-report-${{ matrix.platform_pair }}.json
+
+      - name: 'Convert misconfig report to SARIF (${{ matrix.platform_pair }})'
+        if: always()
+        run: |
+          trivy convert \
+            --format sarif \
+            --output misconfig-report-${{ matrix.platform_pair }}.sarif \
+            misconfig-report-${{ matrix.platform_pair }}.json
+
+      - name: 'Upload SARIF scan report to GitHub Security tab (${{ matrix.platform_pair }})'
+        if: always()
+        uses: github/codeql-action/upload-sarif@main
+        with:
+          category: trivy-${{ matrix.platform_pair }}
+          sarif_file: scan-report-${{ matrix.platform_pair }}.sarif
+
+      - name: 'Upload SARIF misconfig report to GitHub Security tab (${{ matrix.platform_pair }})'
+        if: always()
+        uses: github/codeql-action/upload-sarif@main
+        with:
+          category: trivy-misconfig-${{ matrix.platform_pair }}
+          sarif_file: misconfig-report-${{ matrix.platform_pair }}.sarif
+
+  update-readme:
+    name: 'Update version information'
+    needs: [prepare, build, merge, test]
+    if: success() && github.event_name == 'repository_dispatch'
+    runs-on: ubuntu-slim
+    permissions:
+      contents: write
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@main
+
+      - name: 'Prepare version information'
+        env:
+          ANSIBLE_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.ANSIBLE_CLI_RELEASE_VERSION }}
+          AWS_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.AWS_CLI_RELEASE_VERSION }}
+          AWS_SAM_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.AWS_SAM_CLI_RELEASE_VERSION }}
+          AWS_SM_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.AWS_SM_CLI_RELEASE_VERSION }}
+          AWS_CH_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.AWS_CH_CLI_RELEASE_VERSION }}
+          CM_CTL_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.CM_CTL_CLI_RELEASE_VERSION }}
+          HELM_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.HELM_CLI_RELEASE_VERSION }}
+          K9S_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.K9S_CLI_RELEASE_VERSION }}
+          KOPS_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.KOPS_CLI_RELEASE_VERSION }}
+          KUBECTL_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.KUBECTL_CLI_RELEASE_VERSION }}
+          KUSTOMIZE_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.KUSTOMIZE_CLI_RELEASE_VERSION }}
+          TERRAFORM_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.TERRAFORM_CLI_RELEASE_VERSION }}
+          TERRAGRUNT_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.TERRAGRUNT_CLI_RELEASE_VERSION }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          export UPDATED_AT="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+          python3 << 'PYEOF'
+          import re, os
+          updated_at = os.environ['UPDATED_AT']
+          run_url = os.environ['RUN_URL']
+          run_number = os.environ['RUN_NUMBER']
+          tools = [
+              ('Ansible',                    os.environ['ANSIBLE_CLI_RELEASE_VERSION'],     'https://github.com/ansible/ansible/releases/tag/'                       + os.environ['ANSIBLE_CLI_RELEASE_VERSION']),
+              ('AWS CLI',                    os.environ['AWS_CLI_RELEASE_VERSION'],         'https://github.com/aws/aws-cli/releases/tag/'                           + os.environ['AWS_CLI_RELEASE_VERSION']),
+              ('AWS SAM CLI',                os.environ['AWS_SAM_CLI_RELEASE_VERSION'],     'https://github.com/aws/aws-sam-cli/releases/tag/'                       + os.environ['AWS_SAM_CLI_RELEASE_VERSION']),
+              ('AWS session manager',        os.environ['AWS_SM_CLI_RELEASE_VERSION'],      'https://github.com/aws/session-manager-plugin/releases/tag/'            + os.environ['AWS_SM_CLI_RELEASE_VERSION']),
+              ('AWS ECR Credential Helper',  os.environ['AWS_CH_CLI_RELEASE_VERSION'],      'https://github.com/awslabs/amazon-ecr-credential-helper/releases/tag/v' + os.environ['AWS_CH_CLI_RELEASE_VERSION']),
+              ('cert-manager CLI',           os.environ['CM_CTL_CLI_RELEASE_VERSION'],      'https://github.com/cert-manager/cmctl/releases/tag/'                    + os.environ['CM_CTL_CLI_RELEASE_VERSION']),
+              ('Helm',                       os.environ['HELM_CLI_RELEASE_VERSION'],        'https://github.com/helm/helm/releases/tag/'                             + os.environ['HELM_CLI_RELEASE_VERSION']),
+              ('K9s',                        os.environ['K9S_CLI_RELEASE_VERSION'],         'https://github.com/derailed/k9s/releases/tag/'                          + os.environ['K9S_CLI_RELEASE_VERSION']),
+              ('Kops',                       os.environ['KOPS_CLI_RELEASE_VERSION'],        'https://github.com/kubernetes/kops/releases/tag/'                       + os.environ['KOPS_CLI_RELEASE_VERSION']),
+              ('Kubectl',                    os.environ['KUBECTL_CLI_RELEASE_VERSION'],     'https://github.com/kubernetes/kubernetes/releases/tag/'                 + os.environ['KUBECTL_CLI_RELEASE_VERSION']),
+              ('Kustomize',                  os.environ['KUSTOMIZE_CLI_RELEASE_VERSION'],   'https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize/v'  + os.environ['KUSTOMIZE_CLI_RELEASE_VERSION']),
+              ('Terraform',                  os.environ['TERRAFORM_CLI_RELEASE_VERSION'],   'https://github.com/hashicorp/terraform/releases/tag/v'                  + os.environ['TERRAFORM_CLI_RELEASE_VERSION']),
+              ('Terragrunt',                 os.environ['TERRAGRUNT_CLI_RELEASE_VERSION'],  'https://github.com/gruntwork-io/terragrunt/releases/tag/'               + os.environ['TERRAGRUNT_CLI_RELEASE_VERSION'])
+          ]
+          rows = '\n'.join(f'| **{name}** | [`{ver}`]({url}) |' for name, ver, url in tools)
+          new_section = (
+              "<!-- VERSION_INFO_START -->\n"
+              "| Component | Version |\n"
+              "|-----------|---------|\n"
+              f"{rows}\n"
+              "\n"
+              f"> 🔄 Last updated: {updated_at} · [Build #{run_number}]({run_url})\n"
+              "<!-- VERSION_INFO_END -->"
+          )
+          with open('README.md', 'r') as f:
+              content = f.read()
+          pattern = r'<!-- VERSION_INFO_START -->.*?<!-- VERSION_INFO_END -->'
+          new_content = re.sub(pattern, new_section, content, flags=re.DOTALL)
+          with open('README.md', 'w') as f:
+              f.write(new_content)
+          print('README.md updated successfully')
+          var_defaults = {
+              'ANSIBLE_CLI_VERSION':    os.environ['ANSIBLE_CLI_RELEASE_VERSION'],
+              'AWS_CLI_VERSION':        os.environ['AWS_CLI_RELEASE_VERSION'],
+              'AWS_SAM_CLI_VERSION':    os.environ['AWS_SAM_CLI_RELEASE_VERSION'],
+              'AWS_SM_CLI_VERSION':     os.environ['AWS_SM_CLI_RELEASE_VERSION'],
+              'AWS_CH_CLI_VERSION':     os.environ['AWS_CH_CLI_RELEASE_VERSION'],
+              'CM_CTL_CLI_VERSION':     os.environ['CM_CTL_CLI_RELEASE_VERSION'],
+              'HELM_CLI_VERSION':       os.environ['HELM_CLI_RELEASE_VERSION'],
+              'K9S_CLI_VERSION':        os.environ['K9S_CLI_RELEASE_VERSION'],
+              'KOPS_CLI_VERSION':       os.environ['KOPS_CLI_RELEASE_VERSION'],
+              'KUBECTL_CLI_VERSION':    os.environ['KUBECTL_CLI_RELEASE_VERSION'],
+              'KUSTOMIZE_CLI_VERSION':  os.environ['KUSTOMIZE_CLI_RELEASE_VERSION'],
+              'TERRAFORM_CLI_VERSION':  os.environ['TERRAFORM_CLI_RELEASE_VERSION'],
+              'TERRAGRUNT_CLI_VERSION': os.environ['TERRAGRUNT_CLI_RELEASE_VERSION']
+          }
+          pipeline_files = [
+              '.github/workflows/docker-image-native-multiplatform-pipeline.yaml',
+              '.github/workflows/docker-image-emulated-multiplatform-pipeline.yaml'
+          ]
+          for pf in pipeline_files:
+              with open(pf, 'r') as f:
+                  pf_content = f.read()
+              for var_name, version in var_defaults.items():
+                  if not version:
+                      continue
+                  pat = re.compile(
+                      rf'([ \t]+{re.escape(var_name)}:\n(?:[ \t]+\S[^\n]*\n)*?[ \t]+type:[ \t]*string\n)'
+                      r'([ \t]+default:[^\n]*\n)?'
+                  )
+                  def repl(m, ver=version):
+                      block = m.group(1)
+                      ind = re.search(r'^([ \t]+)type:', block, re.MULTILINE).group(1)
+                      return block + f"{ind}default: '{ver}'\n"
+                  pf_content = pat.sub(repl, pf_content)
+              with open(pf, 'w') as f:
+                  f.write(pf_content)
+              print(f'{pf} updated successfully')
+          PYEOF
+
+      - name: 'Store version information'
+        uses: stefanbosak/gh-actions/signed-verified-commit@main
+        with:
+          github-token: ${{ secrets.GH_TOKEN }}
+          signed-off: 'true'
+          commit-message: 'chore: update version info and workflow_dispatch defaults'
+          files: |
+            README.md
+            .github/workflows/docker-image-native-multiplatform-pipeline.yaml
+            .github/workflows/docker-image-emulated-multiplatform-pipeline.yaml
