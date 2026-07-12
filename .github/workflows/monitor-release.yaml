@@ -1,0 +1,35 @@
+name: 'Monitor release'
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+      timezone: 'Europe/Bratislava'
+  workflow_dispatch:
+
+jobs:
+  check-prerelease:
+    runs-on: ubuntu-slim
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - name: 'Monitor release'
+        uses: stefanbosak/gh-actions/monitor-release@main
+        with:
+          projects: |
+            [
+              {"owner":"ansible","repo":"ansible"},
+              {"owner":"aws","repo":"aws-cli","usetag":"true"},
+              {"owner":"aws","repo":"aws-sam-cli"},
+              {"owner":"aws","repo":"session-manager-plugin"},
+              {"owner":"awslabs","repo":"amazon-ecr-credential-helper"},
+              {"owner":"cert-manager","repo":"cmctl"},
+              {"owner":"helm","repo":"helm"},
+              {"owner":"derailed","repo":"k9s"},
+              {"owner":"kubernetes","repo":"kops"},
+              {"owner":"kubernetes","repo":"kubernetes"},
+              {"owner":"kubernetes-sigs","repo":"kustomize","tagprefix":"kustomize/"},
+              {"owner":"hashicorp","repo":"terraform"},
+              {"owner":"gruntwork-io","repo":"terragrunt"}
+            ]
