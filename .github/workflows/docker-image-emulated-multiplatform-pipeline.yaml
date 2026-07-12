@@ -299,8 +299,8 @@ jobs:
           push: true
           provenance: false
           no-cache: false
-          cache-from: type=registry,ref=${{ env.GH_REGISTRY }}/${{ github.repository }}-cache:build-${{ matrix.platform_pair }}
-          cache-to: type=registry,ref=${{ env.GH_REGISTRY }}/${{ github.repository }}-cache:build-${{ matrix.platform_pair }},mode=max
+          cache-from: type=registry,ref=${{ env.GH_REGISTRY }}/${{ github.repository }}-cache:build-qemu
+          cache-to: type=registry,ref=${{ env.GH_REGISTRY }}/${{ github.repository }}-cache:build-qemu,mode=max
           github-token: ${{ secrets.GITHUB_TOKEN }}
           secrets: |
             GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
