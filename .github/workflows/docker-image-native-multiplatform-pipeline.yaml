@@ -23,7 +23,7 @@ on:
         description: 'AWS_CLI_VERSION'
         required: false
         type: string
-        default: '2.35.21'
+        default: '2.35.22'
       AWS_SAM_CLI_VERSION:
         description: 'AWS_SAM_CLI_VERSION'
         required: false
