@@ -28,9 +28,9 @@
 | **Kubectl** | [`v1.37.0-alpha.3`](https://github.com/kubernetes/kubernetes/releases/tag/v1.37.0-alpha.3) |
 | **Kustomize** | [`5.8.1`](https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize/v5.8.1) |
 | **Terraform** | [`1.15.8`](https://github.com/hashicorp/terraform/releases/tag/v1.15.8) |
-| **Terragrunt** | [`v1.1.0`](https://github.com/gruntwork-io/terragrunt/releases/tag/v1.1.0) |
+| **Terragrunt** | [`v1.1.1`](https://github.com/gruntwork-io/terragrunt/releases/tag/v1.1.1) |
 
-> 🔄 Last updated: 2026-07-13T20:37:16Z · [Build #141](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/29282779428)
+> 🔄 Last updated: 2026-07-14T14:44:14Z · [Build #142](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/29341918419)
 <!-- VERSION_INFO_END -->
 
 ---
