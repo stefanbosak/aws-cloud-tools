@@ -58,7 +58,7 @@ on:
         description: 'KOPS_CLI_VERSION'
         required: false
         type: string
-        default: 'v1.36.0-beta.1'
+        default: 'v1.36.0'
       KUBECTL_CLI_VERSION:
         description: 'KUBECTL_CLI_VERSION'
         required: false
