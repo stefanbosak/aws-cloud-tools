@@ -56,6 +56,7 @@ This repository provides a fully automated preparation of <span style="color: #0
 | [kubectl](https://kubernetes.io/docs/reference/kubectl/) | <span style="color: #0969da;">Kubernetes command-line tool</span> |
 | [k9s](https://k9scli.io/) | <span style="color: #0969da;">Terminal UI for Kubernetes</span> |
 | [kustomize](https://kustomize.io/) | <span style="color: #0969da;">Kubernetes native configuration management</span> |
+| [SwarmCLI](https://github.com/Eldara-Tech/swarmcli) | <span style="color: #0969da;">Terminal UI for Docker Swarm</span> |
 | [Terraform](https://developer.hashicorp.com/terraform/cli) | <span style="color: #1a7f37;">Infrastructure as Code tool</span> |
 | [Terragrunt](https://terragrunt.gruntwork.io/) | <span style="color: #1a7f37;">Terraform wrapper for DRY configurations</span> |
 

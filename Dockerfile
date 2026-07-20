@@ -40,6 +40,9 @@ ARG KUBECTL_CLI_VERSION=v1.36.1
 # Kustomize version
 ARG KUSTOMIZE_CLI_VERSION=5.8.1
 
+# SwarmCLI version
+ARG SWARM_CLI_VERSION=v1.12.0
+
 # Terraform version
 ARG TERRAFORM_CLI_VERSION=1.15.2
 
@@ -291,6 +294,28 @@ ADD "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v$
 RUN mkdir -p "/usr/local/bin/" && tar -xvf "${WORKSPACE_ROOT_DIR}/kustomize_v${KUSTOMIZE_CLI_VERSION}_${TARGETOS}_${TARGETARCH}.tar.gz" -C "/usr/local/bin" --no-anchored "kustomize"
 
 
+# container as builder for preparing aws cloud tools
+FROM aws-cloud-tools-builder AS aws-cloud-tools-swarmcli-builder
+
+LABEL stage="aws-cloud-tools-swarmcli-builder" \
+      description="Debian-based container builder for preparing aws cloud tool SwarmCLI" \
+      org.opencontainers.image.description="Debian-based container builder for preparing aws cloud tool SwarmCLI" \
+      org.opencontainers.image.url=https://github.com/stefanbosak/aws-cloud-tools \
+      org.opencontainers.image.source=https://github.com/stefanbosak/aws-cloud-tools
+
+ARG TARGETOS
+ARG TARGETARCH
+ARG SWARM_CLI_VERSION
+
+ARG WORKSPACE_ROOT_DIR
+WORKDIR "${WORKSPACE_ROOT_DIR}"
+
+# install SwarmCLI
+RUN mkdir -p "/usr/local/bin/" && \
+    curl -fsSL https://swarmcli.io/install.sh | \
+    sh -s -- ce /usr/local/bin "${SWARM_CLI_VERSION}"
+
+
 # container as builder for preparing AWS cloud tools
 FROM aws-cloud-tools-builder AS aws-cloud-tools-terraform-builder
 
@@ -406,6 +431,7 @@ COPY --from=aws-cloud-tools-k9s-builder "/usr/local/bin/" "/usr/local/bin/"
 COPY --from=aws-cloud-tools-kops-builder "/usr/local/bin/" "/usr/local/bin/"
 COPY --from=aws-cloud-tools-kubectl-builder "/usr/local/bin/" "/usr/local/bin/"
 COPY --from=aws-cloud-tools-kustomize-builder "/usr/local/bin/" "/usr/local/bin/"
+COPY --from=aws-cloud-tools-swarmcli-builder "/usr/local/bin/" "/usr/local/bin/"
 COPY --from=aws-cloud-tools-terraform-builder "/usr/local/bin/" "/usr/local/bin/"
 COPY --from=aws-cloud-tools-terragrunt-builder "/usr/local/bin/" "/usr/local/bin/"
 
