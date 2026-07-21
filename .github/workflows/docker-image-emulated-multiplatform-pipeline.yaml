@@ -21,7 +21,7 @@ on:
         description: 'AWS_CLI_VERSION'
         required: false
         type: string
-        default: '2.36.4'
+        default: '2.36.5'
       AWS_SAM_CLI_VERSION:
         description: 'AWS_SAM_CLI_VERSION'
         required: false
@@ -71,7 +71,7 @@ on:
         description: 'SWARM_CLI_VERSION'
         required: false
         type: string
-        default: 'v1.13.0-rc3'
+        default: 'v1.13.0-rc4'
       TERRAFORM_CLI_VERSION:
         description: 'TERRAFORM_CLI_VERSION'
         required: false
