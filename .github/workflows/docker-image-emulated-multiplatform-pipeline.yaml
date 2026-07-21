@@ -204,14 +204,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          count=$(gh api "/user/packages/container/${{ env.REPOSITORY_NAME }}/versions" --jq 'length' 2> /dev/null || echo 0)
-          echo "count=$count" >> "${GITHUB_OUTPUT}"
-
-      - name: 'Check GHCR package exists'
-        id: pkg-check
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
           if count=$(gh api "/user/packages/container/${{ env.REPOSITORY_NAME }}/versions" --jq 'length' 2>/dev/null); then
             echo "exists=true" >> "${GITHUB_OUTPUT}"
             echo "count=${count}" >> "${GITHUB_OUTPUT}"
