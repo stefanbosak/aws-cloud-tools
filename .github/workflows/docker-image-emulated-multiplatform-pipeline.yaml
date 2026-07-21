@@ -10,8 +10,6 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  #repository_dispatch:
-  #  types: [new-release]
   workflow_dispatch:
     inputs:
       ANSIBLE_CLI_VERSION:
@@ -209,8 +207,21 @@ jobs:
           count=$(gh api "/user/packages/container/${{ env.REPOSITORY_NAME }}/versions" --jq 'length' 2> /dev/null || echo 0)
           echo "count=$count" >> "${GITHUB_OUTPUT}"
 
+      - name: 'Check GHCR package exists'
+        id: pkg-check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if count=$(gh api "/user/packages/container/${{ env.REPOSITORY_NAME }}/versions" --jq 'length' 2>/dev/null); then
+            echo "exists=true" >> "${GITHUB_OUTPUT}"
+            echo "count=${count}" >> "${GITHUB_OUTPUT}"
+          else
+            echo "exists=false" >> "${GITHUB_OUTPUT}"
+            echo "count=0" >> "${GITHUB_OUTPUT}"
+          fi
+
       - name: 'Cleanup ${{ env.GH_REGISTRY }} registry'
-        if: steps.pkg-check.outputs.count != '0'
+        if: steps.pkg-check.outputs.exists == 'true' && steps.pkg-check.outputs.count != '0'
         uses: actions/delete-package-versions@main
         env:
           ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
@@ -219,8 +230,34 @@ jobs:
           package-name: ${{ env.REPOSITORY_NAME }}
           package-type: 'container'
           token: ${{ secrets.GITHUB_TOKEN }}
-          delete-only-untagged-versions: 'true'
+          delete-only-untagged-versions: 'false'
           min-versions-to-keep: 5
+
+      - name: 'Check GHCR package exists'
+        id: pkg-cache-check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if count=$(gh api "/user/packages/container/${{ env.REPOSITORY_NAME }}-cache/versions" --jq 'length' 2>/dev/null); then
+            echo "exists=true" >> "${GITHUB_OUTPUT}"
+            echo "count=${count}" >> "${GITHUB_OUTPUT}"
+          else
+            echo "exists=false" >> "${GITHUB_OUTPUT}"
+            echo "count=0" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: 'Cleanup ${{ env.GH_REGISTRY }} registry'
+        if: steps.pkg-cache-check.outputs.exists == 'true' && steps.pkg-cache-check.outputs.count != '0'
+        uses: actions/delete-package-versions@main
+        env:
+          ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+        with:
+          owner: ${{ github.repository_owner }}
+          package-name: '${{ env.REPOSITORY_NAME }}-cache'
+          package-type: 'container'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          delete-only-untagged-versions: 'true'
+          min-versions-to-keep: 2
 
       - name: 'Cleanup ${{ env.DH_REGISTRY }} registry'
         uses: stefanbosak/gh-actions/cleanup-dockerhub-old-digests@main
