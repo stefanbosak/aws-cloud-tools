@@ -31,7 +31,7 @@
 | **Terraform** | [`1.16.0-alpha20260715`](https://github.com/hashicorp/terraform/releases/tag/v1.16.0-alpha20260715) |
 | **Terragrunt** | [`v1.1.1`](https://github.com/gruntwork-io/terragrunt/releases/tag/v1.1.1) |
 
-> 🔄 Last updated: 2026-07-21T21:09:27Z · [Build #162](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/29868603098)
+> 🔄 Last updated: 2026-07-22T12:46:52Z · [Build #163](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/29920836794)
 <!-- VERSION_INFO_END -->
 
 ---
