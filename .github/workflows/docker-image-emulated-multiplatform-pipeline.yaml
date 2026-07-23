@@ -26,7 +26,7 @@ on:
         description: 'AWS_SAM_CLI_VERSION'
         required: false
         type: string
-        default: 'sam-cli-nightly'
+        default: 'v1.164.0'
       AWS_SM_CLI_VERSION:
         description: 'AWS_SM_CLI_VERSION'
         required: false
