@@ -1,0 +1,37 @@
+name: 'Monitor release'
+
+on:
+  schedule:
+    - cron: '7 */2 * * *'
+      timezone: 'Europe/Bratislava'
+  workflow_dispatch:
+
+jobs:
+  check-release:
+    runs-on: ubuntu-slim
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - name: 'Monitor release'
+        uses: stefanbosak/gh-actions/monitor-release@main
+        with:
+          projects: |
+            [
+              {"owner":"ansible","repo":"ansible"},
+              {"owner":"aws","repo":"aws-cli","usetag":"true"},
+              {"owner":"aws","repo":"aws-sam-cli"},
+              {"owner":"aws","repo":"session-manager-plugin"},
+              {"owner":"awslabs","repo":"amazon-ecr-credential-helper"},
+              {"owner":"cert-manager","repo":"cmctl"},
+              {"owner":"helm","repo":"helm"},
+              {"owner":"derailed","repo":"k9s"},
+              {"owner":"kubernetes","repo":"kops"},
+              {"owner":"kubernetes","repo":"kubernetes"},
+              {"owner":"kubernetes-sigs","repo":"kustomize","tagprefix":"kustomize/"},
+              {"owner":"Eldara-Tech","repo":"swarmcli"},
+              {"owner":"hashicorp","repo":"terraform"},
+              {"owner":"opentofu","repo":"opentofu"},
+              {"owner":"gruntwork-io","repo":"terragrunt"}
+            ]
