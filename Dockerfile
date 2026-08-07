@@ -414,6 +414,7 @@ RUN apt-get update \
       bc \
       ca-certificates \
       curl \
+      ccze \
       dnsutils \
       git \
       gzip \
