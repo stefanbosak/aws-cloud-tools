@@ -21,7 +21,7 @@ on:
         description: 'AWS_CLI_VERSION'
         required: false
         type: string
-        default: '2.36.18'
+        default: '2.36.19'
       AWS_SAM_CLI_VERSION:
         description: 'AWS_SAM_CLI_VERSION'
         required: false
