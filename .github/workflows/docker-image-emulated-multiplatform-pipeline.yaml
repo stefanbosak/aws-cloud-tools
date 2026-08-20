@@ -21,7 +21,7 @@ on:
         description: 'AWS_CLI_VERSION'
         required: false
         type: string
-        default: '2.36.24'
+        default: '2.36.28'
       AWS_SAM_CLI_VERSION:
         description: 'AWS_SAM_CLI_VERSION'
         required: false
@@ -61,7 +61,7 @@ on:
         description: 'KUBECTL_CLI_VERSION'
         required: false
         type: string
-        default: 'v1.37.0-rc.0'
+        default: 'v1.36.4'
       KUSTOMIZE_CLI_VERSION:
         description: 'KUSTOMIZE_CLI_VERSION'
         required: false
@@ -71,17 +71,17 @@ on:
         description: 'OPENTOFU_CLI_VERSION'
         required: false
         type: string
-        default: '1.12.5'
+        default: '1.12.6'
       SWARM_CLI_VERSION:
         description: 'SWARM_CLI_VERSION'
         required: false
         type: string
-        default: 'v1.14.0-rc3'
+        default: 'v1.14.0'
       TERRAFORM_CLI_VERSION:
         description: 'TERRAFORM_CLI_VERSION'
         required: false
         type: string
-        default: '1.17.0-alpha20260812'
+        default: '1.15.9'
       TERRAGRUNT_CLI_VERSION:
         description: 'TERRAGRUNT_CLI_VERSION'
         required: false
