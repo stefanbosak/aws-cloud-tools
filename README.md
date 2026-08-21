@@ -32,7 +32,7 @@
 | **OpenTofu** | [`1.12.6`](https://github.com/opentofu/opentofu/releases/tag/v1.12.6) |
 | **Terragrunt** | [`v1.1.3`](https://github.com/gruntwork-io/terragrunt/releases/tag/v1.1.3) |
 
-> 🔄 Last updated: 2026-08-21T20:20:45Z · [Build #235](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/32522707985)
+> 🔄 Last updated: 2026-08-21T22:00:35Z · [Build #237](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/32530868668)
 <!-- VERSION_INFO_END -->
 
 ---
