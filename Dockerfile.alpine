@@ -486,10 +486,10 @@ RUN if getent group "${CONTAINER_GROUP_ID}" > /dev/null; then \
            "${CONTAINER_USER}"; \
        fi \
     && chown -R "${CONTAINER_USER}:${CONTAINER_GROUP}" "${HOME_ROOT_DIR}" \
-    && getent group docker >/dev/null 2>&1 || groupadd --system docker \
-    && if getent group docker > /dev/null 2>&1; then \
-         usermod -aG docker "${CONTAINER_USER}"; \
-       fi
+    && getent group docker >/dev/null 2>&1 || groupadd --system docker; \
+    if getent group docker > /dev/null 2>&1; then \
+      usermod -aG docker "${CONTAINER_USER}"; \
+    fi
 
 # enable AWS SAM CLI (v1.58) completion
 ADD --chown=${CONTAINER_USER}:${CONTAINER_GROUP} --chmod=0644 "https://raw.githubusercontent.com/demotodo/sam_completion/master/sam_completion" "/usr/share/bash-completion/completions/sam"

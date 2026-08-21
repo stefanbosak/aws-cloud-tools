@@ -526,10 +526,10 @@ RUN echo "complete -C aws_completer aws" > "/usr/share/bash-completion/completio
 # - DinD via QEMU on ARM64 is not supported
 #   (ARM64 requires ARM64 kernel from host system which is not present on AMD64 host)
 RUN curl -fsSL https://test.docker.com | sh; \
-    getent group docker >/dev/null 2>&1 || groupadd --system docker
-    && if getent group docker > /dev/null 2>&1; then \
-         usermod -aG docker "${CONTAINER_USER}"; \
-       fi
+    getent group docker >/dev/null 2>&1 || groupadd --system docker; \
+    if getent group docker > /dev/null 2>&1; then \
+      usermod -aG docker "${CONTAINER_USER}"; \
+    fi
 
 # container user and group
 USER "${CONTAINER_USER}:${CONTAINER_GROUP}"
