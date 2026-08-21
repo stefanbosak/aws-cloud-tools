@@ -468,18 +468,6 @@ RUN apt-get update \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/*
 
-# enable AWS SAM CLI (v1.58) completion
-ADD --chown=${CONTAINER_USER}:${CONTAINER_GROUP} --chmod=0644 "https://raw.githubusercontent.com/demotodo/sam_completion/master/sam_completion" "/usr/share/bash-completion/completions/sam"
-
-# copy tools from aggregator
-COPY --from=aws-cloud-tools-binaries-aggregator / /
-
-# install DiD (Docker in Docker)
-# - DinD via QEMU on ARM64 is not supported
-#   (ARM64 requires ARM64 kernel from host system which is not present on AMD64 host)
-RUN curl -fsSL https://test.docker.com | sh; \
-    getent group docker >/dev/null 2>&1 || groupadd --system docker
-
 # setup user and group
 RUN if getent group "${CONTAINER_GROUP_ID}" > /dev/null; then \
       _existing_group="$(getent group "${CONTAINER_GROUP_ID}" | cut -d: -f1)"; \
@@ -506,11 +494,13 @@ RUN if getent group "${CONTAINER_GROUP_ID}" > /dev/null; then \
            -s /bin/bash \
            "${CONTAINER_USER}"; \
        fi \
-    && chown -R "${CONTAINER_USER}:${CONTAINER_GROUP}" "${HOME_ROOT_DIR}" \
-    && if getent group docker > /dev/null 2>&1; then \
-         usermod -aG docker "${CONTAINER_USER}"; \
-       fi
+    && chown -R "${CONTAINER_USER}:${CONTAINER_GROUP}" "${HOME_ROOT_DIR}"
 
+# enable AWS SAM CLI (v1.58) completion
+ADD --chown=${CONTAINER_USER}:${CONTAINER_GROUP} --chmod=0644 "https://raw.githubusercontent.com/demotodo/sam_completion/master/sam_completion" "/usr/share/bash-completion/completions/sam"
+
+# copy tools from aggregator
+COPY --from=aws-cloud-tools-binaries-aggregator / /
 
 # enable tools completions (required to run given tool to generate completion file content)
 RUN echo "complete -C aws_completer aws" > "/usr/share/bash-completion/completions/aws" && \
@@ -532,6 +522,14 @@ RUN echo "complete -C aws_completer aws" > "/usr/share/bash-completion/completio
     echo "complete -C terragrunt terragrunt" > "/usr/share/bash-completion/completions/terragrunt" && \
     activate-global-python-argcomplete
 
+# install DiD (Docker in Docker)
+# - DinD via QEMU on ARM64 is not supported
+#   (ARM64 requires ARM64 kernel from host system which is not present on AMD64 host)
+RUN curl -fsSL https://test.docker.com | sh; \
+    getent group docker >/dev/null 2>&1 || groupadd --system docker
+    && if getent group docker > /dev/null 2>&1; then \
+         usermod -aG docker "${CONTAINER_USER}"; \
+       fi
 
 # container user and group
 USER "${CONTAINER_USER}:${CONTAINER_GROUP}"

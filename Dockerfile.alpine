@@ -459,12 +459,6 @@ RUN apk add --no-cache \
       wget \
       whois
 
-# enable AWS SAM CLI (v1.58) completion
-ADD --chown=${CONTAINER_USER}:${CONTAINER_GROUP} --chmod=0644 "https://raw.githubusercontent.com/demotodo/sam_completion/master/sam_completion" "/usr/share/bash-completion/completions/sam"
-
-# copy tools from aggregator
-COPY --from=aws-cloud-tools-binaries-aggregator / /
-
 # setup user and group
 RUN if getent group "${CONTAINER_GROUP_ID}" > /dev/null; then \
       _existing_group="$(getent group "${CONTAINER_GROUP_ID}" | cut -d: -f1)"; \
@@ -492,8 +486,16 @@ RUN if getent group "${CONTAINER_GROUP_ID}" > /dev/null; then \
            "${CONTAINER_USER}"; \
        fi \
     && chown -R "${CONTAINER_USER}:${CONTAINER_GROUP}" "${HOME_ROOT_DIR}" \
-    && usermod -aG docker "${CONTAINER_USER}"
+    && getent group docker >/dev/null 2>&1 || groupadd --system docker \
+    && if getent group docker > /dev/null 2>&1; then \
+         usermod -aG docker "${CONTAINER_USER}"; \
+       fi
 
+# enable AWS SAM CLI (v1.58) completion
+ADD --chown=${CONTAINER_USER}:${CONTAINER_GROUP} --chmod=0644 "https://raw.githubusercontent.com/demotodo/sam_completion/master/sam_completion" "/usr/share/bash-completion/completions/sam"
+
+# copy tools from aggregator
+COPY --from=aws-cloud-tools-binaries-aggregator / /
 
 # enable tools completions (required to run given tool to generate completion file content)
 RUN echo "complete -C aws_completer aws" > "/usr/share/bash-completion/completions/aws" && \
@@ -514,7 +516,6 @@ RUN echo "complete -C aws_completer aws" > "/usr/share/bash-completion/completio
     echo "complete -C tofu tofu" > "/usr/share/bash-completion/completions/tofu" && \
     echo "complete -C terragrunt terragrunt" > "/usr/share/bash-completion/completions/terragrunt" && \
     activate-global-python-argcomplete
-
 
 # container user and group
 USER "${CONTAINER_USER}:${CONTAINER_GROUP}"
