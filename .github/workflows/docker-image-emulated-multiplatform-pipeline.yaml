@@ -71,7 +71,7 @@ on:
         description: 'OPENTOFU_CLI_VERSION'
         required: false
         type: string
-        default: '1.12.6'
+        default: '1.13.0-beta1'
       SWARM_CLI_VERSION:
         description: 'SWARM_CLI_VERSION'
         required: false
@@ -86,7 +86,7 @@ on:
         description: 'TERRAGRUNT_CLI_VERSION'
         required: false
         type: string
-        default: 'v1.1.3'
+        default: 'v1.1.4'
       CONTAINER_TAG:
         description: 'CONTAINER_TAG'
         required: false
