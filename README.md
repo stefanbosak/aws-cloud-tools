@@ -16,23 +16,23 @@
 <!-- VERSION_INFO_START -->
 | Component | Version |
 |-----------|---------|
-| **Ansible** | [`v2.21.3`](https://github.com/ansible/ansible/releases/tag/v2.21.3) |
-| **AWS CLI** | [`2.36.33`](https://github.com/aws/aws-cli/releases/tag/2.36.33) |
+| **Ansible** | [`v2.21.4rc1`](https://github.com/ansible/ansible/releases/tag/v2.21.4rc1) |
+| **AWS CLI** | [`2.36.36`](https://github.com/aws/aws-cli/releases/tag/2.36.36) |
 | **AWS SAM CLI** | [`sam-cli-nightly`](https://github.com/aws/aws-sam-cli/releases/tag/sam-cli-nightly) |
 | **AWS session manager** | [`1.2.835.0`](https://github.com/aws/session-manager-plugin/releases/tag/1.2.835.0) |
 | **AWS ECR Credential Helper** | [`0.12.0`](https://github.com/awslabs/amazon-ecr-credential-helper/releases/tag/v0.12.0) |
 | **cert-manager CLI** | [`v2.5.0`](https://github.com/cert-manager/cmctl/releases/tag/v2.5.0) |
-| **Helm** | [`v4.2.4`](https://github.com/helm/helm/releases/tag/v4.2.4) |
+| **Helm** | [`v4.3.0-rc.1`](https://github.com/helm/helm/releases/tag/v4.3.0-rc.1) |
 | **K9s** | [`v0.51.0`](https://github.com/derailed/k9s/releases/tag/v0.51.0) |
-| **Kops** | [`v1.36.2`](https://github.com/kubernetes/kops/releases/tag/v1.36.2) |
+| **Kops** | [`v1.37.0-beta.1`](https://github.com/kubernetes/kops/releases/tag/v1.37.0-beta.1) |
 | **Kubectl** | [`v1.37.0`](https://github.com/kubernetes/kubernetes/releases/tag/v1.37.0) |
 | **Kustomize** | [`5.8.1`](https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize/v5.8.1) |
-| **SwarmCLI** | [`v2.0.0-rc2`](https://github.com/Eldara-Tech/swarmcli/releases/tag/v2.0.0-rc2) |
+| **SwarmCLI** | [`v2.0.0-rc4`](https://github.com/Eldara-Tech/swarmcli/releases/tag/v2.0.0-rc4) |
 | **Terraform** | [`1.17.0-alpha20260827`](https://github.com/hashicorp/terraform/releases/tag/v1.17.0-alpha20260827) |
-| **OpenTofu** | [`1.13.0-beta1`](https://github.com/opentofu/opentofu/releases/tag/v1.13.0-beta1) |
+| **OpenTofu** | [`1.12.6`](https://github.com/opentofu/opentofu/releases/tag/v1.12.6) |
 | **Terragrunt** | [`v1.1.4`](https://github.com/gruntwork-io/terragrunt/releases/tag/v1.1.4) |
 
-> 🔄 Last updated: 2026-08-27T23:21:15Z · [Build #246](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/33125692711)
+> 🔄 Last updated: 2026-09-01T14:30:19Z · [Build #254](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/33519280880)
 <!-- VERSION_INFO_END -->
 
 ---

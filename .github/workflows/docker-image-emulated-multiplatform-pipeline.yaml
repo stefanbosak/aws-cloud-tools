@@ -16,12 +16,12 @@ on:
         description: 'ANSIBLE_CLI_VERSION'
         required: false
         type: string
-        default: 'v2.21.3'
+        default: 'v2.21.4rc1'
       AWS_CLI_VERSION:
         description: 'AWS_CLI_VERSION'
         required: false
         type: string
-        default: '2.36.33'
+        default: '2.36.36'
       AWS_SAM_CLI_VERSION:
         description: 'AWS_SAM_CLI_VERSION'
         required: false
@@ -46,7 +46,7 @@ on:
         description: 'HELM_CLI_VERSION'
         required: false
         type: string
-        default: 'v4.2.4'
+        default: 'v4.3.0-rc.1'
       K9S_CLI_VERSION:
         description: 'K9S_CLI_VERSION'
         required: false
@@ -56,7 +56,7 @@ on:
         description: 'KOPS_CLI_VERSION'
         required: false
         type: string
-        default: 'v1.36.2'
+        default: 'v1.37.0-beta.1'
       KUBECTL_CLI_VERSION:
         description: 'KUBECTL_CLI_VERSION'
         required: false
@@ -71,12 +71,12 @@ on:
         description: 'OPENTOFU_CLI_VERSION'
         required: false
         type: string
-        default: '1.13.0-beta1'
+        default: '1.12.6'
       SWARM_CLI_VERSION:
         description: 'SWARM_CLI_VERSION'
         required: false
         type: string
-        default: 'v2.0.0-rc2'
+        default: 'v2.0.0-rc4'
       TERRAFORM_CLI_VERSION:
         description: 'TERRAFORM_CLI_VERSION'
         required: false
