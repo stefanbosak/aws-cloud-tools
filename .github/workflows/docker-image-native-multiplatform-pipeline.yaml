@@ -23,12 +23,12 @@ on:
         description: 'AWS_CLI_VERSION'
         required: false
         type: string
-        default: '2.36.38'
+        default: '2.36.39'
       AWS_SAM_CLI_VERSION:
         description: 'AWS_SAM_CLI_VERSION'
         required: false
         type: string
-        default: 'sam-cli-nightly'
+        default: 'v1.166.0'
       AWS_SM_CLI_VERSION:
         description: 'AWS_SM_CLI_VERSION'
         required: false
