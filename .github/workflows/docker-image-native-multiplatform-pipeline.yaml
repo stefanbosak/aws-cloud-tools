@@ -28,7 +28,7 @@ on:
         description: 'AWS_SAM_CLI_VERSION'
         required: false
         type: string
-        default: 'v1.166.1'
+        default: 'sam-cli-nightly'
       AWS_SM_CLI_VERSION:
         description: 'AWS_SM_CLI_VERSION'
         required: false
@@ -73,7 +73,7 @@ on:
         description: 'OPENTOFU_CLI_VERSION'
         required: false
         type: string
-        default: '1.12.6'
+        default: '1.13.0-beta1'
       SWARM_CLI_VERSION:
         description: 'SWARM_CLI_VERSION'
         required: false
