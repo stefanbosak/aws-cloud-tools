@@ -29,10 +29,10 @@
 | **Kustomize** | [`5.8.1`](https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize/v5.8.1) |
 | **SwarmCLI** | [`v2.0.0-rc4`](https://github.com/Eldara-Tech/swarmcli/releases/tag/v2.0.0-rc4) |
 | **Terraform** | [`1.16.1`](https://github.com/hashicorp/terraform/releases/tag/v1.16.1) |
-| **OpenTofu** | [`1.13.0-beta1`](https://github.com/opentofu/opentofu/releases/tag/v1.13.0-beta1) |
+| **OpenTofu** | [`1.12.6`](https://github.com/opentofu/opentofu/releases/tag/v1.12.6) |
 | **Terragrunt** | [`v1.1.4`](https://github.com/gruntwork-io/terragrunt/releases/tag/v1.1.4) |
 
-> 🔄 Last updated: 2026-09-04T02:35:45Z · [Build #263](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/33829798718)
+> 🔄 Last updated: 2026-09-04T08:35:17Z · [Build #264](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/33853756466)
 <!-- VERSION_INFO_END -->
 
 ---
