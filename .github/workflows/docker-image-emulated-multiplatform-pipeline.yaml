@@ -71,7 +71,7 @@ on:
         description: 'OPENTOFU_CLI_VERSION'
         required: false
         type: string
-        default: '1.13.0-beta1'
+        default: '1.12.6'
       SWARM_CLI_VERSION:
         description: 'SWARM_CLI_VERSION'
         required: false
