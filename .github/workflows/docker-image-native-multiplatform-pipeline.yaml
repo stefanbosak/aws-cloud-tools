@@ -18,7 +18,7 @@ on:
         description: 'ANSIBLE_CLI_VERSION'
         required: false
         type: string
-        default: 'v2.21.4rc1'
+        default: 'v2.21.4'
       AWS_CLI_VERSION:
         description: 'AWS_CLI_VERSION'
         required: false
@@ -73,7 +73,7 @@ on:
         description: 'OPENTOFU_CLI_VERSION'
         required: false
         type: string
-        default: '1.12.6'
+        default: '1.13.0-beta1'
       SWARM_CLI_VERSION:
         description: 'SWARM_CLI_VERSION'
         required: false
