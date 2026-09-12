@@ -78,7 +78,7 @@ on:
         description: 'SWARM_CLI_VERSION'
         required: false
         type: string
-        default: 'v2.1.0'
+        default: 'v2.1.1-rc1'
       TERRAFORM_CLI_VERSION:
         description: 'TERRAFORM_CLI_VERSION'
         required: false
