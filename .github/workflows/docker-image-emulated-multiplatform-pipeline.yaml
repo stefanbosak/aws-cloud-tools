@@ -86,7 +86,7 @@ on:
         description: 'TERRAGRUNT_CLI_VERSION'
         required: false
         type: string
-        default: 'v1.1.4'
+        default: 'v1.1.5'
       CONTAINER_TAG:
         description: 'CONTAINER_TAG'
         required: false
