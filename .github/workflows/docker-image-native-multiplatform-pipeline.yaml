@@ -43,7 +43,7 @@ on:
         description: 'CM_CTL_CLI_VERSION'
         required: false
         type: string
-        default: 'v2.5.0'
+        default: 'v2.6.1'
       HELM_CLI_VERSION:
         description: 'HELM_CLI_VERSION'
         required: false
