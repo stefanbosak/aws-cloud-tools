@@ -16,7 +16,7 @@
 <!-- VERSION_INFO_START -->
 | Component | Version |
 |-----------|---------|
-| **Ansible** | [`v2.21.4`](https://github.com/ansible/ansible/releases/tag/v2.21.4) |
+| **Ansible** | [`v2.22.0b1`](https://github.com/ansible/ansible/releases/tag/v2.22.0b1) |
 | **AWS CLI** | [`2.36.48`](https://github.com/aws/aws-cli/releases/tag/2.36.48) |
 | **AWS SAM CLI** | [`sam-cli-nightly`](https://github.com/aws/aws-sam-cli/releases/tag/sam-cli-nightly) |
 | **AWS session manager** | [`1.2.835.0`](https://github.com/aws/session-manager-plugin/releases/tag/1.2.835.0) |
@@ -32,7 +32,7 @@
 | **OpenTofu** | [`1.13.0-rc1`](https://github.com/opentofu/opentofu/releases/tag/v1.13.0-rc1) |
 | **Terragrunt** | [`v1.1.5`](https://github.com/gruntwork-io/terragrunt/releases/tag/v1.1.5) |
 
-> 🔄 Last updated: 2026-09-18T06:42:07Z · [Build #302](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/35315618124)
+> 🔄 Last updated: 2026-09-18T18:31:26Z · [Build #303](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/35380196464)
 <!-- VERSION_INFO_END -->
 
 ---
