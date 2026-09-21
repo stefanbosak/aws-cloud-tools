@@ -30,6 +30,7 @@ jobs:
               {"owner":"kubernetes","repo":"kops"},
               {"owner":"kubernetes","repo":"kubernetes"},
               {"owner":"kubernetes-sigs","repo":"kustomize","tagprefix":"kustomize/"},
+              {"owner":"nklmilojevic","repo":"sofka"},
               {"owner":"Eldara-Tech","repo":"swarmcli"},
               {"owner":"hashicorp","repo":"terraform"},
               {"owner":"opentofu","repo":"opentofu"},

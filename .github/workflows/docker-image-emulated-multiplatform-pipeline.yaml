@@ -72,6 +72,11 @@ on:
         required: false
         type: string
         default: '1.13.0-rc1'
+      SOFKA_CLI_VERSION:
+        description: 'SOFKA_CLI_VERSION'
+        required: false
+        type: string
+        default: 'v0.28.3'
       SWARM_CLI_VERSION:
         description: 'SWARM_CLI_VERSION'
         required: false
@@ -122,6 +127,7 @@ jobs:
       KOPS_CLI_RELEASE_VERSION: ${{ steps.params.outputs.KOPS_CLI_RELEASE_VERSION }}
       KUBECTL_CLI_RELEASE_VERSION: ${{ steps.params.outputs.KUBECTL_CLI_RELEASE_VERSION }}
       KUSTOMIZE_CLI_RELEASE_VERSION: ${{ steps.params.outputs.KUSTOMIZE_CLI_RELEASE_VERSION }}
+      SOFKA_CLI_RELEASE_VERSION: ${{ steps.params.outputs.SOFKA_CLI_RELEASE_VERSION }}
       SWARM_CLI_RELEASE_VERSION: ${{ steps.params.outputs.SWARM_CLI_RELEASE_VERSION }}
       TERRAFORM_CLI_RELEASE_VERSION: ${{ steps.params.outputs.TERRAFORM_CLI_RELEASE_VERSION }}
       OPENTOFU_CLI_RELEASE_VERSION: ${{ steps.params.outputs.OPENTOFU_CLI_RELEASE_VERSION }}
@@ -153,6 +159,7 @@ jobs:
             KOPS_CLI_RELEASE_VERSION="${{ github.event.inputs.KOPS_CLI_VERSION }}"
             KUBECTL_CLI_RELEASE_VERSION="${{ github.event.inputs.KUBECTL_CLI_VERSION }}"
             KUSTOMIZE_CLI_RELEASE_VERSION="${{ github.event.inputs.KUSTOMIZE_CLI_VERSION }}"
+            SOFKA_CLI_RELEASE_VERSION="${{ github.event.inputs.SOFKA_CLI_VERSION }}"
             SWARM_CLI_RELEASE_VERSION="${{ github.event.inputs.SWARM_CLI_VERSION }}"
             TERRAFORM_CLI_RELEASE_VERSION="${{ github.event.inputs.TERRAFORM_CLI_VERSION }}"
             OPENTOFU_CLI_RELEASE_VERSION="${{ github.event.inputs.OPENTOFU_CLI_VERSION }}"
@@ -178,6 +185,7 @@ jobs:
             KOPS_CLI_RELEASE_VERSION=$(echo "${CHANGES_JSON}" | jq -r '.[] | select(.repo == "kops") | .tag')
             KUBECTL_CLI_RELEASE_VERSION=$(echo "${CHANGES_JSON}" | jq -r '.[] | select(.repo == "kubernetes") | .tag')
             KUSTOMIZE_CLI_RELEASE_VERSION=$(echo "${CHANGES_JSON}" | jq -r '.[] | select(.repo == "kustomize") | .tag')
+            SOFKA_CLI_RELEASE_VERSION=$(echo "${CHANGES_JSON}" | jq -r '.[] | select(.repo == "sofka") | .tag')
             SWARM_CLI_RELEASE_VERSION=$(echo "${CHANGES_JSON}" | jq -r '.[] | select(.repo == "swarmcli") | .tag')
             TERRAFORM_CLI_RELEASE_VERSION=$(echo "${CHANGES_JSON}" | jq -r '.[] | select(.repo == "terraform") | .tag')
             OPENTOFU_CLI_RELEASE_VERSION=$(echo "${CHANGES_JSON}" | jq -r '.[] | select(.repo == "opentofu") | .tag')
@@ -201,6 +209,7 @@ jobs:
           echo "KOPS_CLI_RELEASE_VERSION=${KOPS_CLI_RELEASE_VERSION}" >> ${GITHUB_OUTPUT}
           echo "KUBECTL_CLI_RELEASE_VERSION=${KUBECTL_CLI_RELEASE_VERSION}" >> ${GITHUB_OUTPUT}
           echo "KUSTOMIZE_CLI_RELEASE_VERSION=${KUSTOMIZE_CLI_RELEASE_VERSION#kustomize/v}" >> ${GITHUB_OUTPUT}
+          echo "SOFKA_CLI_RELEASE_VERSION=${SOFKA_CLI_RELEASE_VERSION}" >> ${GITHUB_OUTPUT}
           echo "SWARM_CLI_RELEASE_VERSION=${SWARM_CLI_RELEASE_VERSION}" >> ${GITHUB_OUTPUT}
           echo "TERRAFORM_CLI_RELEASE_VERSION=${TERRAFORM_CLI_RELEASE_VERSION#v}" >> ${GITHUB_OUTPUT}
           echo "OPENTOFU_CLI_RELEASE_VERSION=${OPENTOFU_CLI_RELEASE_VERSION#v}" >> ${GITHUB_OUTPUT}
@@ -340,6 +349,7 @@ jobs:
             KOPS_CLI_VERSION=${{ needs.prepare.outputs.KOPS_CLI_RELEASE_VERSION }}
             KUBECTL_CLI_VERSION=${{ needs.prepare.outputs.KUBECTL_CLI_RELEASE_VERSION }}
             KUSTOMIZE_CLI_VERSION=${{ needs.prepare.outputs.KUSTOMIZE_CLI_RELEASE_VERSION }}
+            SOFKA_CLI_VERSION=${{ needs.prepare.outputs.SOFKA_CLI_RELEASE_VERSION }}
             SWARM_CLI_VERSION=${{ needs.prepare.outputs.SWARM_CLI_RELEASE_VERSION }}
             TERRAFORM_CLI_VERSION=${{ needs.prepare.outputs.TERRAFORM_CLI_RELEASE_VERSION }}
             OPENTOFU_CLI_VERSION=${{ needs.prepare.outputs.OPENTOFU_CLI_RELEASE_VERSION }}
@@ -405,6 +415,7 @@ jobs:
       KOPS_CLI_VERSION: ${{ steps.test.outputs.KOPS_CLI_VERSION }}
       KUBECTL_CLI_VERSION: ${{ steps.test.outputs.KUBECTL_CLI_VERSION }}
       KUSTOMIZE_CLI_VERSION: ${{ steps.test.outputs.KUSTOMIZE_CLI_VERSION }}
+      SOFKA_CLI_VERSION: ${{ steps.test.outputs.SOFKA_CLI_VERSION }}
       SWARM_CLI_VERSION: ${{ steps.test.outputs.SWARM_CLI_VERSION }}
       TERRAFORM_CLI_VERSION: ${{ steps.test.outputs.TERRAFORM_CLI_VERSION }}
       OPENTOFU_CLI_VERSION: ${{ steps.test.outputs.OPENTOFU_CLI_VERSION }}
@@ -495,6 +506,13 @@ jobs:
             sh -c 'kustomize version')
           echo "KUSTOMIZE_CLI_VERSION=${KUSTOMIZE_CLI_VERSION}"
 
+          SOFKA_CLI_VERSION=$(docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            ${{ env.GH_REGISTRY }}/${{ github.repository }}:${{ needs.prepare.outputs.CONTAINER_TAG }} \
+            sh -c "sofka --version | awk '{print \$NF}'")
+          echo "SOFKA_CLI_VERSION=${SOFKA_CLI_VERSION}"
+
           SWARM_CLI_VERSION=$(docker run --rm \
             -v /dev:/dev \
             -u root \
@@ -533,6 +551,7 @@ jobs:
           echo "KOPS_CLI_VERSION=${KOPS_CLI_VERSION}" >> ${GITHUB_OUTPUT}
           echo "KUBECTL_CLI_VERSION=${KUBECTL_CLI_VERSION}" >> ${GITHUB_OUTPUT}
           echo "KUSTOMIZE_CLI_VERSION=${KUSTOMIZE_CLI_VERSION}" >> ${GITHUB_OUTPUT}
+          echo "SOFKA_CLI_VERSION=${SOFKA_CLI_VERSION}" >> ${GITHUB_OUTPUT}
           echo "SWARM_CLI_VERSION=${SWARM_CLI_VERSION}" >> ${GITHUB_OUTPUT}
           echo "TERRAFORM_CLI_VERSION=${TERRAFORM_CLI_VERSION}" >> ${GITHUB_OUTPUT}
           echo "OPENTOFU_CLI_VERSION=${OPENTOFU_CLI_VERSION}" >> ${GITHUB_OUTPUT}
@@ -673,6 +692,7 @@ jobs:
           KOPS_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.KOPS_CLI_RELEASE_VERSION }}
           KUBECTL_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.KUBECTL_CLI_RELEASE_VERSION }}
           KUSTOMIZE_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.KUSTOMIZE_CLI_RELEASE_VERSION }}
+          SOFKA_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.SOFKA_CLI_RELEASE_VERSION }}
           SWARM_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.SWARM_CLI_RELEASE_VERSION }}
           TERRAFORM_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.TERRAFORM_CLI_RELEASE_VERSION }}
           OPENTOFU_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.OPENTOFU_CLI_RELEASE_VERSION }}
@@ -697,6 +717,7 @@ jobs:
               ('Kops',                       os.environ['KOPS_CLI_RELEASE_VERSION'],        'https://github.com/kubernetes/kops/releases/tag/'                       + os.environ['KOPS_CLI_RELEASE_VERSION']),
               ('Kubectl',                    os.environ['KUBECTL_CLI_RELEASE_VERSION'],     'https://github.com/kubernetes/kubernetes/releases/tag/'                 + os.environ['KUBECTL_CLI_RELEASE_VERSION']),
               ('Kustomize',                  os.environ['KUSTOMIZE_CLI_RELEASE_VERSION'],   'https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize/v'  + os.environ['KUSTOMIZE_CLI_RELEASE_VERSION']),
+              ('Sofka',                      os.environ['SOFKA_CLI_RELEASE_VERSION'],       'https://github.com/nklmilojevic/sofka/releases/tag/'                    + os.environ['SOFKA_CLI_RELEASE_VERSION']),
               ('SwarmCLI',                    os.environ['SWARM_CLI_RELEASE_VERSION'],      'https://github.com/Eldara-Tech/swarmcli/releases/tag/'                  + os.environ['SWARM_CLI_RELEASE_VERSION']),
               ('Terraform',                  os.environ['TERRAFORM_CLI_RELEASE_VERSION'],   'https://github.com/hashicorp/terraform/releases/tag/v'                  + os.environ['TERRAFORM_CLI_RELEASE_VERSION']),
               ('OpenTofu',                   os.environ['OPENTOFU_CLI_RELEASE_VERSION'],    'https://github.com/opentofu/opentofu/releases/tag/v'                    + os.environ['OPENTOFU_CLI_RELEASE_VERSION']),
@@ -731,6 +752,7 @@ jobs:
               'KOPS_CLI_VERSION':       os.environ['KOPS_CLI_RELEASE_VERSION'],
               'KUBECTL_CLI_VERSION':    os.environ['KUBECTL_CLI_RELEASE_VERSION'],
               'KUSTOMIZE_CLI_VERSION':  os.environ['KUSTOMIZE_CLI_RELEASE_VERSION'],
+              'SOFKA_CLI_VERSION':      os.environ['SOFKA_CLI_RELEASE_VERSION'],
               'SWARM_CLI_VERSION':      os.environ['SWARM_CLI_RELEASE_VERSION'],
               'TERRAFORM_CLI_VERSION':  os.environ['TERRAFORM_CLI_RELEASE_VERSION'],
               'OPENTOFU_CLI_VERSION':   os.environ['OPENTOFU_CLI_RELEASE_VERSION'],
