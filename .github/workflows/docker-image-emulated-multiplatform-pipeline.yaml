@@ -76,7 +76,7 @@ on:
         description: 'SOFKA_CLI_VERSION'
         required: false
         type: string
-        default: 'v0.28.4'
+        default: 'v0.28.5'
       SWARM_CLI_VERSION:
         description: 'SWARM_CLI_VERSION'
         required: false
