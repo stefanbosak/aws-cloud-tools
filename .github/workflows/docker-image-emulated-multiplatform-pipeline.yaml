@@ -71,7 +71,7 @@ on:
         description: 'OPENTOFU_CLI_VERSION'
         required: false
         type: string
-        default: '1.13.0-rc1'
+        default: '1.12.6'
       SOFKA_CLI_VERSION:
         description: 'SOFKA_CLI_VERSION'
         required: false
