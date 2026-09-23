@@ -23,7 +23,7 @@ on:
         description: 'AWS_CLI_VERSION'
         required: false
         type: string
-        default: '2.37.0'
+        default: '2.37.1'
       AWS_SAM_CLI_VERSION:
         description: 'AWS_SAM_CLI_VERSION'
         required: false
@@ -68,7 +68,7 @@ on:
         description: 'KUBECTL_CLI_VERSION'
         required: false
         type: string
-        default: 'v1.37.0'
+        default: 'v1.37.1'
       KUSTOMIZE_CLI_VERSION:
         description: 'KUSTOMIZE_CLI_VERSION'
         required: false
@@ -83,7 +83,7 @@ on:
         description: 'SOFKA_CLI_VERSION'
         required: false
         type: string
-        default: 'v0.28.6'
+        default: 'v0.29.0'
       SWARM_CLI_VERSION:
         description: 'SWARM_CLI_VERSION'
         required: false

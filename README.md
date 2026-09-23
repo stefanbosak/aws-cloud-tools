@@ -17,7 +17,7 @@
 | Component | Version |
 |-----------|---------|
 | **Ansible** | [`v2.22.0b1`](https://github.com/ansible/ansible/releases/tag/v2.22.0b1) |
-| **AWS CLI** | [`2.37.0`](https://github.com/aws/aws-cli/releases/tag/2.37.0) |
+| **AWS CLI** | [`2.37.1`](https://github.com/aws/aws-cli/releases/tag/2.37.1) |
 | **AWS SAM CLI** | [`sam-cli-nightly`](https://github.com/aws/aws-sam-cli/releases/tag/sam-cli-nightly) |
 | **AWS session manager** | [`1.2.835.0`](https://github.com/aws/session-manager-plugin/releases/tag/1.2.835.0) |
 | **AWS ECR Credential Helper** | [`0.12.0`](https://github.com/awslabs/amazon-ecr-credential-helper/releases/tag/v0.12.0) |
@@ -26,15 +26,15 @@
 | **K9s** | [`v0.51.0`](https://github.com/derailed/k9s/releases/tag/v0.51.0) |
 | **Kops** | [`v1.37.0-beta.1`](https://github.com/kubernetes/kops/releases/tag/v1.37.0-beta.1) |
 | **Kpt** | [`v1.0.0`](https://github.com/kptdev/kpt/releases/tag/v1.0.0) |
-| **Kubectl** | [`v1.37.0`](https://github.com/kubernetes/kubernetes/releases/tag/v1.37.0) |
+| **Kubectl** | [`v1.37.1`](https://github.com/kubernetes/kubernetes/releases/tag/v1.37.1) |
 | **Kustomize** | [`5.8.1`](https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize/v5.8.1) |
-| **Sofka** | [`v0.28.6`](https://github.com/nklmilojevic/sofka/releases/tag/v0.28.6) |
+| **Sofka** | [`v0.29.0`](https://github.com/nklmilojevic/sofka/releases/tag/v0.29.0) |
 | **SwarmCLI** | [`v2.1.1`](https://github.com/Eldara-Tech/swarmcli/releases/tag/v2.1.1) |
 | **Terraform** | [`1.17.0-beta2`](https://github.com/hashicorp/terraform/releases/tag/v1.17.0-beta2) |
 | **OpenTofu** | [`1.13.0-rc1`](https://github.com/opentofu/opentofu/releases/tag/v1.13.0-rc1) |
 | **Terragrunt** | [`v1.1.6`](https://github.com/gruntwork-io/terragrunt/releases/tag/v1.1.6) |
 
-> 🔄 Last updated: 2026-09-23T19:05:18Z · [Build #315](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/35906442268)
+> 🔄 Last updated: 2026-09-23T20:28:40Z · [Build #316](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/35915635674)
 <!-- VERSION_INFO_END -->
 
 ---
