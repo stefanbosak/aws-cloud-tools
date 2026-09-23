@@ -59,6 +59,11 @@ on:
         required: false
         type: string
         default: 'v1.37.0-beta.1'
+      KPT_CLI_VERSION:
+        description: 'KPT_CLI_VERSION'
+        required: false
+        type: string
+        default: 'v1.0.0'
       KUBECTL_CLI_VERSION:
         description: 'KUBECTL_CLI_VERSION'
         required: false
@@ -127,6 +132,7 @@ jobs:
       HELM_CLI_RELEASE_VERSION: ${{ steps.params.outputs.HELM_CLI_RELEASE_VERSION }}
       K9S_CLI_RELEASE_VERSION: ${{ steps.params.outputs.K9S_CLI_RELEASE_VERSION }}
       KOPS_CLI_RELEASE_VERSION: ${{ steps.params.outputs.KOPS_CLI_RELEASE_VERSION }}
+      KPT_CLI_RELEASE_VERSION: ${{ steps.params.outputs.KPT_CLI_RELEASE_VERSION }}
       KUBECTL_CLI_RELEASE_VERSION: ${{ steps.params.outputs.KUBECTL_CLI_RELEASE_VERSION }}
       KUSTOMIZE_CLI_RELEASE_VERSION: ${{ steps.params.outputs.KUSTOMIZE_CLI_RELEASE_VERSION }}
       SOFKA_CLI_RELEASE_VERSION: ${{ steps.params.outputs.SOFKA_CLI_RELEASE_VERSION }}
@@ -161,6 +167,7 @@ jobs:
             HELM_CLI_RELEASE_VERSION="${{ github.event.inputs.HELM_CLI_VERSION }}"
             K9S_CLI_RELEASE_VERSION="${{ github.event.inputs.K9S_CLI_VERSION }}"
             KOPS_CLI_RELEASE_VERSION="${{ github.event.inputs.KOPS_CLI_VERSION }}"
+            KPT_CLI_RELEASE_VERSION="${{ github.event.inputs.KPT_CLI_VERSION }}"
             KUBECTL_CLI_RELEASE_VERSION="${{ github.event.inputs.KUBECTL_CLI_VERSION }}"
             KUSTOMIZE_CLI_RELEASE_VERSION="${{ github.event.inputs.KUSTOMIZE_CLI_VERSION }}"
             SOFKA_CLI_RELEASE_VERSION="${{ github.event.inputs.SOFKA_CLI_VERSION }}"
@@ -187,6 +194,7 @@ jobs:
             HELM_CLI_RELEASE_VERSION=$(echo "${CHANGES_JSON}" | jq -r '.[] | select(.repo == "helm") | .tag')
             K9S_CLI_RELEASE_VERSION=$(echo "${CHANGES_JSON}" | jq -r '.[] | select(.repo == "k9s") | .tag')
             KOPS_CLI_RELEASE_VERSION=$(echo "${CHANGES_JSON}" | jq -r '.[] | select(.repo == "kops") | .tag')
+            KPT_CLI_RELEASE_VERSION=$(echo "${CHANGES_JSON}" | jq -r '.[] | select(.repo == "kpt") | .tag')
             KUBECTL_CLI_RELEASE_VERSION=$(echo "${CHANGES_JSON}" | jq -r '.[] | select(.repo == "kubernetes") | .tag')
             KUSTOMIZE_CLI_RELEASE_VERSION=$(echo "${CHANGES_JSON}" | jq -r '.[] | select(.repo == "kustomize") | .tag')
             SOFKA_CLI_RELEASE_VERSION=$(echo "${CHANGES_JSON}" | jq -r '.[] | select(.repo == "sofka") | .tag')
@@ -211,6 +219,7 @@ jobs:
           echo "HELM_CLI_RELEASE_VERSION=${HELM_CLI_RELEASE_VERSION}" >> ${GITHUB_OUTPUT}
           echo "K9S_CLI_RELEASE_VERSION=${K9S_CLI_RELEASE_VERSION}" >> ${GITHUB_OUTPUT}
           echo "KOPS_CLI_RELEASE_VERSION=${KOPS_CLI_RELEASE_VERSION}" >> ${GITHUB_OUTPUT}
+          echo "KPT_CLI_RELEASE_VERSION=${KPT_CLI_RELEASE_VERSION}" >> ${GITHUB_OUTPUT}
           echo "KUBECTL_CLI_RELEASE_VERSION=${KUBECTL_CLI_RELEASE_VERSION}" >> ${GITHUB_OUTPUT}
           echo "KUSTOMIZE_CLI_RELEASE_VERSION=${KUSTOMIZE_CLI_RELEASE_VERSION#kustomize/v}" >> ${GITHUB_OUTPUT}
           echo "SOFKA_CLI_RELEASE_VERSION=${SOFKA_CLI_RELEASE_VERSION}" >> ${GITHUB_OUTPUT}
@@ -356,6 +365,7 @@ jobs:
             HELM_CLI_VERSION=${{ needs.prepare.outputs.HELM_CLI_RELEASE_VERSION }}
             K9S_CLI_VERSION=${{ needs.prepare.outputs.K9S_CLI_RELEASE_VERSION }}
             KOPS_CLI_VERSION=${{ needs.prepare.outputs.KOPS_CLI_RELEASE_VERSION }}
+            KPT_CLI_VERSION=${{ needs.prepare.outputs.KPT_CLI_RELEASE_VERSION }}
             KUBECTL_CLI_VERSION=${{ needs.prepare.outputs.KUBECTL_CLI_RELEASE_VERSION }}
             KUSTOMIZE_CLI_VERSION=${{ needs.prepare.outputs.KUSTOMIZE_CLI_RELEASE_VERSION }}
             SOFKA_CLI_VERSION=${{ needs.prepare.outputs.SOFKA_CLI_RELEASE_VERSION }}
@@ -531,6 +541,7 @@ jobs:
           HELM_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.HELM_CLI_RELEASE_VERSION }}
           K9S_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.K9S_CLI_RELEASE_VERSION }}
           KOPS_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.KOPS_CLI_RELEASE_VERSION }}
+          KPT_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.KPT_CLI_RELEASE_VERSION }}
           KUBECTL_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.KUBECTL_CLI_RELEASE_VERSION }}
           KUSTOMIZE_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.KUSTOMIZE_CLI_RELEASE_VERSION }}
           SOFKA_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.SOFKA_CLI_RELEASE_VERSION }}
@@ -619,6 +630,13 @@ jobs:
             sh -c 'kops version --short')
           echo "KOPS_CLI_VERSION=${KOPS_CLI_VERSION#v}"
 
+          KPT_CLI_VERSION=$(docker run --rm \
+            -v /dev:/dev \
+            -u root \
+            "${IMAGE}" \
+            sh -c 'kpt version | grep -oP "\d+\.\d+\.\d+(-[a-zA-Z0-9]+(\.\d+)?)?" | head -n 1')
+          echo "KPT_CLI_VERSION=${KPT_CLI_VERSION#v}"
+
           KUBECTL_CLI_VERSION=$(docker run --rm \
             -v /dev:/dev \
             -u root \
@@ -677,6 +695,7 @@ jobs:
           compare "HELM_CLI_VERSION"       "${HELM_CLI_VERSION}"       "${HELM_CLI_RELEASE_VERSION}"
           compare "K9S_CLI_VERSION"        "${K9S_CLI_VERSION}"        "${K9S_CLI_RELEASE_VERSION}"
           compare "KOPS_CLI_VERSION"       "${KOPS_CLI_VERSION}"       "${KOPS_CLI_RELEASE_VERSION}"
+          compare "KPT_CLI_VERSION"        "${KPT_CLI_VERSION}"        "${KPT_CLI_RELEASE_VERSION}"
           compare "KUBECTL_CLI_VERSION"    "${KUBECTL_CLI_VERSION}"    "${KUBECTL_CLI_RELEASE_VERSION}"
           compare "KUSTOMIZE_CLI_VERSION"  "${KUSTOMIZE_CLI_VERSION}"  "${KUSTOMIZE_CLI_RELEASE_VERSION}"
           compare "SOFKA_CLI_VERSION"      "${SOFKA_CLI_VERSION}"      "${SOFKA_CLI_RELEASE_VERSION}"
@@ -832,6 +851,7 @@ jobs:
           HELM_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.HELM_CLI_RELEASE_VERSION }}
           K9S_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.K9S_CLI_RELEASE_VERSION }}
           KOPS_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.KOPS_CLI_RELEASE_VERSION }}
+          KPT_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.KPT_CLI_RELEASE_VERSION }}
           KUBECTL_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.KUBECTL_CLI_RELEASE_VERSION }}
           KUSTOMIZE_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.KUSTOMIZE_CLI_RELEASE_VERSION }}
           SOFKA_CLI_RELEASE_VERSION: ${{ needs.prepare.outputs.SOFKA_CLI_RELEASE_VERSION }}
@@ -858,6 +878,7 @@ jobs:
               ('Helm',                       os.environ['HELM_CLI_RELEASE_VERSION'],        'https://github.com/helm/helm/releases/tag/'                             + os.environ['HELM_CLI_RELEASE_VERSION']),
               ('K9s',                        os.environ['K9S_CLI_RELEASE_VERSION'],         'https://github.com/derailed/k9s/releases/tag/'                          + os.environ['K9S_CLI_RELEASE_VERSION']),
               ('Kops',                       os.environ['KOPS_CLI_RELEASE_VERSION'],        'https://github.com/kubernetes/kops/releases/tag/'                       + os.environ['KOPS_CLI_RELEASE_VERSION']),
+              ('Kpt',                        os.environ['KPT_CLI_RELEASE_VERSION'],         'https://github.com/kptdev/kpt/releases/tag/'                            + os.environ['KPT_CLI_RELEASE_VERSION']),
               ('Kubectl',                    os.environ['KUBECTL_CLI_RELEASE_VERSION'],     'https://github.com/kubernetes/kubernetes/releases/tag/'                 + os.environ['KUBECTL_CLI_RELEASE_VERSION']),
               ('Kustomize',                  os.environ['KUSTOMIZE_CLI_RELEASE_VERSION'],   'https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize/v'  + os.environ['KUSTOMIZE_CLI_RELEASE_VERSION']),
               ('Sofka',                      os.environ['SOFKA_CLI_RELEASE_VERSION'],       'https://github.com/nklmilojevic/sofka/releases/tag/'                    + os.environ['SOFKA_CLI_RELEASE_VERSION']),
@@ -893,6 +914,7 @@ jobs:
               'HELM_CLI_VERSION':       os.environ['HELM_CLI_RELEASE_VERSION'],
               'K9S_CLI_VERSION':        os.environ['K9S_CLI_RELEASE_VERSION'],
               'KOPS_CLI_VERSION':       os.environ['KOPS_CLI_RELEASE_VERSION'],
+              'KPT_CLI_VERSION':        os.environ['KPT_CLI_RELEASE_VERSION'],
               'KUBECTL_CLI_VERSION':    os.environ['KUBECTL_CLI_RELEASE_VERSION'],
               'KUSTOMIZE_CLI_VERSION':  os.environ['KUSTOMIZE_CLI_RELEASE_VERSION'],
               'SOFKA_CLI_VERSION':      os.environ['SOFKA_CLI_RELEASE_VERSION'],

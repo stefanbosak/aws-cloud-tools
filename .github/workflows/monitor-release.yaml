@@ -28,6 +28,7 @@ jobs:
               {"owner":"helm","repo":"helm"},
               {"owner":"derailed","repo":"k9s"},
               {"owner":"kubernetes","repo":"kops"},
+              {"owner":"kptdev","repo":"kpt"},
               {"owner":"kubernetes","repo":"kubernetes"},
               {"owner":"kubernetes-sigs","repo":"kustomize","tagprefix":"kustomize/"},
               {"owner":"nklmilojevic","repo":"sofka"},
