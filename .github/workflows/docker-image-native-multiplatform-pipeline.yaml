@@ -634,7 +634,7 @@ jobs:
             -v /dev:/dev \
             -u root \
             "${IMAGE}" \
-            sh -c 'kpt version | grep -oP "\d+\.\d+\.\d+(-[a-zA-Z0-9]+(\.\d+)?)?" | head -n 1')
+            sh -c 'kpt version --short')
           echo "KPT_CLI_VERSION=${KPT_CLI_VERSION#v}"
 
           KUBECTL_CLI_VERSION=$(docker run --rm \
