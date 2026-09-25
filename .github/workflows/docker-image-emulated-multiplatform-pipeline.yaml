@@ -21,7 +21,7 @@ on:
         description: 'AWS_CLI_VERSION'
         required: false
         type: string
-        default: '2.37.1'
+        default: '2.37.3'
       AWS_SAM_CLI_VERSION:
         description: 'AWS_SAM_CLI_VERSION'
         required: false
@@ -61,7 +61,7 @@ on:
         description: 'KPT_CLI_VERSION'
         required: false
         type: string
-        default: 'v1.0.0'
+        default: 'v1.0.1'
       KUBECTL_CLI_VERSION:
         description: 'KUBECTL_CLI_VERSION'
         required: false
@@ -81,7 +81,7 @@ on:
         description: 'SOFKA_CLI_VERSION'
         required: false
         type: string
-        default: 'v0.29.0'
+        default: 'v0.29.2'
       SWARM_CLI_VERSION:
         description: 'SWARM_CLI_VERSION'
         required: false
@@ -96,7 +96,7 @@ on:
         description: 'TERRAGRUNT_CLI_VERSION'
         required: false
         type: string
-        default: 'v1.1.6'
+        default: 'v1.2.0-rc1'
       CONTAINER_TAG:
         description: 'CONTAINER_TAG'
         required: false
