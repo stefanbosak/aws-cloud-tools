@@ -16,7 +16,7 @@ on:
         description: 'ANSIBLE_CLI_VERSION'
         required: false
         type: string
-        default: 'v2.22.0b1'
+        default: 'v2.22.0b2'
       AWS_CLI_VERSION:
         description: 'AWS_CLI_VERSION'
         required: false
@@ -81,7 +81,7 @@ on:
         description: 'SOFKA_CLI_VERSION'
         required: false
         type: string
-        default: 'v0.29.4'
+        default: 'v0.29.5'
       SWARM_CLI_VERSION:
         description: 'SWARM_CLI_VERSION'
         required: false
