@@ -25,8 +25,8 @@
 | **Helm** | [`v4.3.0`](https://github.com/helm/helm/releases/tag/v4.3.0) |
 | **K9s** | [`v0.51.0`](https://github.com/derailed/k9s/releases/tag/v0.51.0) |
 | **Kops** | [`v1.37.0-beta.1`](https://github.com/kubernetes/kops/releases/tag/v1.37.0-beta.1) |
-| **Kpt** | [`v1.0.1`](https://github.com/kptdev/kpt/releases/tag/v1.0.1) |
-| **Kubectl** | [`v1.37.1`](https://github.com/kubernetes/kubernetes/releases/tag/v1.37.1) |
+| **Kpt** | [`v1.0.2-pre.1`](https://github.com/kptdev/kpt/releases/tag/v1.0.2-pre.1) |
+| **Kubectl** | [`v1.38.0-alpha.1`](https://github.com/kubernetes/kubernetes/releases/tag/v1.38.0-alpha.1) |
 | **Kustomize** | [`5.8.1`](https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize/v5.8.1) |
 | **Sofka** | [`v0.29.4`](https://github.com/nklmilojevic/sofka/releases/tag/v0.29.4) |
 | **SwarmCLI** | [`v2.1.1`](https://github.com/Eldara-Tech/swarmcli/releases/tag/v2.1.1) |
@@ -34,7 +34,7 @@
 | **OpenTofu** | [`1.13.0-rc1`](https://github.com/opentofu/opentofu/releases/tag/v1.13.0-rc1) |
 | **Terragrunt** | [`v1.2.0-rc1`](https://github.com/gruntwork-io/terragrunt/releases/tag/v1.2.0-rc1) |
 
-> 🔄 Last updated: 2026-09-29T01:05:05Z · [Build #329](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/36505904334)
+> 🔄 Last updated: 2026-09-29T10:29:55Z · [Build #330](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/36555528652)
 <!-- VERSION_INFO_END -->
 
 ---

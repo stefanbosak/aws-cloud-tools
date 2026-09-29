@@ -63,12 +63,12 @@ on:
         description: 'KPT_CLI_VERSION'
         required: false
         type: string
-        default: 'v1.0.1'
+        default: 'v1.0.2-pre.1'
       KUBECTL_CLI_VERSION:
         description: 'KUBECTL_CLI_VERSION'
         required: false
         type: string
-        default: 'v1.37.1'
+        default: 'v1.38.0-alpha.1'
       KUSTOMIZE_CLI_VERSION:
         description: 'KUSTOMIZE_CLI_VERSION'
         required: false
