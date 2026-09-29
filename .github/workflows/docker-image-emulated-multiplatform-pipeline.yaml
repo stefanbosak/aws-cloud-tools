@@ -21,7 +21,7 @@ on:
         description: 'AWS_CLI_VERSION'
         required: false
         type: string
-        default: '2.37.5'
+        default: '2.37.6'
       AWS_SAM_CLI_VERSION:
         description: 'AWS_SAM_CLI_VERSION'
         required: false
@@ -81,12 +81,12 @@ on:
         description: 'SOFKA_CLI_VERSION'
         required: false
         type: string
-        default: 'v0.29.5'
+        default: 'v0.29.6'
       SWARM_CLI_VERSION:
         description: 'SWARM_CLI_VERSION'
         required: false
         type: string
-        default: 'v2.1.1'
+        default: 'v2.2.0-rc1'
       TERRAFORM_CLI_VERSION:
         description: 'TERRAFORM_CLI_VERSION'
         required: false
