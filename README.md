@@ -31,10 +31,10 @@
 | **Sofka** | [`v0.29.6`](https://github.com/nklmilojevic/sofka/releases/tag/v0.29.6) |
 | **SwarmCLI** | [`v2.2.0-rc1`](https://github.com/Eldara-Tech/swarmcli/releases/tag/v2.2.0-rc1) |
 | **Terraform** | [`1.17.0-beta2`](https://github.com/hashicorp/terraform/releases/tag/v1.17.0-beta2) |
-| **OpenTofu** | [`1.13.0-rc1`](https://github.com/opentofu/opentofu/releases/tag/v1.13.0-rc1) |
+| **OpenTofu** | [`1.12.6`](https://github.com/opentofu/opentofu/releases/tag/v1.12.6) |
 | **Terragrunt** | [`v1.2.0-rc1`](https://github.com/gruntwork-io/terragrunt/releases/tag/v1.2.0-rc1) |
 
-> 🔄 Last updated: 2026-09-29T22:27:38Z · [Build #333](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/36639255407)
+> 🔄 Last updated: 2026-09-30T12:45:15Z · [Build #334](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/36716152748)
 <!-- VERSION_INFO_END -->
 
 ---
