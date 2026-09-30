@@ -73,12 +73,12 @@ on:
         description: 'KUSTOMIZE_CLI_VERSION'
         required: false
         type: string
-        default: '5.8.1'
+        default: '5.8.2'
       OPENTOFU_CLI_VERSION:
         description: 'OPENTOFU_CLI_VERSION'
         required: false
         type: string
-        default: '1.12.6'
+        default: '1.13.0'
       SOFKA_CLI_VERSION:
         description: 'SOFKA_CLI_VERSION'
         required: false
