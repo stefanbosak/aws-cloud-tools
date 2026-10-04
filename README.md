@@ -28,13 +28,13 @@
 | **Kpt** | [`v1.0.2-pre.1`](https://github.com/kptdev/kpt/releases/tag/v1.0.2-pre.1) |
 | **Kubectl** | [`v1.38.0-alpha.1`](https://github.com/kubernetes/kubernetes/releases/tag/v1.38.0-alpha.1) |
 | **Kustomize** | [`5.8.2`](https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize/v5.8.2) |
-| **Sofka** | [`v0.29.8`](https://github.com/nklmilojevic/sofka/releases/tag/v0.29.8) |
+| **Sofka** | [`v0.29.9`](https://github.com/nklmilojevic/sofka/releases/tag/v0.29.9) |
 | **SwarmCLI** | [`v2.2.0-rc2`](https://github.com/Eldara-Tech/swarmcli/releases/tag/v2.2.0-rc2) |
 | **Terraform** | [`1.16.5`](https://github.com/hashicorp/terraform/releases/tag/v1.16.5) |
 | **OpenTofu** | [`1.13.1`](https://github.com/opentofu/opentofu/releases/tag/v1.13.1) |
 | **Terragrunt** | [`v1.2.0-rc1`](https://github.com/gruntwork-io/terragrunt/releases/tag/v1.2.0-rc1) |
 
-> 🔄 Last updated: 2026-10-03T23:10:44Z · [Build #345](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/37160700073)
+> 🔄 Last updated: 2026-10-04T14:09:40Z · [Build #346](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/37208009928)
 <!-- VERSION_INFO_END -->
 
 ---
