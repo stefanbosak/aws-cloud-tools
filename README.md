@@ -18,7 +18,7 @@
 |-----------|---------|
 | **Ansible** | [`v2.21.5`](https://github.com/ansible/ansible/releases/tag/v2.21.5) |
 | **AWS CLI** | [`2.37.9`](https://github.com/aws/aws-cli/releases/tag/2.37.9) |
-| **AWS SAM CLI** | [`sam-cli-nightly`](https://github.com/aws/aws-sam-cli/releases/tag/sam-cli-nightly) |
+| **AWS SAM CLI** | [`v1.167.0`](https://github.com/aws/aws-sam-cli/releases/tag/v1.167.0) |
 | **AWS session manager** | [`1.2.835.0`](https://github.com/aws/session-manager-plugin/releases/tag/1.2.835.0) |
 | **AWS ECR Credential Helper** | [`0.12.0`](https://github.com/awslabs/amazon-ecr-credential-helper/releases/tag/v0.12.0) |
 | **cert-manager CLI** | [`v2.6.1`](https://github.com/cert-manager/cmctl/releases/tag/v2.6.1) |
@@ -28,13 +28,13 @@
 | **Kpt** | [`v1.0.2-pre.1`](https://github.com/kptdev/kpt/releases/tag/v1.0.2-pre.1) |
 | **Kubectl** | [`v1.38.0-alpha.1`](https://github.com/kubernetes/kubernetes/releases/tag/v1.38.0-alpha.1) |
 | **Kustomize** | [`5.8.2`](https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize/v5.8.2) |
-| **Sofka** | [`v0.29.9`](https://github.com/nklmilojevic/sofka/releases/tag/v0.29.9) |
+| **Sofka** | [`v0.30.0`](https://github.com/nklmilojevic/sofka/releases/tag/v0.30.0) |
 | **SwarmCLI** | [`v2.2.0-rc2`](https://github.com/Eldara-Tech/swarmcli/releases/tag/v2.2.0-rc2) |
 | **Terraform** | [`1.16.5`](https://github.com/hashicorp/terraform/releases/tag/v1.16.5) |
 | **OpenTofu** | [`1.13.1`](https://github.com/opentofu/opentofu/releases/tag/v1.13.1) |
 | **Terragrunt** | [`v1.2.0-rc1`](https://github.com/gruntwork-io/terragrunt/releases/tag/v1.2.0-rc1) |
 
-> 🔄 Last updated: 2026-10-05T16:33:22Z · [Build #347](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/37341055821)
+> 🔄 Last updated: 2026-10-06T20:32:19Z · [Build #350](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/37526439045)
 <!-- VERSION_INFO_END -->
 
 ---
