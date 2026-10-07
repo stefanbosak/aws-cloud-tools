@@ -66,7 +66,7 @@ on:
         description: 'KUBECTL_CLI_VERSION'
         required: false
         type: string
-        default: 'v1.38.0-alpha.1'
+        default: 'v1.38.0-alpha.2'
       KUSTOMIZE_CLI_VERSION:
         description: 'KUSTOMIZE_CLI_VERSION'
         required: false
@@ -96,7 +96,7 @@ on:
         description: 'TERRAGRUNT_CLI_VERSION'
         required: false
         type: string
-        default: 'v1.2.0-rc1'
+        default: 'v1.2.0-rc2'
       CONTAINER_TAG:
         description: 'CONTAINER_TAG'
         required: false
