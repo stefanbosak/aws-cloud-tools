@@ -83,12 +83,12 @@ on:
         description: 'SOFKA_CLI_VERSION'
         required: false
         type: string
-        default: 'v0.31.1'
+        default: 'v0.31.3'
       SWARM_CLI_VERSION:
         description: 'SWARM_CLI_VERSION'
         required: false
         type: string
-        default: 'v2.2.0-rc3'
+        default: 'v2.2.0-rc4'
       TERRAFORM_CLI_VERSION:
         description: 'TERRAFORM_CLI_VERSION'
         required: false
