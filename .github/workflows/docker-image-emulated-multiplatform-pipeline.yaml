@@ -21,7 +21,7 @@ on:
         description: 'AWS_CLI_VERSION'
         required: false
         type: string
-        default: '2.37.11'
+        default: '2.37.12'
       AWS_SAM_CLI_VERSION:
         description: 'AWS_SAM_CLI_VERSION'
         required: false
@@ -31,7 +31,7 @@ on:
         description: 'AWS_SM_CLI_VERSION'
         required: false
         type: string
-        default: '1.2.835.0'
+        default: '1.2.889.0'
       AWS_CH_CLI_VERSION:
         description: 'AWS_CH_CLI_VERSION'
         required: false
@@ -81,7 +81,7 @@ on:
         description: 'SOFKA_CLI_VERSION'
         required: false
         type: string
-        default: 'v0.31.4'
+        default: 'v0.31.5'
       SWARM_CLI_VERSION:
         description: 'SWARM_CLI_VERSION'
         required: false
