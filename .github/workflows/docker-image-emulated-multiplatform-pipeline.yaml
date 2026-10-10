@@ -31,7 +31,7 @@ on:
         description: 'AWS_SM_CLI_VERSION'
         required: false
         type: string
-        default: '1.2.889.0'
+        default: '1.2.896.0'
       AWS_CH_CLI_VERSION:
         description: 'AWS_CH_CLI_VERSION'
         required: false
