@@ -17,7 +17,7 @@
 | Component | Version |
 |-----------|---------|
 | **Ansible** | [`v2.21.5`](https://github.com/ansible/ansible/releases/tag/v2.21.5) |
-| **AWS CLI** | [`2.37.12`](https://github.com/aws/aws-cli/releases/tag/2.37.12) |
+| **AWS CLI** | [`2.37.13`](https://github.com/aws/aws-cli/releases/tag/2.37.13) |
 | **AWS SAM CLI** | [`sam-cli-nightly`](https://github.com/aws/aws-sam-cli/releases/tag/sam-cli-nightly) |
 | **AWS session manager** | [`1.2.896.0`](https://github.com/aws/session-manager-plugin/releases/tag/1.2.896.0) |
 | **AWS ECR Credential Helper** | [`0.12.0`](https://github.com/awslabs/amazon-ecr-credential-helper/releases/tag/v0.12.0) |
@@ -34,7 +34,7 @@
 | **OpenTofu** | [`1.13.1`](https://github.com/opentofu/opentofu/releases/tag/v1.13.1) |
 | **Terragrunt** | [`v1.2.0-rc2`](https://github.com/gruntwork-io/terragrunt/releases/tag/v1.2.0-rc2) |
 
-> 🔄 Last updated: 2026-10-12T10:35:02Z · [Build #368](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/38236799651)
+> 🔄 Last updated: 2026-10-12T20:31:26Z · [Build #369](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/38304195868)
 <!-- VERSION_INFO_END -->
 
 ---
