@@ -28,7 +28,7 @@ on:
         description: 'AWS_SAM_CLI_VERSION'
         required: false
         type: string
-        default: 'v1.168.0'
+        default: 'sam-cli-nightly'
       AWS_SM_CLI_VERSION:
         description: 'AWS_SM_CLI_VERSION'
         required: false
@@ -83,7 +83,7 @@ on:
         description: 'SOFKA_CLI_VERSION'
         required: false
         type: string
-        default: 'v0.31.7'
+        default: 'v0.31.8'
       SWARM_CLI_VERSION:
         description: 'SWARM_CLI_VERSION'
         required: false
