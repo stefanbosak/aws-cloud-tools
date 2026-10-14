@@ -28,7 +28,7 @@ on:
         description: 'AWS_SAM_CLI_VERSION'
         required: false
         type: string
-        default: 'v1.169.0'
+        default: 'sam-cli-nightly'
       AWS_SM_CLI_VERSION:
         description: 'AWS_SM_CLI_VERSION'
         required: false
@@ -93,7 +93,7 @@ on:
         description: 'TERRAFORM_CLI_VERSION'
         required: false
         type: string
-        default: '1.17.0-rc1'
+        default: '1.16.6'
       TERRAGRUNT_CLI_VERSION:
         description: 'TERRAGRUNT_CLI_VERSION'
         required: false
