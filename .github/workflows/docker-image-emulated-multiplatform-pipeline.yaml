@@ -96,7 +96,7 @@ on:
         description: 'TERRAGRUNT_CLI_VERSION'
         required: false
         type: string
-        default: 'v1.2.0-rc2'
+        default: 'v1.2.0-rc3'
       CONTAINER_TAG:
         description: 'CONTAINER_TAG'
         required: false
