@@ -22,7 +22,7 @@
 | **AWS session manager** | [`1.2.896.0`](https://github.com/aws/session-manager-plugin/releases/tag/1.2.896.0) |
 | **AWS ECR Credential Helper** | [`0.12.0`](https://github.com/awslabs/amazon-ecr-credential-helper/releases/tag/v0.12.0) |
 | **cert-manager CLI** | [`v2.6.1`](https://github.com/cert-manager/cmctl/releases/tag/v2.6.1) |
-| **Helm** | [`v4.3.0`](https://github.com/helm/helm/releases/tag/v4.3.0) |
+| **Helm** | [`v4.3.1`](https://github.com/helm/helm/releases/tag/v4.3.1) |
 | **K9s** | [`v0.51.0`](https://github.com/derailed/k9s/releases/tag/v0.51.0) |
 | **Kops** | [`v1.37.0-beta.1`](https://github.com/kubernetes/kops/releases/tag/v1.37.0-beta.1) |
 | **Kpt** | [`v1.0.2-pre.2`](https://github.com/kptdev/kpt/releases/tag/v1.0.2-pre.2) |
@@ -34,7 +34,7 @@
 | **OpenTofu** | [`1.13.1`](https://github.com/opentofu/opentofu/releases/tag/v1.13.1) |
 | **Terragrunt** | [`v1.2.0-rc2`](https://github.com/gruntwork-io/terragrunt/releases/tag/v1.2.0-rc2) |
 
-> 🔄 Last updated: 2026-10-14T20:27:19Z · [Build #376](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/38631496480)
+> 🔄 Last updated: 2026-10-15T02:35:34Z · [Build #377](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/38671403166)
 <!-- VERSION_INFO_END -->
 
 ---

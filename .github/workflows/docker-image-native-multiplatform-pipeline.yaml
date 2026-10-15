@@ -48,7 +48,7 @@ on:
         description: 'HELM_CLI_VERSION'
         required: false
         type: string
-        default: 'v4.3.0'
+        default: 'v4.3.1'
       K9S_CLI_VERSION:
         description: 'K9S_CLI_VERSION'
         required: false
