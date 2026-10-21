@@ -78,7 +78,7 @@ on:
         description: 'OPENTOFU_CLI_VERSION'
         required: false
         type: string
-        default: '1.13.1'
+        default: '1.13.2'
       SOFKA_CLI_VERSION:
         description: 'SOFKA_CLI_VERSION'
         required: false
@@ -98,7 +98,7 @@ on:
         description: 'TERRAGRUNT_CLI_VERSION'
         required: false
         type: string
-        default: 'v1.2.0-rc3'
+        default: 'v1.2.0'
       CONTAINER_TAG:
         description: 'CONTAINER_TAG'
         required: false
