@@ -18,7 +18,7 @@
 |-----------|---------|
 | **Ansible** | [`v2.22.0rc1`](https://github.com/ansible/ansible/releases/tag/v2.22.0rc1) |
 | **AWS CLI** | [`2.38.4`](https://github.com/aws/aws-cli/releases/tag/2.38.4) |
-| **AWS SAM CLI** | [`sam-cli-nightly`](https://github.com/aws/aws-sam-cli/releases/tag/sam-cli-nightly) |
+| **AWS SAM CLI** | [`v1.169.0`](https://github.com/aws/aws-sam-cli/releases/tag/v1.169.0) |
 | **AWS session manager** | [`1.2.896.0`](https://github.com/aws/session-manager-plugin/releases/tag/1.2.896.0) |
 | **AWS ECR Credential Helper** | [`0.12.0`](https://github.com/awslabs/amazon-ecr-credential-helper/releases/tag/v0.12.0) |
 | **cert-manager CLI** | [`v2.6.1`](https://github.com/cert-manager/cmctl/releases/tag/v2.6.1) |
@@ -26,15 +26,15 @@
 | **K9s** | [`v0.51.0`](https://github.com/derailed/k9s/releases/tag/v0.51.0) |
 | **Kops** | [`v1.37.0-beta.1`](https://github.com/kubernetes/kops/releases/tag/v1.37.0-beta.1) |
 | **Kpt** | [`v1.0.2-pre.2`](https://github.com/kptdev/kpt/releases/tag/v1.0.2-pre.2) |
-| **Kubectl** | [`v1.38.0-alpha.2`](https://github.com/kubernetes/kubernetes/releases/tag/v1.38.0-alpha.2) |
+| **Kubectl** | [`v1.37.1`](https://github.com/kubernetes/kubernetes/releases/tag/v1.37.1) |
 | **Kustomize** | [`5.8.3`](https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize/v5.8.3) |
-| **Sofka** | [`v0.31.14`](https://github.com/nklmilojevic/sofka/releases/tag/v0.31.14) |
+| **Sofka** | [`v0.32.0`](https://github.com/nklmilojevic/sofka/releases/tag/v0.32.0) |
 | **SwarmCLI** | [`v2.2.0`](https://github.com/Eldara-Tech/swarmcli/releases/tag/v2.2.0) |
 | **Terraform** | [`1.17.0`](https://github.com/hashicorp/terraform/releases/tag/v1.17.0) |
 | **OpenTofu** | [`1.13.2`](https://github.com/opentofu/opentofu/releases/tag/v1.13.2) |
 | **Terragrunt** | [`v1.2.0`](https://github.com/gruntwork-io/terragrunt/releases/tag/v1.2.0) |
 
-> 🔄 Last updated: 2026-10-21T20:27:54Z · [Build #390](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/39669806912)
+> 🔄 Last updated: 2026-10-22T16:32:44Z · [Build #392](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/39814321258)
 <!-- VERSION_INFO_END -->
 
 ---
