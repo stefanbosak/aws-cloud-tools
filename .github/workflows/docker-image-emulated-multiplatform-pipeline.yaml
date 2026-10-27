@@ -16,12 +16,12 @@ on:
         description: 'ANSIBLE_CLI_VERSION'
         required: false
         type: string
-        default: 'v2.22.0rc1'
+        default: 'v2.22.0rc2'
       AWS_CLI_VERSION:
         description: 'AWS_CLI_VERSION'
         required: false
         type: string
-        default: '2.38.6'
+        default: '2.39.0'
       AWS_SAM_CLI_VERSION:
         description: 'AWS_SAM_CLI_VERSION'
         required: false
