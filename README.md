@@ -17,7 +17,7 @@
 | Component | Version |
 |-----------|---------|
 | **Ansible** | [`v2.22.0rc2`](https://github.com/ansible/ansible/releases/tag/v2.22.0rc2) |
-| **AWS CLI** | [`2.39.0`](https://github.com/aws/aws-cli/releases/tag/2.39.0) |
+| **AWS CLI** | [`2.39.1`](https://github.com/aws/aws-cli/releases/tag/2.39.1) |
 | **AWS SAM CLI** | [`sam-cli-nightly`](https://github.com/aws/aws-sam-cli/releases/tag/sam-cli-nightly) |
 | **AWS session manager** | [`1.2.896.0`](https://github.com/aws/session-manager-plugin/releases/tag/1.2.896.0) |
 | **AWS ECR Credential Helper** | [`0.12.0`](https://github.com/awslabs/amazon-ecr-credential-helper/releases/tag/v0.12.0) |
@@ -30,11 +30,11 @@
 | **Kustomize** | [`5.8.3`](https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize/v5.8.3) |
 | **Sofka** | [`v0.32.0`](https://github.com/nklmilojevic/sofka/releases/tag/v0.32.0) |
 | **SwarmCLI** | [`v2.2.0`](https://github.com/Eldara-Tech/swarmcli/releases/tag/v2.2.0) |
-| **Terraform** | [`1.17.0`](https://github.com/hashicorp/terraform/releases/tag/v1.17.0) |
+| **Terraform** | [`1.17.1`](https://github.com/hashicorp/terraform/releases/tag/v1.17.1) |
 | **OpenTofu** | [`1.13.2`](https://github.com/opentofu/opentofu/releases/tag/v1.13.2) |
 | **Terragrunt** | [`v1.2.1`](https://github.com/gruntwork-io/terragrunt/releases/tag/v1.2.1) |
 
-> 🔄 Last updated: 2026-10-28T09:24:06Z · [Build #402](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/40663368169)
+> 🔄 Last updated: 2026-10-28T19:21:47Z · [Build #403](https://github.com/stefanbosak/aws-cloud-tools/actions/runs/40752653532)
 <!-- VERSION_INFO_END -->
 
 ---
